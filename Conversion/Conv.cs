@@ -138,7 +138,7 @@ namespace Fx.Conversion
 
         #endregion
 
-        #region Convert String -> other types
+        #region Convert String -> X
 
         // ----- Boolean -----
 
@@ -1189,7 +1189,7 @@ namespace Fx.Conversion
 
         #endregion
 
-        #region Convert -> String 
+        #region Convert X -> String 
         
         /// <summary>
         /// Return bool value like "0" or "1"
@@ -1440,7 +1440,7 @@ namespace Fx.Conversion
 
         #endregion
 
-        #region String -> Array
+        #region Convert X -> Array
 
         /// <summary>
         /// String to Bool array
@@ -1543,6 +1543,39 @@ namespace Fx.Conversion
             }
 
             return res;
+        }
+        
+        /// <summary>
+        /// Convert byte array to ushort array
+        /// </summary>
+        /// <param name="byteArray">Byte array</param>
+        /// <returns>UShort array</returns>
+        public static ushort[] ToUInt16Array(byte[] byteArray)
+        {
+            try
+            {
+                if (byteArray.Length % 2 == 1)
+                {
+                    Array.Resize(ref byteArray, byteArray.Length + 1);
+                    for (int i = byteArray.Length - 1; i > 0; i--)
+                    {
+                        byteArray[i] = byteArray[i - 1];
+                    }
+                    byteArray[0] = 0;
+                }
+                ushort[] res = new ushort[byteArray.Length / 2];
+
+                for (int i = 0; i < byteArray.Length / 2; i++)
+                {
+                    res[i] = BitConverter.ToUInt16(byteArray, i * 2);
+                }
+                return res;
+            }
+            catch
+            {
+                return new ushort[0];
+            }
+
         }
 
         /// <summary>
@@ -1694,10 +1727,62 @@ namespace Fx.Conversion
 
             return res;
         }
-        
+
         #endregion
 
-        
+        #region Convert Image <-> Array
+
+        /// <summary>
+        /// Convert Image to byte array
+        /// </summary>
+        /// <param name="imageIn">Image</param>
+        /// <returns>Array</returns>
+        public static byte[] ToArray(Image imageIn)
+        {
+            try
+            {
+                if (imageIn != null)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        imageIn.Save(ms, imageIn.RawFormat);
+                        return ms.ToArray();
+                    }
+                }
+                else return new byte[0];
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Convert Array to image
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <returns>Image</returns>
+        public static Image ToImage(byte[] array)
+        {
+            try
+            {
+                if (array != null)
+                {
+                    using (var ms = new MemoryStream(array))
+                    {
+                        return Image.FromStream(ms);
+                    }
+                }
+                else return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        #endregion
+
 
         #region Swap
 

@@ -46,7 +46,7 @@
     <Compile Include="Components\AbortableBackgroundWorker.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Conversion\ArrayConv.cs" />
+    <Compile Include="Conversion\ArrayWork.cs" />
     <Compile Include="Conversion\Conv.cs" />
     <Compile Include="IO\Communication.cs" />
     <Compile Include="IO\ConnectionStructs.cs" />
