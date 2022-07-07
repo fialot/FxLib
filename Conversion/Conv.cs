@@ -202,6 +202,99 @@ namespace Fx.Conversion
             }
         }
 
+        // ----- Byte -----
+
+        /// <summary>
+        /// Convert String to Byte with zero value on convert Error
+        /// </summary>
+        /// <param name="text">Number string</param>
+        /// <returns>Short number</returns>
+        public static byte ToByte(string text)
+        {
+            return ToByte(text, 0);
+        }
+
+        /// <summary>
+        /// Convert String to Byte with default value on convert Error
+        /// </summary>
+        /// <param name="text">Number string</param>
+        /// <param name="def">Default value</param>
+        /// <returns>Short number</returns>
+        public static byte ToByte(string text, byte def)
+        {
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToByte(text, 2);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToByte(text, 16);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else
+            {
+                byte value;
+                if (byte.TryParse(text, out value))
+                    return value;
+                else
+                    return def;
+            }
+        }
+
+        /// <summary>
+        /// Convert String to Byte with default value on convert Error
+        /// </summary>
+        /// <param name="text">Number string</param>
+        /// <returns>Short number</returns>
+        public static byte? ToByteNull(string text)
+        {
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToByte(text, 2);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToByte(text, 16);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                byte value;
+                if (byte.TryParse(text, out value))
+                    return value;
+                else
+                    return null;
+            }
+        }
+
         // ----- Short -----
 
         /// <summary>
@@ -222,11 +315,37 @@ namespace Fx.Conversion
         /// <returns>Short number</returns>
         public static short ToShort(string text, short def)
         {
-            short value;
-            if (short.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToInt16(text, 2);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToInt16(text, 16);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
             else
-                return def;
+            {
+                short value;
+                if (short.TryParse(text, out value))
+                    return value;
+                else
+                    return def;
+            }
         }
 
         /// <summary>
@@ -236,11 +355,37 @@ namespace Fx.Conversion
         /// <returns>Short number</returns>
         public static short? ToShortNull(string text)
         {
-            short value;
-            if (short.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToInt16(text, 2);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToInt16(text, 16);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
             else
-                return null;
+            {
+                short value;
+                if (short.TryParse(text, out value))
+                    return value;
+                else
+                    return null;
+            }
         }
 
         // ----- UShort -----
@@ -263,11 +408,37 @@ namespace Fx.Conversion
         /// <returns>Short number</returns>
         public static ushort ToUShort(string text, ushort def)
         {
-            ushort value;
-            if (ushort.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToUInt16(text, 2);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToUInt16(text, 16);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
             else
-                return def;
+            {
+                ushort value;
+                if (ushort.TryParse(text, out value))
+                    return value;
+                else
+                    return def;
+            }
         }
         
         /// <summary>
@@ -277,11 +448,37 @@ namespace Fx.Conversion
         /// <returns>Short number</returns>
         public static ushort? ToUShortNull(string text)
         {
-            ushort value;
-            if (ushort.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToUInt16(text, 2);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToUInt16(text, 16);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
             else
-                return null;
+            {
+                ushort value;
+                if (ushort.TryParse(text, out value))
+                    return value;
+                else
+                    return null;
+            }
         }
 
         // ----- Int -----
@@ -304,11 +501,37 @@ namespace Fx.Conversion
         /// <returns>Integer number</returns>
         public static int ToInt(string text, int def)
         {
-            int value;
-            if (int.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToInt32(text, 2);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToInt32(text, 16);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
             else
-                return def;
+            {
+                int value;
+                if (int.TryParse(text, out value))
+                    return value;
+                else
+                    return def;
+            }
         }
 
         /// <summary>
@@ -318,11 +541,37 @@ namespace Fx.Conversion
         /// <returns>Integer number</returns>
         public static int? ToIntNull(string text)
         {
-            int value;
-            if (int.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToInt32(text, 2);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToInt32(text, 16);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
             else
-                return null;
+            {
+                int value;
+                if (int.TryParse(text, out value))
+                    return value;
+                else
+                    return null;
+            }
         }
 
         // ----- UInt -----
@@ -345,11 +594,37 @@ namespace Fx.Conversion
         /// <returns>Integer number</returns>
         public static uint ToUInt(string text, uint def)
         {
-            uint value;
-            if (uint.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToUInt32(text, 2);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToUInt32(text, 16);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
             else
-                return def;
+            {
+                uint value;
+                if (uint.TryParse(text, out value))
+                    return value;
+                else
+                    return def;
+            }
         }
         
         /// <summary>
@@ -359,11 +634,37 @@ namespace Fx.Conversion
         /// <returns>Integer number</returns>
         public static uint? ToUIntNull(string text)
         {
-            uint value;
-            if (uint.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToUInt32(text, 2);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToUInt32(text, 16);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
             else
-                return null;
+            {
+                uint value;
+                if (uint.TryParse(text, out value))
+                    return value;
+                else
+                    return null;
+            }
         }
 
         // ----- Long -----
@@ -386,11 +687,37 @@ namespace Fx.Conversion
         /// <returns>Long number</returns>
         public static long ToLong(string text, long def)
         {
-            long value;
-            if (long.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToInt64(text, 2);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToInt64(text, 16);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
             else
-                return def;
+            {
+                long value;
+                if (long.TryParse(text, out value))
+                    return value;
+                else
+                    return def;
+            }
         }
 
         /// <summary>
@@ -401,11 +728,37 @@ namespace Fx.Conversion
         /// <returns>Long number</returns>
         public static long? ToLongNull(string text)
         {
-            long value;
-            if (long.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToInt64(text, 2);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToInt64(text, 16);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
             else
-                return null;
+            {
+                long value;
+                if (long.TryParse(text, out value))
+                    return value;
+                else
+                    return null;
+            }
         }
 
         // ----- ULong -----
@@ -428,11 +781,37 @@ namespace Fx.Conversion
         /// <returns>Long number</returns>
         public static ulong ToULong(string text, ulong def)
         {
-            ulong value;
-            if (ulong.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToUInt64(text, 2);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToUInt64(text, 16);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
             else
-                return def;
+            {
+                ulong value;
+                if (ulong.TryParse(text, out value))
+                    return value;
+                else
+                    return def;
+            }
         }
 
         /// <summary>
@@ -443,11 +822,37 @@ namespace Fx.Conversion
         /// <returns>Long number</returns>
         public static ulong? ToULongNull(string text)
         {
-            ulong value;
-            if (ulong.TryParse(text, out value))
-                return value;
+            if (text.ToLower().IndexOf("0b") == 0)
+            {
+                try
+                {
+                    text = text.Remove(0, 2);
+                    return Convert.ToUInt64(text, 2);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if (text.ToLower().IndexOf("0x") == 0)
+            {
+                try
+                {
+                    return Convert.ToUInt64(text, 16);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
             else
-                return null;
+            {
+                ulong value;
+                if (ulong.TryParse(text, out value))
+                    return value;
+                else
+                    return null;
+            }
         }
 
         // ----- Float -----
@@ -800,6 +1205,116 @@ namespace Fx.Conversion
         }
 
         /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(bool[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(short[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(ushort[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(int[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(uint[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(long[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(ulong[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(float[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(double[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+
+        /// <summary>
+        /// Array to string
+        /// </summary>
+        /// <param name="array">Array</param>
+        /// <param name="separator">Separator</param>
+        /// <returns></returns>
+        public static string ToString(string[] array, string separator = ";")
+        {
+            return ArrayToString(array, separator);
+        }
+        
+        /// <summary>
         /// Return Net Mask from int value
         /// </summary>
         /// <param name="value">Integer value from mask</param>
@@ -832,9 +1347,6 @@ namespace Fx.Conversion
             return res;
         }
 
-        #endregion
-
-        #region Array
 
         /// <summary>
         /// Array to string separated by defined char
@@ -842,35 +1354,11 @@ namespace Fx.Conversion
         /// <param name="Expression">Array</param>
         /// <param name="separator">Separator</param>
         /// <returns>String</returns>
-        public static string ArrToStr(object Expression, string separator = "; ")
+        private static string ArrayToString(object Expression, string separator = ";")
         {
             string res = "";
             if (Expression == null) return "";
-            if (Expression.GetType() == typeof(ushort[]))
-            {
-                ushort[] exp = (ushort[])Expression;
-                if (exp.Length > 0) res = exp[0].ToString();
-                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
-            }
-            else if (Expression.GetType() == typeof(uint[]))
-            {
-                uint[] exp = (uint[])Expression;
-                if (exp.Length > 0) res = exp[0].ToString();
-                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
-            }
-            else if (Expression.GetType() == typeof(int[]))
-            {
-                int[] exp = (int[])Expression;
-                if (exp.Length > 0) res = exp[0].ToString();
-                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
-            }
-            else if (Expression.GetType() == typeof(float[]))
-            {
-                float[] exp = (float[])Expression;
-                if (exp.Length > 0) res = exp[0].ToString();
-                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
-            }
-            else if (Expression.GetType() == typeof(bool[]))
+            if (Expression.GetType() == typeof(bool[]))
             {
                 string boolStr;
                 bool[] exp = (bool[])Expression;
@@ -891,6 +1379,54 @@ namespace Fx.Conversion
                     res += separator + boolStr;
                 }
             }
+            else if (Expression.GetType() == typeof(short[]))
+            {
+                short[] exp = (short[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
+            else if (Expression.GetType() == typeof(ushort[]))
+            {
+                ushort[] exp = (ushort[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
+            else if (Expression.GetType() == typeof(int[]))
+            {
+                int[] exp = (int[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
+            else if (Expression.GetType() == typeof(uint[]))
+            {
+                uint[] exp = (uint[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
+            else if (Expression.GetType() == typeof(long[]))
+            {
+                long[] exp = (long[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
+            else if (Expression.GetType() == typeof(ulong[]))
+            {
+                ulong[] exp = (ulong[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
+            else if (Expression.GetType() == typeof(float[]))
+            {
+                float[] exp = (float[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
+            else if (Expression.GetType() == typeof(double[]))
+            {
+                double[] exp = (double[])Expression;
+                if (exp.Length > 0) res = exp[0].ToString();
+                for (int i = 1; i < exp.Length; i++) res += separator + exp[i].ToString();
+            }
             else if (Expression.GetType() == typeof(string[]))
             {
                 string[] exp = (string[])Expression;
@@ -901,6 +1437,63 @@ namespace Fx.Conversion
                 res = Expression.ToString();
             return res;
         }
+
+        #endregion
+
+        #region String -> Array
+
+        /// <summary>
+        /// String to Bool array
+        /// </summary>
+        /// <param name="value">String value</param>
+        /// <param name="separator">Separator</param>
+        /// <returns>Bool array</returns>
+        public static bool[] ToBoolArray(string value, string separator = ";")
+        {
+            string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
+            bool[] res = new bool[separate.Length];
+            try
+            {
+                for (int i = 0; i < separate.Length; i++)
+                {
+                    if (separate[i].ToLower().Trim() == "true" || separate[i].Trim() == "1")
+                        res[i] = true;
+                    else
+                        res[i] = false;
+                }
+            }
+            catch
+            {
+                res = new bool[0];
+            }
+
+            return res;
+        }
+        
+        /// <summary>
+        /// String to Byte array
+        /// </summary>
+        /// <param name="value">String value</param>
+        /// <param name="separator">Separator</param>
+        /// <returns>Short array</returns>
+        public static byte[] ToByteArray(string value, string separator = ";")
+        {
+            string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
+            byte[] res = new byte[separate.Length];
+            try
+            {
+                for (int i = 0; i < separate.Length; i++)
+                {
+                    res[i] = Convert.ToByte(separate[i]);
+                }
+            }
+            catch
+            {
+                res = new byte[0];
+            }
+
+            return res;
+        }
         
         /// <summary>
         /// String to Short array
@@ -908,7 +1501,7 @@ namespace Fx.Conversion
         /// <param name="value">String value</param>
         /// <param name="separator">Separator</param>
         /// <returns>Short array</returns>
-        public static short[] ToInt16Arr(string value, string separator = ";")
+        public static short[] ToInt16Array(string value, string separator = ";")
         {
             string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
             short[] res = new short[separate.Length];
@@ -933,7 +1526,7 @@ namespace Fx.Conversion
         /// <param name="value">String value</param>
         /// <param name="separator">Separator</param>
         /// <returns>UShort array</returns>
-        public static ushort[] ToUInt16Arr(string value, string separator = ";")
+        public static ushort[] ToUInt16Array(string value, string separator = ";")
         {
             string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
             ushort[] res = new ushort[separate.Length];
@@ -958,7 +1551,7 @@ namespace Fx.Conversion
         /// <param name="value">String value</param>
         /// <param name="separator">Separator</param>
         /// <returns>Int array</returns>
-        public static int[] ToInt32Arr(string value, string separator = ";")
+        public static int[] ToInt32Array(string value, string separator = ";")
         {
             string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
             int[] res = new int[separate.Length];
@@ -983,7 +1576,7 @@ namespace Fx.Conversion
         /// <param name="value">String value</param>
         /// <param name="separator">Separator</param>
         /// <returns>UInt array</returns>
-        public static uint[] ToUInt32Arr(string value, string separator = ";")
+        public static uint[] ToUInt32Array(string value, string separator = ";")
         {
             string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
             uint[] res = new uint[separate.Length];
@@ -1001,14 +1594,64 @@ namespace Fx.Conversion
 
             return res;
         }
+        
+        /// <summary>
+        /// String to Long array
+        /// </summary>
+        /// <param name="value">String value</param>
+        /// <param name="separator">Separator</param>
+        /// <returns>Int array</returns>
+        public static long[] ToInt64Array(string value, string separator = ";")
+        {
+            string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
+            long[] res = new long[separate.Length];
+            try
+            {
+                for (int i = 0; i < separate.Length; i++)
+                {
+                    res[i] = Convert.ToInt64(separate[i]);
+                }
+            }
+            catch
+            {
+                res = new long[0];
+            }
 
+            return res;
+        }
+
+        /// <summary>
+        /// String to ULong array
+        /// </summary>
+        /// <param name="value">String value</param>
+        /// <param name="separator">Separator</param>
+        /// <returns>Int array</returns>
+        public static ulong[] ToUInt64Array(string value, string separator = ";")
+        {
+            string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
+            ulong[] res = new ulong[separate.Length];
+            try
+            {
+                for (int i = 0; i < separate.Length; i++)
+                {
+                    res[i] = Convert.ToUInt64(separate[i]);
+                }
+            }
+            catch
+            {
+                res = new ulong[0];
+            }
+
+            return res;
+        }
+        
         /// <summary>
         /// String to Float array
         /// </summary>
         /// <param name="value">String value</param>
         /// <param name="separator">Separator</param>
         /// <returns>Float array</returns>
-        public static float[] ToFloatArr(string value, string separator = ";")
+        public static float[] ToFloatArray(string value, string separator = ";")
         {
             string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
             float[] res = new float[separate.Length];
@@ -1026,39 +1669,35 @@ namespace Fx.Conversion
 
             return res;
         }
-
+        
         /// <summary>
-        /// String to Bool array
+        /// String to Double array
         /// </summary>
         /// <param name="value">String value</param>
         /// <param name="separator">Separator</param>
-        /// <returns>Bool array</returns>
-        public static bool[] StrToBool(string value, string separator = ";")
+        /// <returns>Float array</returns>
+        public static double[] ToDoubleArray(string value, string separator = ";")
         {
             string[] separate = value.Split(new string[] { separator }, StringSplitOptions.None);
-            bool[] res = new bool[separate.Length];
+            double[] res = new double[separate.Length];
             try
             {
                 for (int i = 0; i < separate.Length; i++)
                 {
-                    if (separate[i].ToLower().Trim() == "true" || separate[i].Trim() == "1")
-                        res[i] = true;
-                    else
-                        res[i] = false;
+                    res[i] = Convert.ToDouble(separate[i]);
                 }
             }
             catch
             {
-                res = new bool[0];
+                res = new double[0];
             }
 
             return res;
         }
-
+        
         #endregion
 
         
-
 
         #region Swap
 
