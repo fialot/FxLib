@@ -48,6 +48,7 @@
     </Compile>
     <Compile Include="Conversion\ArrayWork.cs" />
     <Compile Include="Conversion\Conv.cs" />
+    <Compile Include="IO\Buffer.cs" />
     <Compile Include="IO\Communication.cs" />
     <Compile Include="IO\ConnectionStructs.cs" />
     <Compile Include="IO\Dialogs.cs" />

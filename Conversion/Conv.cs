@@ -1550,24 +1550,24 @@ namespace Fx.Conversion
         /// </summary>
         /// <param name="byteArray">Byte array</param>
         /// <returns>UShort array</returns>
-        public static ushort[] ToUInt16Array(byte[] byteArray)
+        public static ushort[] ToUInt16Array(byte[] byteArray, int startIndex = 0)
         {
+            ushort[] res;
             try
             {
-                if (byteArray.Length % 2 == 1)
-                {
-                    Array.Resize(ref byteArray, byteArray.Length + 1);
-                    for (int i = byteArray.Length - 1; i > 0; i--)
-                    {
-                        byteArray[i] = byteArray[i - 1];
-                    }
-                    byteArray[0] = 0;
-                }
-                ushort[] res = new ushort[byteArray.Length / 2];
+                // ----- Get length -----
+                int length = byteArray.Length - startIndex;
 
-                for (int i = 0; i < byteArray.Length / 2; i++)
+                // ----- Check if even length -----
+                if (length % 2 == 1)
                 {
-                    res[i] = BitConverter.ToUInt16(byteArray, i * 2);
+                    length -= 1;
+                }
+
+                res = new ushort[length / 2];
+                for (int i = 0; i < length / 2; i++)
+                {
+                    res[i] = BitConverter.ToUInt16(byteArray, startIndex + i * 2);
                 }
                 return res;
             }
@@ -1575,7 +1575,6 @@ namespace Fx.Conversion
             {
                 return new ushort[0];
             }
-
         }
 
         /// <summary>
@@ -1787,6 +1786,16 @@ namespace Fx.Conversion
         #region Swap
 
         /// <summary>
+        /// Swaping bytes in short
+        /// </summary>
+        /// <param name="x">Short number</param>
+        /// <returns></returns>
+        public static short SwapBytes(short x)
+        {
+            return (short)SwapBytes((ushort)x);
+        }
+
+        /// <summary>
         /// Swaping bytes in ushort
         /// </summary>
         /// <param name="x">UShort number</param>
@@ -1794,6 +1803,16 @@ namespace Fx.Conversion
         public static ushort SwapBytes(ushort x)
         {
             return (ushort)((ushort)((x & 0xff) << 8) | ((x >> 8) & 0xff));
+        }
+
+        /// <summary>
+        /// Swaping bytes in int
+        /// </summary>
+        /// <param name="x">Number</param>
+        /// <returns></returns>
+        public static int SwapBytes(int x)
+        {
+            return (int)SwapBytes((uint)x);
         }
 
         /// <summary>
@@ -1810,6 +1829,16 @@ namespace Fx.Conversion
         }
 
         /// <summary>
+        /// Swaping bytes in long
+        /// </summary>
+        /// <param name="x">Number</param>
+        /// <returns></returns>
+        public static long SwapBytes(long x)
+        {
+            return (long)SwapBytes((ulong)x);
+        }
+
+        /// <summary>
         /// Swaping bytes in ulong
         /// </summary>
         /// <param name="x">Number</param>
@@ -1823,6 +1852,49 @@ namespace Fx.Conversion
             // swap adjacent 8-bit blocks
             return ((x & 0xFF00FF00FF00FF00) >> 8) | ((x & 0x00FF00FF00FF00FF) << 8);
         }
+
+
+        /// <summary>
+        /// Swaping bytes in float
+        /// </summary>
+        /// <param name="x">Number</param>
+        /// <returns></returns>
+        public static float SwapBytes(float x)
+        {
+            var bytes = BitConverter.GetBytes(x);
+            byte[] result = new byte[4];
+
+            result[0] = bytes[3];
+            result[1] = bytes[2];
+            result[2] = bytes[1];
+            result[3] = bytes[0];
+
+            return BitConverter.ToSingle(result, 0);
+        }
+
+        /// <summary>
+        /// Swaping bytes in float
+        /// </summary>
+        /// <param name="x">Number</param>
+        /// <returns></returns>
+        public static double SwapBytes(double x)
+        {
+            var bytes = BitConverter.GetBytes(x);
+            byte[] result = new byte[8];
+
+            result[0] = bytes[7];
+            result[1] = bytes[6];
+            result[2] = bytes[5];
+            result[3] = bytes[4];
+            result[4] = bytes[3];
+            result[5] = bytes[2];
+            result[6] = bytes[1];
+            result[7] = bytes[0];
+
+            return BitConverter.ToSingle(result, 0);
+        }
+
+
 
         #endregion
 
