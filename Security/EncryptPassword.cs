@@ -11,7 +11,7 @@ namespace Fx.Security
     /// <summary>
     /// Decrypt / Encrypt password
     /// </summary>
-    class Password
+    public class Password
     {
         string StrPermutation = "lrbsktodbzs";
         byte Permutation1 = 0x20;

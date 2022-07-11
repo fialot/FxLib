@@ -9,13 +9,14 @@ namespace Fx.IO.FileTypes
     /// <summary>
     /// Namespace for Ini Parser
     /// </summary>
-    static class NamespaceDoc { }
+    static class IniNamespaceDoc { }
 
     /// <summary>
     /// Create a New INI file to store or load data
-    /// Version:    1.0.0
-    /// Date:       2015-06-26
+    /// Version:    1.0.1
+    /// Date:       2017-03-30
     /// </summary>
+    
     public class IniParser
     {
         
@@ -259,7 +260,7 @@ namespace Fx.IO.FileTypes
         /// Load INI settings from file. 
         /// </summary>
         /// <param name="filename">INI File name to load. If the filename is empty, then will be load default file specified in the constructor parameter</param>
-        public void LoadFile(string filename = "")
+        public void LoadFile(string filename = "", Encoding enc = null)
         {
             if (filename == "") filename = path;
             if (filename != "")
@@ -270,7 +271,11 @@ namespace Fx.IO.FileTypes
                     try
                     {
                         // ----- LOAD INI FILE -----
-                        StreamReader objReader = new StreamReader(filename);
+                        StreamReader objReader;
+                        if (enc == null)
+                            objReader = new StreamReader(filename, true);
+                        else
+                            objReader = new StreamReader(filename, enc);
                         string text = objReader.ReadToEnd();
                         objReader.Close();
                         objReader.Dispose();
@@ -328,6 +333,23 @@ namespace Fx.IO.FileTypes
         }
 
         /// <summary>
+        /// Load INI settings from string
+        /// </summary>
+        /// <param name="text">INI Stream</param>
+        /// <param name="enc">Encoding</param>
+        public void Load(Stream text, Encoding enc = null)
+        {
+            StreamReader textStream;
+            text.Position = 0;
+            if (enc == null) 
+                textStream  = new StreamReader(text, true);
+            else
+                textStream = new StreamReader(text, enc);
+            string txt = textStream.ReadToEnd();
+            Parse(txt);
+        }
+
+        /// <summary>
         /// Create INI settings string
         /// </summary>
         /// <param name="endl">Line separator. If the line separator is empty, then will be used default Environment.NewLine separator</param>
@@ -336,6 +358,33 @@ namespace Fx.IO.FileTypes
         {
             if (endl == "") endl = System.Environment.NewLine;
             return UnParse(endl);
+        }
+
+        /// <summary>
+        /// Create INI settings string
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="enc">Encoding</param>
+        /// <param name="endl">Line separator. If the line separator is empty, then will be used default Environment.NewLine separator</param>
+        /// <returns>INI string</returns>
+        public string Save(Stream stream, Encoding enc = null, string endl = "")
+        {
+            if (endl == "") endl = System.Environment.NewLine;
+            string text =  UnParse(endl);
+
+            stream.Position = 0;
+            stream.SetLength(0);
+
+            StreamWriter sw;
+            if (enc == null)
+                sw = new StreamWriter(stream);
+            else
+                sw = new StreamWriter(stream, enc);
+            sw.Write(text);
+            sw.Flush();
+            stream.Position = 0;
+
+            return text;
         }
 
         #endregion
