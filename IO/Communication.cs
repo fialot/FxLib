@@ -178,7 +178,13 @@ namespace Fx.IO
 
         public void TCP_Received(byte[] data, comStatus status)
         {
-            if (status == comStatus.OK)
+            if (status == comStatus.OpenError)
+            {
+                OpenedInterface = interfaces.None;
+                if (ReceivedData != null)
+                    ReceivedData(this, status);
+            }
+            else if (status == comStatus.OK)
             {
                 comBuffer = data;
                 RecData = AddArray(RecData, comBuffer);
