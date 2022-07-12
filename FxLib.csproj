@@ -55,6 +55,7 @@
     <Compile Include="IO\Files.cs" />
     <Compile Include="IO\FileTypes\CsvFile.cs" />
     <Compile Include="IO\FileTypes\IniFile.cs" />
+    <Compile Include="IO\FileTypes\N42File.cs" />
     <Compile Include="IO\FileTypes\XmlFile.cs" />
     <Compile Include="IO\Paths.cs" />
     <Compile Include="IO\SocketClient.cs" />
