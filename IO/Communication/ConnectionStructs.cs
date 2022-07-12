@@ -16,10 +16,6 @@ namespace Fx.IO
         Serial = 0, TCP = 1, UDP = 2, TCPServer = 3, SSH = 4
     }
 
-    public enum DeviceType
-    {
-        General = 0
-    }
 
     public enum ComProtocolType
     {
@@ -31,11 +27,13 @@ namespace Fx.IO
         // ----- Description -----
         public string Name { get; set; }  = "";
         public string Group { get; set; } = "";
+        public bool Locked { get; set; } = false;
 
         // ----- Device -----
-        public DeviceType Device { get; set; } = DeviceType.General;
-        public ComProtocolType Protocol { get; set; } = ComProtocolType.General;
         public int Address { get; set; } = 0;
+        public string Device { get; set; } = "";
+        public ComProtocolType Protocol { get; set; } = ComProtocolType.General;
+        
 
         // ----- Connection type -----
         public ConnectionType Type { get; set; } = ConnectionType.Serial;
@@ -119,6 +117,25 @@ namespace Fx.IO
             Load(xml);
         }
 
+        public ConnectionSetting Copy()
+        {
+            ConnectionSetting copy = (ConnectionSetting)this.MemberwiseClone();
+
+            copy.Name = String.Copy(Name);
+            copy.Group = String.Copy(Group);
+            copy.Device = String.Copy(Device);
+
+            copy.SerialPort = String.Copy(SerialPort);
+
+            copy.IP = String.Copy(IP);
+
+            copy.Login = String.Copy(Login);
+            copy.Password = String.Copy(Password);
+            copy.PrivateKeyPath = String.Copy(PrivateKeyPath);
+
+            return copy;
+        }
+
         /// <summary>
         /// Loading setting from XML element
         /// </summary>
@@ -129,6 +146,13 @@ namespace Fx.IO
             XElement group;
             XElement element;
             bool needSave = false;
+
+            // ----- Locked -----
+            var attr = xml.Attribute("lock");
+            if (attr != null)
+            {
+                this.Locked = Conv.ToBool(attr.Value);
+            }
 
             // ----- Name -----
             element = xml.Element("name");
@@ -150,12 +174,12 @@ namespace Fx.IO
             {
                 this.Address = Conv.ToInt(element.Value, 0);
             }
-
+            
             // ----- Device -----
             element = xml.Element("dev_type");
             if (element != null)
             {
-                this.Device = Conv.ToEnum<DeviceType>(element.Value, DeviceType.General);
+                this.Device = element.Value;
             }
 
             // ----- Protocol -----
@@ -310,6 +334,7 @@ namespace Fx.IO
 
             // ----- Write device settings -----
             var connElement = new XElement("connection");
+            connElement.Add(new XAttribute("lock", Conv.ToString(this.Locked)));
 
             connElement.Add(new XElement("name", this.Name));
             connElement.Add(new XElement("group", this.Group));
@@ -320,10 +345,10 @@ namespace Fx.IO
             connElement.Add(new XElement("conn_type", (int)this.Type));
             connElement.Add(new XElement("encoding", this.UsedEncoding.HeaderName));
 
-            bool saveSerial = (this.Device == DeviceType.General);
+            bool saveSerial = (this.Device == "");
             if (this.Type == ConnectionType.Serial) saveSerial = true;
 
-            bool saveNet = (this.Device == DeviceType.General);
+            bool saveNet = (this.Device == "");
             if (this.Type != ConnectionType.Serial) saveNet = true;
 
 

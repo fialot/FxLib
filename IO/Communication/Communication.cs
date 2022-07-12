@@ -117,7 +117,7 @@ namespace Fx.IO
             init();
             this.encoding = encoding;
         }
-
+        
 
         /// <summary>
         /// Class initialization
