@@ -334,7 +334,8 @@ namespace Fx.IO
 
             // ----- Write device settings -----
             var connElement = new XElement("connection");
-            connElement.Add(new XAttribute("lock", Conv.ToString(this.Locked)));
+            if (this.Locked)
+                connElement.Add(new XAttribute("lock", Conv.ToString(this.Locked)));
 
             connElement.Add(new XElement("name", this.Name));
             connElement.Add(new XElement("group", this.Group));
@@ -343,7 +344,8 @@ namespace Fx.IO
             connElement.Add(new XElement("dev_type", this.Device.ToString()));
             connElement.Add(new XElement("protocol", this.Protocol.ToString()));
             connElement.Add(new XElement("conn_type", (int)this.Type));
-            connElement.Add(new XElement("encoding", this.UsedEncoding.HeaderName));
+            if (this.UsedEncoding != Encoding.UTF8)
+                connElement.Add(new XElement("encoding", this.UsedEncoding.HeaderName));
 
             bool saveSerial = (this.Device == "");
             if (this.Type == ConnectionType.Serial) saveSerial = true;

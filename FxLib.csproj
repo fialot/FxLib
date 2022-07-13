@@ -50,6 +50,8 @@
     <Compile Include="Conversion\Conv.cs" />
     <Compile Include="Devices\Device.cs" />
     <Compile Include="Devices\Devices\Nuvia.cs" />
+    <Compile Include="Devices\Devices\NuviaEGM.cs" />
+    <Compile Include="Devices\Devices\NuviaMCA.cs" />
     <Compile Include="Devices\Devices\NuviaPublic.cs" />
     <Compile Include="Devices\DevStructs.cs" />
     <Compile Include="Devices\IDevice.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="IO\FileTypes\IniFile.cs" />
     <Compile Include="IO\FileTypes\N42File.cs" />
     <Compile Include="IO\FileTypes\XmlFile.cs" />
+    <Compile Include="IO\Flag.cs" />
     <Compile Include="IO\Paths.cs" />
     <Compile Include="IO\Communication\SocketClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

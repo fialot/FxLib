@@ -20,17 +20,18 @@ namespace Fx.Devices
         public DeviceType Type { get; protected set; }
         
         public ConnectionSetting Settings { get; protected set; }
-        
 
+        public Flag SupportFlag { get; protected set; }
+        public DevSupport Support { get; protected set; }
 
-        public bool FileSupport { get; protected set; }
+        /*public bool FileSupport { get; protected set; }
         public bool StartSupport { get; protected set; }
         public bool SpectrumSupport { get; protected set; }
         public bool BootloaderSupport { get; protected set; }
         public bool FirmwareSupport { get; protected set; }
         public bool PermissionSupport { get; protected set; }
+        public bool CalibHVSupport { get; protected set; }*/
 
-        public bool CalibHVSupport { get; protected set; }
         public uint HVDomainsCount { get; protected set; }
 
         public bool InBootloaderMode { get; protected set; }
@@ -41,14 +42,15 @@ namespace Fx.Devices
         #region Constructor
         public Device()
         {
-            FileSupport = false;
+            Support = 0;
+            /*FileSupport = false;
             StartSupport = false;
             SpectrumSupport = false;
             BootloaderSupport = false;
             FirmwareSupport = false;
             PermissionSupport = false;
+            CalibHVSupport = false;*/
             InBootloaderMode = false;
-            CalibHVSupport = false;
 
             Permission = DevPermission.None;
         }
@@ -543,8 +545,9 @@ namespace Fx.Devices
 
         protected void GetSupport(string XMLdesc)
         {
-            FirmwareSupport = false;
-            BootloaderSupport = false;
+            // ----- Clear flags -----
+            Support &= ~DevSupport.Firmware;
+            Support &= ~DevSupport.Bootloader;
             InBootloaderMode = false;
 
             var xml = XDocument.Parse(XMLdesc);
@@ -561,13 +564,13 @@ namespace Fx.Devices
                     {
                         if (attr.Value == "1")
                         {
-                            StartSupport = false;
-                            FirmwareSupport = true;
+                            Support &= ~DevSupport.Start;
+                            Support |= DevSupport.Firmware;
                             InBootloaderMode = true;
                         }
                         else if (attr.Value == "2")
                         {
-                            BootloaderSupport = true;
+                            Support |= DevSupport.Bootloader;
                         }
                     }
 
@@ -578,7 +581,7 @@ namespace Fx.Devices
 
                         if (HVDomainsCount > 0)
                         {
-                            CalibHVSupport = true;
+                            Support |= DevSupport.CalibHV;
                         }
                     }
                 }

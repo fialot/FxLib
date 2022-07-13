@@ -11,16 +11,17 @@ namespace Fx.Devices
     {
         string DeviceName { get; }
         DeviceType Type { get; }
+        ConnectionSetting Settings { get; }
 
         // ----- Support functions -----
-        bool FileSupport { get;  }
+        DevSupport Support { get; }
+        /*bool FileSupport { get;  }
         bool StartSupport { get;  }
         bool SpectrumSupport { get;  }
         bool BootloaderSupport { get;  }
         bool FirmwareSupport { get;  }
         bool PermissionSupport { get;  }
-
-        bool CalibHVSupport { get;  }
+        bool CalibHVSupport { get;  }*/
         uint HVDomainsCount { get;  }
 
         // ----- Status -----
@@ -52,6 +53,9 @@ namespace Fx.Devices
 
         bool GetDescription(out List<DevParams> Value);
         bool GetDescription(out List<DevParams> Value, out CommException Error);
+
+        string[] GetStatusList(int code);
+        string[] GetErrorList(int code);
 
         // ----- Measurement -----
         bool GetMeasurement(out List<DevMeasVals> Value);

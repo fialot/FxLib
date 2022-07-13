@@ -9,74 +9,10 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    [Flags]
-    public enum NuviaEGM_Status : uint
-    {
-        NuEGM_STATUS_NOTRUN = 0x00000001,      // Measurement not run
-        NuEGM_STATUS_OVERLOAD = 0x00000002, // CPS Overload
-        //NuEGM_STATUS_HV = 0x00000004,       // HV Error
-        /*VF_STATUS_KAL = 0x00000008,     //Kalibrace (blenkr) 
-        VF_STATUS_DRM = 0x00000010,     //Hodnota < DRM
-        VF_STATUS_HRM = 0x00000020,     //Hodnota > HRM
-        VF_STATUS_DSU1 = 0x00000040,    //Překročení DSU1
-        VF_STATUS_DSU2 = 0x00000080,    //Překročení DSU2
-        VF_STATUS_HSU1 = 0x00000100,    //Překročení HSU1
-        VF_STATUS_HSU2 = 0x00000200,    //Překročení HSU2
-        VF_STATUS_BSU1 = 0x00000400,    //Blokována SU1
-        VF_STATUS_BSU2 = 0x00000800,    //Blokována SU2
-        VF_STATUS_DSU1OK = 0x00001000,  //Překročení DSU1 1 ok. hodnoty
-        VF_STATUS_DSU2OK = 0x00002000,  //Překročení DSU2 1 ok. hodnoty
-        VF_STATUS_HSU1OK = 0x00004000,  //Překročení HSU1 1 ok. hodnoty
-        VF_STATUS_HSU2OK = 0x00008000,  //Překročení HSU2 1 ok. hodnoty
-        VF_STATUS_BACK = 0x00010000,    //Hodnota menší než pozadí*/
-    }
+    
 
-    [Flags]
-    public enum NuviaEGM_Error : uint
-    {
-        NuEGM_ERROR_HV = 0x00000004,   // HV Error
-        NuEGM_ERROR_DET1 = 0x00000008,   // Detector 1 Error
-        NuEGM_ERROR_DET2 = 0x00000010,   // Detector 2 Error
-        NuEGM_ERROR_DET3 = 0x00000020,   // Detector 3 Error
-        NuEGM_ERROR_DET4 = 0x00000040,   // Detector 4 Error
-        NuEGM_ERROR_TEMP = 0x00000080,   // Detector 4 Error
-        NuEGM_ERROR_DEVICE = 0x00000400
-        /*VF_ERROR_NONE = 0,              //Bez chyby
-        VF_ERROR_R10000 = 10000,        //Rezerva
-        VF_ERROR_INITI2C = 10001,       //Chyba inicializace I2C
-        VF_ERROR_INITRTC = 10002,       //Chyba inicializace RTC
-        VF_ERROR_CONFIG = 10003,        //Chyba při načítání konfigurace
-        VF_ERROR_CALTAB = 10004,        //Chyba při načítání kalibrace
-        VF_ERROR_TOUTIPMJK = 10005,     //Timeout impulsu jemného kanálu
-        VF_ERROR_TOUTIPMHK = 10006,     //Timeout impulsu hrubého kanálu
-        VF_ERROR_VREF = 10007,          //Chyba referenčního napětí
-        VF_ERROR_LOTEMP = 10008,        //Překročena minimální pracovní teplota
-        VF_ERROR_HITEMP = 10009,        //Překročena maximální pracovní teplota*/
-    }
 
-    [Flags]
-    public enum NuviaEGM_Support : uint
-    {
-        NuEGM_SUPP_FIRMWARE = 0x00000001,      // Firmware update support
-        //NuEGM_STATUS_OVERLOAD = 0x00000002, // CPS Overload
-        //NuEGM_STATUS_HV = 0x00000004,       // HV Error
-        /*VF_STATUS_KAL = 0x00000008,     //Kalibrace (blenkr) 
-        VF_STATUS_DRM = 0x00000010,     //Hodnota < DRM
-        VF_STATUS_HRM = 0x00000020,     //Hodnota > HRM
-        VF_STATUS_DSU1 = 0x00000040,    //Překročení DSU1
-        VF_STATUS_DSU2 = 0x00000080,    //Překročení DSU2
-        VF_STATUS_HSU1 = 0x00000100,    //Překročení HSU1
-        VF_STATUS_HSU2 = 0x00000200,    //Překročení HSU2
-        VF_STATUS_BSU1 = 0x00000400,    //Blokována SU1
-        VF_STATUS_BSU2 = 0x00000800,    //Blokována SU2
-        VF_STATUS_DSU1OK = 0x00001000,  //Překročení DSU1 1 ok. hodnoty
-        VF_STATUS_DSU2OK = 0x00002000,  //Překročení DSU2 1 ok. hodnoty
-        VF_STATUS_HSU1OK = 0x00004000,  //Překročení HSU1 1 ok. hodnoty
-        VF_STATUS_HSU2OK = 0x00008000,  //Překročení HSU2 1 ok. hodnoty
-        VF_STATUS_BACK = 0x00010000,    //Hodnota menší než pozadí*/
-    }
-
-    public partial class DeviceNuvia : Device, IDeviceEGM
+    public partial class DeviceNuvia : Device, IDeviceEGM, IDeviceMCA
     {
 
         #region Translation
@@ -152,11 +88,13 @@ namespace Fx.Devices
 
         #region Variables
 
-        NuviaProtocol prot = new NuviaProtocol();           // Protocol Class
+        Communication com = new Communication();
+        NuviaProtocol prot;          // Protocol Class
 
         DeviceInfo info;                                       // Device Info
-        GeigerSettings settings;                            // Device Settings
-        GeigerLimits limits;                                // Measurement Limits
+        GeigerSettings egmSettings;                            // Device Settings
+        SCASettings mcaSettings;                            // Device Settings
+        GeigerLimits egmLimits;                                // Measurement Limits
 
         Dictionary<int, string> lastMeas;                   // Last measurement (dictionary values)
 
@@ -165,8 +103,7 @@ namespace Fx.Devices
         List<DevParams> DescList;                         // Description list (from XML)
 
         #endregion
-
-
+        
         // ----- Global device -----
         #region Connection
 
@@ -176,7 +113,7 @@ namespace Fx.Devices
         protected override void connect()
         {
             //prot.SetAddress((byte)address);
-            prot.Connect();
+            prot.Connect(Settings);
         }
         
         /// <summary>
@@ -222,12 +159,7 @@ namespace Fx.Devices
 
                 info.Type = Type;
 
-                // ----- Get support functions -----
-                //uint code = Conv.ToUIntDef(prot.ParseParam(prot.GetParam("20001"))[20001], 0);
-                //NuviaEGM_Support NuSupp = (NuviaEGM_Support)code;
-
-                //if (NuSupp.HasFlag(NuviaEGM_Support.NuEGM_SUPP_FIRMWARE))
-                FirmwareSupport = true;
+                Support |= DevSupport.Firmware;
 
                 var perm = prot.ParseParam(prot.GetParam("10105"))[10105];    // get Model
 
@@ -236,7 +168,7 @@ namespace Fx.Devices
                 if (perm.IndexOf("2") == 0) Permission = DevPermission.Service;
                 if (perm.IndexOf("3") == 0) Permission = DevPermission.SuperUser;
 
-                PermissionSupport = true;
+                Support |= DevSupport.Permission;
             }
 
             catch { }
@@ -720,207 +652,6 @@ namespace Fx.Devices
 
         #endregion
 
-
-        // ----- EGM -----
-        #region Measurement functions
-
-
-
-        /// <summary>
-        /// Read last values
-        /// </summary>
-        /// <returns></returns>
-        protected GeigerValue readValue()
-        {
-            return GetValFromDict(lastMeas);
-        }
-
-        /// <summary>
-        /// Get Geiger Value from device
-        /// </summary>
-        /// <returns>Geiger measurement</returns>
-        protected GeigerValue getValue()
-        {
-            string Values = prot.GetParam("9999");
-
-            try
-            {
-                lastMeas = prot.ParseParam(Values);
-                return GetValFromDict(lastMeas);
-            }
-            catch
-            {
-                throw new Exception("Data Parsing Error");
-            }
-        }
-
-        /// <summary>
-        /// Get EGM measurement from parameter dictionary
-        /// </summary>
-        /// <param name="dict">Parameter dictionary</param>
-        /// <returns>EGM measurement</returns>
-        private GeigerValue GetValFromDict(Dictionary<int, string> dict)
-        {
-            GeigerValue val = new GeigerValue();
-
-            // ----- Permissions -----
-            try
-            {
-                var perm = prot.ParseParam(prot.GetParam("10105"))[10105];    // get Model
-
-                if (perm.IndexOf("0") == 0) Permission = DevPermission.None;
-                if (perm.IndexOf("1") == 0) Permission = DevPermission.Advanced;
-                if (perm.IndexOf("2") == 0) Permission = DevPermission.Service;
-                if (perm.IndexOf("3") == 0) Permission = DevPermission.SuperUser;
-            }
-            catch { }
-
-            if (InBootloaderMode)
-            {
-                val.DR = 0;
-                val.ActualDR = 0;
-                val.CPS = new float[0];
-                val.ActualCPS = new float[0];
-                val.Valid = false;
-
-                try
-                {
-                    if (dict[10014] == "")
-                        val.Temperature = float.NaN;
-                    else
-                        val.Temperature = Conv.ToFloatI(dict[10014], 0);
-                }
-                catch
-                {
-                    val.Temperature = float.NaN;
-                }
-
-
-                val.isRunning = false;
-
-                return val;
-            }
-
-            // ----- ROI CPS -----
-            string CPS = dict[10302];
-            string[] CPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-            string aCPS = dict[10306];
-            string[] aCPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-
-            int detNum = CPSarr.Length;
-            int trustedROI = Conv.ToInt(dict[10310], 0);
-
-
-            val.CPS = new float[detNum];
-            val.ActualCPS = new float[detNum];
-
-            val.DR = Conv.ToFloatI(dict[10301], 0) / 1000000f;
-            val.ActualDR = Conv.ToFloatI(dict[10305], 0) / 1000000f;
-
-            for (int i = 0; i < detNum; i++)
-            {
-                val.CPS[i] = Conv.ToFloatI(CPSarr[i], 0);
-                val.ActualCPS[i] = Conv.ToFloatI(aCPSarr[i], 0);
-            }
-
-            // ----- Deviation -----
-            CPS = dict[10303];
-            CPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-            aCPS = dict[10307];
-            aCPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-
-            val.Deviation = Conv.ToFloatI(CPSarr[trustedROI], 0);
-            val.ActualDeviation = Conv.ToFloatI(aCPSarr[trustedROI], 0);
-
-            // ----- Measurement Timestamp -----
-            val.timeStamp = Conv.ToInt(dict[10309], 0);
-            if (val.timeStamp > 0) val.Valid = true;
-            else val.Valid = false;
-
-            // ----- Temperature -----
-            try
-            {
-                if (dict[10014] == "")
-                    val.Temperature = float.NaN;
-                else
-                    val.Temperature = Conv.ToFloatI(dict[10014], 0);
-            }
-            catch
-            {
-                val.Temperature = float.NaN;
-            }
-
-            // ----- Status -----
-            val.Error = Conv.ToInt(dict[10100], 0);
-            val.Status = Conv.ToInt(dict[10100], 0);
-
-            NuviaEGM_Status NuStat = (NuviaEGM_Status)val.Status;
-            if (NuStat.HasFlag(NuviaEGM_Status.NuEGM_STATUS_NOTRUN))
-                val.isRunning = false;
-            else
-                val.isRunning = true;
-
-
-            return val;
-        }
-
-        #endregion
-
-        #region Info & Settings
-
-        
-
-        /// <summary>
-        /// Get EGM settings
-        /// </summary>
-        /// <returns>EGM Settings</returns>
-        protected GeigerSettings getSettings()
-        {
-            settings = new GeigerSettings();
-            string param = prot.GetParam("27");
-            Dictionary<int, string> dict = prot.ParseParam(param);
-
-            settings.MeasureTime = Conv.ToInt(dict[27], 1000);
-
-            return settings;
-        }
-
-        /// <summary>
-        /// Dose Rate Limits
-        /// </summary>
-        /// <returns>Limits</returns>
-        protected GeigerLimits getLimits()
-        {
-            limits = new GeigerLimits();
-            string param = prot.GetParam("54,55,56");
-            Dictionary<int, string> dict = prot.ParseParam(param);
-
-            limits.Low1 = Conv.ToInt(dict[55], 0);
-            limits.Low2 = Conv.ToInt(dict[55], 0);
-            limits.High1 = Conv.ToInt(dict[56], 0);
-            limits.High2 = Conv.ToInt(dict[56], 0);
-
-            return limits;
-        }
-
-        
-
-        
-
-        /// <summary>
-        /// Set Measurement Time
-        /// </summary>
-        /// <param name="Time"></param>
-        protected void setTime(int Time)
-        {
-            int ms = (Time * 1000);
-            int time = Conv.ToInt(prot.GetParam("27").Replace("27=", ""), 0);
-            if (time != ms)
-                prot.SetParam("27=" + ms.ToString());
-        }
-
-        #endregion
-
         #region HV 
 
         /// <summary>
@@ -946,8 +677,42 @@ namespace Fx.Devices
 
         #endregion
 
+        #region Measurement
 
-       
+        /// <summary>
+        /// Start measuring
+        /// </summary>
+        protected void start()
+        {
+            prot.StartROIs();
+        }
+
+        /// <summary>
+        /// Stop Measuring
+        /// </summary>
+        protected void stop()
+        {
+            prot.StopROIs();
+        }
+
+        /// <summary>
+        /// Stop Measuring
+        /// </summary>
+        protected void latch()
+        {
+            prot.LatchROIs();
+        }
+
+        /// <summary>
+        /// Clear Measuring
+        /// </summary>
+        protected void clear()
+        {
+            prot.ClearROIs();
+        }
+
+        #endregion
+
 
     }
 

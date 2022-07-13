@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fx.Radiometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,11 +16,39 @@ namespace Fx.Devices
     //public enum DeviceGroups { EGM, MCA, Linux }
     //public enum DevConnType { COM, TCP, UDP }
 
+    [Flags]
+    public enum DevSupport : uint
+    {
+        File = 0x00000001,
+        Start = 0x00000002,
+        Spectrum = 0x00000004,
+        Bootloader = 0x00000008,
+        Firmware = 0x00000010,
+        Permission = 0x00000020,
+        CalibHV = 0x00000040,
+
+        /*  
+        Support = 0x00000080,   
+        Support = 0x00000100,  
+        Support = 0x00000200,  
+        Support = 0x00000400,  
+        Support = 0x00000800,  
+        Support = 0x00001000,  
+        Support = 0x00002000, 
+        Support = 0x00004000, 
+        Support = 0x00008000,
+        Support = 0x00010000, 
+        */
+    }
+
     // ----- Parameters -----
     public enum DevParamsType { Edit, Enum, Info, Text }
     public enum VariableType { Bool, Byte, SByte, Short, UShort, Int, UInt, Long, ULong, Float, Double, String }
 
     public enum eChangePassReply { OK, BadLength, NoPermissions };
+
+
+
 
     public class DevParams
     {
@@ -244,17 +273,9 @@ namespace Fx.Devices
 
     public struct MCACalibration
     {
-        public MCACalibCoef Energy;
-        public MCACalibCoef FWHM;
+        public EnergyCalibration Energy;
+        public FWHMCalibration FWHM;
         public int HV;
-    }
-
-    public struct MCACalibCoef
-    {
-        public int type;
-        public double A;
-        public double B;
-        public double C;
     }
 
     public static class DevicesFunc

@@ -1,4 +1,6 @@
 ﻿using Fx.IO;
+using Fx.IO.Protocols;
+using Fx.Radiometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,18 +9,21 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    public partial class DeviceNuvia : Device, IDeviceEGM
+    public partial class DeviceNuvia : Device, IDeviceEGM, IDeviceMCA
     {
         #region Constructor
 
         public DeviceNuvia()
         {
+            prot = new NuviaProtocol(com);
+
             DeviceName = "Nuvia";
             Type = DeviceType.General;
-            SpectrumSupport = false;
-            FileSupport = true;
-            StartSupport = true;
-            FirmwareSupport = false;
+            //SupportFlag.SetFlag(DevSupport.Spectrum);
+            Support &= ~DevSupport.Spectrum;
+            Support |= DevSupport.File;
+            Support |= DevSupport.Start;
+            Support &= ~DevSupport.Firmware;
         }
 
         #endregion
@@ -33,27 +38,10 @@ namespace Fx.Devices
         /// <returns>Error list</returns>
         public override string[] GetErrorList(int code)
         {
-            List<string> list = new List<string>();
-            NuviaEGM_Error NuErr = (NuviaEGM_Error)code;
-            if (NuErr.HasFlag(NuviaEGM_Error.NuEGM_ERROR_HV))
-                list.Add(Lng("errHV", "HV Error"));
-            if (NuErr.HasFlag(NuviaEGM_Error.NuEGM_ERROR_DET1))
-                list.Add(Lng("errDet1", "Detector 1 Error"));
-            if (NuErr.HasFlag(NuviaEGM_Error.NuEGM_ERROR_DET2))
-                list.Add(Lng("errDet2", "Detector 2 Error"));
-            if (NuErr.HasFlag(NuviaEGM_Error.NuEGM_ERROR_DET3))
-                list.Add(Lng("errDet3", "Detector 3 Error"));
-            if (NuErr.HasFlag(NuviaEGM_Error.NuEGM_ERROR_DET4))
-                list.Add(Lng("errDet4", "Detector 4 Error"));
-            if (NuErr.HasFlag(NuviaEGM_Error.NuEGM_ERROR_TEMP))
-                list.Add(Lng("errTemp", "Temperature sensor Error"));
-            if (NuErr.HasFlag(NuviaEGM_Error.NuEGM_ERROR_DEVICE))
-                list.Add(Lng("errDev", "Device Error"));
-
-            /*if (list.Count == 0)
-                list.Add(Lng("noErr", "Device working properly"));*/
-
-            return list.ToArray();
+            if (Type == DeviceType.EGM)
+                return getEGMErrorList(code);
+            else
+                return getMCAErrorList(code);
         }
 
         /// <summary>
@@ -63,258 +51,326 @@ namespace Fx.Devices
         /// <returns>Status list</returns>
         public override string[] GetStatusList(int code)
         {
-
-            List<string> list = new List<string>();
-            NuviaEGM_Status NuStat = (NuviaEGM_Status)code;
-            if (NuStat.HasFlag(NuviaEGM_Status.NuEGM_STATUS_NOTRUN))
-                list.Add(Lng("measNotRun", "Measurement not running"));
-            if (NuStat.HasFlag(NuviaEGM_Status.NuEGM_STATUS_OVERLOAD))
-                list.Add(Lng("overloading", "Overloading"));
-
-            if (list.Count == 0)
-            {
-                if (GetErrorList(code).Length == 0)
-                    list.Add(Lng("standard", "Standard"));
-                else
-                    list.Add(Lng("error", "Error"));
-            }
-
-
-            return list.ToArray();
+            if (Type == DeviceType.EGM)
+                return getEGMStatusList(code);
+            else
+                return getMCAStatusList(code);
         }
 
         #endregion
 
-
-        #region EGM functions
-
-        /// ----- EGM -----
-        /// <summary>
-        /// Read Geiger Value from last Measurement
-        /// </summary>
-        /// <param name="Value">Geiger Value</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool ReadValue(out GeigerValue Value)
-        {
-            CommException Error;
-            return ReadValue(out Value, out Error);
-        }
+        
+        #region Measurement
 
         /// <summary>
-        /// Read Geiger Value from last Measurement
+        /// Start measuring
         /// </summary>
-        /// <param name="Value">Geiger Value</param>
-        /// <param name="Error">Error</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool ReadValue(out GeigerValue Value, out CommException Error)
-        {
-            Error = null;
-            Value = new GeigerValue();
-            try
-            {
-                Value = readValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Get Geiger Value
-        /// </summary>
-        /// <param name="Value">Geiger Value</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool GetValue(out GeigerValue Value)
-        {
-            CommException Error = new CommException();
-            return GetValue(out Value, out Error);
-        }
-
-        /// <summary>
-        /// Get Geiger Value
-        /// </summary>
-        /// <param name="Value">Geiger Value</param>
-        /// <param name="Error">Error</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool GetValue(out GeigerValue Value, out CommException Error)
-        {
-            Error = null;
-            Value = new GeigerValue();
-            try
-            {
-                Value = getValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
-        }
-
-
-        /// <summary>
-        /// Get Device Settings
-        /// </summary>
-        /// <param name="Value">Geiger Settings</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool GetSettings(out GeigerSettings Value)
-        {
-            CommException Error;
-            return GetSettings(out Value, out Error);
-        }
-
-        /// <summary>
-        /// Get Device Settings
-        /// </summary>
-        /// <param name="Value">Geiger Settings</param>
-        /// <param name="Error">Error</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool GetSettings(out GeigerSettings Value, out CommException Error)
-        {
-            Error = null;
-            Value = new GeigerSettings();
-            try
-            {
-                Value = getSettings();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
-        }
-
-
-        /// <summary>
-        /// Get limits
-        /// </summary>
-        /// <param name="Value">DR limits</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool GetLimits(out GeigerLimits Value)
-        {
-            CommException Error;
-            return GetLimits(out Value, out Error);
-        }
-
-        /// <summary>
-        /// Get limits
-        /// </summary>
-        /// <param name="Value">DR limits</param>
-        /// <param name="Error">Error</param>
-        /// <returns>Returns true if read ok</returns>
-        public bool GetLimits(out GeigerLimits Value, out CommException Error)
-        {
-            Error = null;
-            Value = new GeigerLimits();
-            try
-            {
-                Value = getLimits();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Set Measurement Time
-        /// </summary>
-        /// <param name="Time">Time</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool SetTime(int Time)
-        {
-            return SetTime(Time, out CommException Error);
-        }
-
-        /// <summary>
-        /// Set Measurement Time
-        /// </summary>
-        /// <param name="Time">Time</param>
-        /// <param name="Error">Error</param>
-        /// <returns>Returns true if communication ok</returns>
-        public bool SetTime(int Time, out CommException Error)
-        {
-            Error = null;
-            try
-            {
-                setTime(Time);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
-        }
-
-
-        #endregion
-
-
-        #region Other Commands
-
         public bool Start()
         {
+            return Start(out CommException Error);
+        }
+
+        /// <summary>
+        /// Start measuring
+        /// </summary>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool Start(out CommException Error)
+        {
+            Error = null;
             try
             {
-                prot.StartROIs();
+                start();
                 return true;
             }
-            catch (CommException)
+            catch (CommException err)
             {
-                //Error = err;
+                Error = err;
             }
-            catch (Exception)
+            catch (Exception err)
             {
-                //Error = new CommException(err.Message, err);
+                Error = new CommException(err.Message, err);
             }
             return false;
         }
 
+        /// <summary>
+        /// Stop measuring
+        /// </summary>
+        /// <returns>Returns true if communication ok</returns>
         public bool Stop()
         {
+            return Stop(out CommException Error);
+        }
+
+        /// <summary>
+        /// Stop measuring
+        /// </summary>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool Stop(out CommException Error)
+        {
+            Error = null;
             try
             {
-                prot.StopROIs();
+                stop();
                 return true;
             }
-            catch (CommException)
+            catch (CommException err)
             {
-                //Error = err;
+                Error = err;
             }
-            catch (Exception)
+            catch (Exception err)
             {
-                //Error = new CommException(err.Message, err);
+                Error = new CommException(err.Message, err);
             }
             return false;
         }
+
+        /// <summary>
+        /// Latch measuring
+        /// </summary>
+        /// <returns>Returns true if communication ok</returns>
+        public bool Latch()
+        {
+            return Latch(out CommException Error);
+        }
+
+        /// <summary>
+        /// Latch measuring
+        /// </summary>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool Latch(out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                latch();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Clear measuring
+        /// </summary>
+        /// <returns>Returns true if communication ok</returns>
+        public bool Clear()
+        {
+            return Clear(out CommException Error);
+        }
+
+        /// <summary>
+        /// Clear measuring
+        /// </summary>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool Clear(out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                clear();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region Spectrum
+
+        /// <summary>
+        /// Start Spectrum measuring
+        /// </summary>
+        /// <returns>Returns true if communication ok</returns>
+        public bool StartSpectrum()
+        {
+            return StartSpectrum(out CommException Error);
+        }
+
+        /// <summary>
+        /// Start Spectrum measuring
+        /// </summary>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool StartSpectrum(out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                startSpectrum();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Stop Spectrum measuring
+        /// </summary>
+        /// <returns>Returns true if communication ok</returns>
+        public bool StopSpectrum()
+        {
+            return StopSpectrum(out CommException Error);
+        }
+
+        /// <summary>
+        /// Stop Spectrum measuring
+        /// </summary>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool StopSpectrum(out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                stopSpectrum();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Clear spectrum
+        /// </summary>
+        /// <returns>Returns true if communication ok</returns>
+        public bool ClearSpectrum()
+        {
+            return ClearSpectrum(out CommException Error);
+        }
+
+        /// <summary>
+        /// Clear spectrum
+        /// </summary>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool ClearSpectrum(out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                clearSpectrum();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Get Spectrum
+        /// </summary>
+        /// <param name="Spectrum">Spectrum</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool GetSpectrum(out Spectrum Spectrum)
+        {
+            CommException Error;
+            return GetSpectrum(out Spectrum, out Error);
+        }
+
+        /// <summary>
+        /// Get Spectrum
+        /// </summary>
+        /// <param name="Spectrum">Spectrum</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool GetSpectrum(out Spectrum spectrum, out CommException Error)
+        {
+            Error = null;
+            spectrum = new Spectrum();
+            try
+            {
+                spectrum = getSpectrum();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Get calibration coeficients (Energy, FWHM)
+        /// </summary>
+        /// <param name="Calib">Calibration Coefficients</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool GetCalibration(out MCACalibration Calib)
+        {
+            CommException Error;
+            return GetCalibration(out Calib, out Error);
+        }
+
+        /// <summary>
+        /// Get calibration coeficients (Energy, FWHM)
+        /// </summary>
+        /// <param name="Calib">Calibration Coefficients</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool GetCalibration(out MCACalibration Calib, out CommException Error)
+        {
+            Error = null;
+            Calib = new MCACalibration();
+            try
+            {
+                Calib = getCalibration();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
 
         #endregion
 
@@ -323,6 +379,40 @@ namespace Fx.Devices
 
 
         // ----- HV -----
+        /// <summary>
+        /// Switch HV On/Off
+        /// </summary>
+        /// <param name="On">Turn On/Off</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool SwitchHV(bool On)
+        {
+            return SwitchHV(On, out CommException Error);
+        }
+
+        /// <summary>
+        /// Switch HV On/Off
+        /// </summary>
+        /// <param name="On">Turn On/Off</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool SwitchHV(bool On, out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                switchHV(On);
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
 
         /// <summary>
         /// Set HV
@@ -438,5 +528,343 @@ namespace Fx.Devices
         #endregion
 
 
+        #region EGM functions
+
+        /// ----- EGM -----
+        /// <summary>
+        /// Read Geiger Value from last Measurement
+        /// </summary>
+        /// <param name="Value">Geiger Value</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool ReadValue(out GeigerValue Value)
+        {
+            CommException Error;
+            return ReadValue(out Value, out Error);
+        }
+
+        /// <summary>
+        /// Read Geiger Value from last Measurement
+        /// </summary>
+        /// <param name="Value">Geiger Value</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool ReadValue(out GeigerValue Value, out CommException Error)
+        {
+            Error = null;
+            Value = new GeigerValue();
+            try
+            {
+                Value = readEGMValue();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Get Geiger Value
+        /// </summary>
+        /// <param name="Value">Geiger Value</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetValue(out GeigerValue Value)
+        {
+            CommException Error = new CommException();
+            return GetValue(out Value, out Error);
+        }
+
+        /// <summary>
+        /// Get Geiger Value
+        /// </summary>
+        /// <param name="Value">Geiger Value</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetValue(out GeigerValue Value, out CommException Error)
+        {
+            Error = null;
+            Value = new GeigerValue();
+            try
+            {
+                Value = getEGMValue();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// Get Device Settings
+        /// </summary>
+        /// <param name="Value">Geiger Settings</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetSettings(out GeigerSettings Value)
+        {
+            CommException Error;
+            return GetSettings(out Value, out Error);
+        }
+
+        /// <summary>
+        /// Get Device Settings
+        /// </summary>
+        /// <param name="Value">Geiger Settings</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetSettings(out GeigerSettings Value, out CommException Error)
+        {
+            Error = null;
+            Value = new GeigerSettings();
+            try
+            {
+                Value = getEGMSettings();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// Get limits
+        /// </summary>
+        /// <param name="Value">DR limits</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetLimits(out GeigerLimits Value)
+        {
+            CommException Error;
+            return GetLimits(out Value, out Error);
+        }
+
+        /// <summary>
+        /// Get limits
+        /// </summary>
+        /// <param name="Value">DR limits</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetLimits(out GeigerLimits Value, out CommException Error)
+        {
+            Error = null;
+            Value = new GeigerLimits();
+            try
+            {
+                Value = getEGMLimits();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Set Measurement Time
+        /// </summary>
+        /// <param name="Time">Time</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool SetTime(int Time)
+        {
+            return SetTime(Time, out CommException Error);
+        }
+
+        /// <summary>
+        /// Set Measurement Time
+        /// </summary>
+        /// <param name="Time">Time</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool SetTime(int Time, out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                setTime(Time);
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+
+        #endregion
+
+        #region MCA functions
+
+        /// <summary>
+        /// Get SCA Settings
+        /// </summary>
+        /// <param name="Value">SCA settings values</param>
+        /// <returns>Returns true if get ok></returns>
+        public bool GetSettings(out SCASettings Value)
+        {
+            return GetSettings(out Value, out CommException Error);
+        }
+
+        /// <summary>
+        /// Get SCA Settings
+        /// </summary>
+        /// <param name="Value">SCA settings values</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if get ok</returns>
+        public bool GetSettings(out SCASettings Value, out CommException Error)
+        {
+            Error = null;
+            Value = new SCASettings();
+            try
+            {
+                Value = getMCASettings();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// Read last SCA Value
+        /// </summary>
+        /// <param name="Value">SCA Value</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool ReadValue(out SCAValue Value)
+        {
+            return ReadValue(out Value, out CommException Error);
+        }
+
+        /// <summary>
+        /// Read last SCA Value
+        /// </summary>
+        /// <param name="Value">SCA Value</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool ReadValue(out SCAValue Value, out CommException Error)
+        {
+            Error = null;
+            Value = new SCAValue();
+            try
+            {
+                Value = readMCAValue();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Get SCA value
+        /// </summary>
+        /// <param name="Value">SCA value</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetValue(out SCAValue Value)
+        {
+            return GetValue(out Value, out CommException Error);
+        }
+
+        /// <summary>
+        /// Get SCA value
+        /// </summary>
+        /// <param name="Value">SCA value</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if read ok</returns>
+        public bool GetValue(out SCAValue Value, out CommException Error)
+        {
+            Error = null;
+            Value = new SCAValue();
+            try
+            {
+                Value = getMCAValue();
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Set Measurement Time
+        /// </summary>
+        /// <param name="Time">Time</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool SetTime(float Time)
+        {
+            return SetTime(Time, out CommException Error);
+        }
+
+        /// <summary>
+        /// Set Measurement Time
+        /// </summary>
+        /// <param name="Time">Time</param>
+        /// <param name="Error">Error</param>
+        /// <returns>Returns true if communication ok</returns>
+        public bool SetTime(float Time, out CommException Error)
+        {
+            Error = null;
+            try
+            {
+                setTime(Time);
+                return true;
+            }
+            catch (CommException err)
+            {
+                Error = err;
+            }
+            catch (Exception err)
+            {
+                Error = new CommException(err.Message, err);
+            }
+            return false;
+        }
+
+        #endregion
     }
 }
