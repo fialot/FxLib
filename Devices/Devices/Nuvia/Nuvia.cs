@@ -155,7 +155,11 @@ namespace Fx.Devices
                 if (info.Version.Contains("EGM") || info.Version.Contains("GMS"))
                     Type = DeviceType.EGM;
                 else if (info.Version.Contains("SCA") || info.Version.Contains("MCB"))
+                {
                     Type = DeviceType.MCA;
+                    Support |= DevSupport.Spectrum;
+                }
+                    
 
                 info.Type = Type;
 

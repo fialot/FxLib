@@ -49,10 +49,11 @@
     <Compile Include="Conversion\ArrayWork.cs" />
     <Compile Include="Conversion\Conv.cs" />
     <Compile Include="Devices\Device.cs" />
-    <Compile Include="Devices\Devices\Nuvia.cs" />
-    <Compile Include="Devices\Devices\NuviaEGM.cs" />
-    <Compile Include="Devices\Devices\NuviaMCA.cs" />
-    <Compile Include="Devices\Devices\NuviaPublic.cs" />
+    <Compile Include="Devices\DeviceEGM.cs" />
+    <Compile Include="Devices\Devices\Nuvia\Nuvia.cs" />
+    <Compile Include="Devices\Devices\Nuvia\NuviaEGM.cs" />
+    <Compile Include="Devices\Devices\Nuvia\NuviaMCA.cs" />
+    <Compile Include="Devices\Devices\Nuvia\NuviaPublic.cs" />
     <Compile Include="Devices\DevStructs.cs" />
     <Compile Include="Devices\IDevice.cs" />
     <Compile Include="Devices\IDeviceEGM.cs" />

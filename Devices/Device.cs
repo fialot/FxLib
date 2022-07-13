@@ -21,7 +21,6 @@ namespace Fx.Devices
         
         public ConnectionSetting Settings { get; protected set; }
 
-        public Flag SupportFlag { get; protected set; }
         public DevSupport Support { get; protected set; }
 
         /*public bool FileSupport { get; protected set; }
