@@ -31,7 +31,6 @@ namespace Fx.Devices
             {"ROI2NotRun", "ROI2 neběží"},
             {"ROI3NotRun", "ROI3 neběží"},
             {"ROI4NotRun", "ROI4 neběží"},
-            {"overloading", "Přetížení"},
             {"noHV", "HV není nahozeno"},
             {"isSD", "Vložena SD karta"},
             {"specRun", "Sbírání spektra"},
