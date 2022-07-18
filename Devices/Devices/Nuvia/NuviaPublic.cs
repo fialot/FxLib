@@ -15,7 +15,8 @@ namespace Fx.Devices
 
         public DeviceNuvia()
         {
-            prot = new NuviaProtocol(com);
+            nuvia = new NuviaProtocol(com);
+            mb = new ModbusProtocolExt(com);
 
             DeviceName = "Nuvia";
             Type = DeviceType.General;

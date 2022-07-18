@@ -64,7 +64,7 @@ namespace Fx.IO.Protocols
         bool[] coilList;
         byte[] byteList;
 
-        Communication com;              // Communication class
+        protected Communication com;              // Communication class
 
         const int SerialTimeOut = 300;
         const int TCPTimeOut = 2000;

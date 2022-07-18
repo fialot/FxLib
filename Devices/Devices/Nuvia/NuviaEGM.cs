@@ -134,16 +134,13 @@ namespace Fx.Devices
         /// <returns>Geiger measurement</returns>
         protected GeigerValue getEGMValue()
         {
-            string Values = prot.GetParam("9999");
-
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                lastMeas = prot.ParseParam(Values);
-                return GetEGMValFromDict(lastMeas);
+                return mbGetEGMValue();
             }
-            catch
+            else
             {
-                throw new Exception("Data Parsing Error");
+                return nuviaGetEGMValue();
             }
         }
 
@@ -154,107 +151,14 @@ namespace Fx.Devices
         /// <returns>EGM measurement</returns>
         private GeigerValue GetEGMValFromDict(Dictionary<int, string> dict)
         {
-            GeigerValue val = new GeigerValue();
-
-            // ----- Permissions -----
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                var perm = prot.ParseParam(prot.GetParam("10105"))[10105];    // get Model
-
-                if (perm.IndexOf("0") == 0) Permission = DevPermission.None;
-                if (perm.IndexOf("1") == 0) Permission = DevPermission.Advanced;
-                if (perm.IndexOf("2") == 0) Permission = DevPermission.Service;
-                if (perm.IndexOf("3") == 0) Permission = DevPermission.SuperUser;
+                return mbGetEGMValFromDict(dict);
             }
-            catch { }
-
-            if (InBootloaderMode)
-            {
-                val.DR = 0;
-                val.ActualDR = 0;
-                val.CPS = new float[0];
-                val.ActualCPS = new float[0];
-                val.Valid = false;
-
-                try
-                {
-                    if (dict[10014] == "")
-                        val.Temperature = float.NaN;
-                    else
-                        val.Temperature = Conv.ToFloatI(dict[10014], 0);
-                }
-                catch
-                {
-                    val.Temperature = float.NaN;
-                }
-
-
-                val.isRunning = false;
-
-                return val;
-            }
-
-            // ----- ROI CPS -----
-            string CPS = dict[10302];
-            string[] CPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-            string aCPS = dict[10306];
-            string[] aCPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-
-            int detNum = CPSarr.Length;
-            int trustedROI = Conv.ToInt(dict[10310], 0);
-
-
-            val.CPS = new float[detNum];
-            val.ActualCPS = new float[detNum];
-
-            val.DR = Conv.ToFloatI(dict[10301], 0) / 1000000f;
-            val.ActualDR = Conv.ToFloatI(dict[10305], 0) / 1000000f;
-
-            for (int i = 0; i < detNum; i++)
-            {
-                val.CPS[i] = Conv.ToFloatI(CPSarr[i], 0);
-                val.ActualCPS[i] = Conv.ToFloatI(aCPSarr[i], 0);
-            }
-
-            // ----- Deviation -----
-            CPS = dict[10303];
-            CPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-            aCPS = dict[10307];
-            aCPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-
-            val.Deviation = Conv.ToFloatI(CPSarr[trustedROI], 0);
-            val.ActualDeviation = Conv.ToFloatI(aCPSarr[trustedROI], 0);
-
-            // ----- Measurement Timestamp -----
-            val.timeStamp = Conv.ToInt(dict[10309], 0);
-            if (val.timeStamp > 0) val.Valid = true;
-            else val.Valid = false;
-
-            // ----- Temperature -----
-            try
-            {
-                if (dict[10014] == "")
-                    val.Temperature = float.NaN;
-                else
-                    val.Temperature = Conv.ToFloatI(dict[10014], 0);
-            }
-            catch
-            {
-                val.Temperature = float.NaN;
-            }
-
-            // ----- Status -----
-            val.Error = Conv.ToInt(dict[10100], 0);
-            val.Status = Conv.ToInt(dict[10100], 0);
-
-            NuviaEGM_Status NuStat = (NuviaEGM_Status)val.Status;
-            if (NuStat.HasFlag(NuviaEGM_Status.NuEGM_STATUS_NOTRUN))
-                val.isRunning = false;
             else
-                val.isRunning = true;
-
-
-            return val;
+            {
+                return nuviaGetEGMValFromDict(dict);
+            }
         }
 
         #endregion
@@ -270,13 +174,14 @@ namespace Fx.Devices
         /// <returns>EGM Settings</returns>
         protected GeigerSettings getEGMSettings()
         {
-            egmSettings = new GeigerSettings();
-            string param = prot.GetParam("27");
-            Dictionary<int, string> dict = prot.ParseParam(param);
-
-            egmSettings.MeasureTime = Conv.ToInt(dict[27], 1000);
-
-            return egmSettings;
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                return mbGetEGMSettings();
+            }
+            else
+            {
+                return nuviaGetEGMSettings();
+            }
         }
 
         /// <summary>
@@ -286,15 +191,24 @@ namespace Fx.Devices
         protected GeigerLimits getEGMLimits()
         {
             egmLimits = new GeigerLimits();
-            string param = prot.GetParam("54,55,56");
-            Dictionary<int, string> dict = prot.ParseParam(param);
 
-            egmLimits.Low1 = Conv.ToInt(dict[55], 0);
-            egmLimits.Low2 = Conv.ToInt(dict[55], 0);
-            egmLimits.High1 = Conv.ToInt(dict[56], 0);
-            egmLimits.High2 = Conv.ToInt(dict[56], 0);
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                return egmLimits;
+            }
+            else
+            {
+                
+                string param = nuvia.GetParam("54,55,56");
+                Dictionary<int, string> dict = nuvia.ParseParam(param);
 
-            return egmLimits;
+                egmLimits.Low1 = Conv.ToInt(dict[55], 0);
+                egmLimits.Low2 = Conv.ToInt(dict[55], 0);
+                egmLimits.High1 = Conv.ToInt(dict[56], 0);
+                egmLimits.High2 = Conv.ToInt(dict[56], 0);
+
+                return egmLimits;
+            }
         }
 
 
@@ -307,10 +221,21 @@ namespace Fx.Devices
         /// <param name="Time"></param>
         protected void setTime(int Time)
         {
-            int ms = (Time * 1000);
-            int time = Conv.ToInt(prot.GetParam("27").Replace("27=", ""), 0);
-            if (time != ms)
-                prot.SetParam("27=" + ms.ToString());
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                uint ms = (uint)(Time * 1000);
+                uint time = mb.ReadUInt(54);
+                if (time != ms)
+                    mb.WriteUInt(54, ms);
+            }
+            else
+            {
+
+                int ms = (Time * 1000);
+                int time = Conv.ToInt(nuvia.GetParam("27").Replace("27=", ""), 0);
+                if (time != ms)
+                    nuvia.SetParam("27=" + ms.ToString());
+            }
         }
 
         #endregion

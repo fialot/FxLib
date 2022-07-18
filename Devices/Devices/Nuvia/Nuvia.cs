@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    
+
+    enum eProtocol {Auto = 0, Nuvia = 1, MODBUS = 2 }
 
 
     public partial class DeviceNuvia : Device, IDeviceEGM, IDeviceMCA
@@ -25,10 +26,21 @@ namespace Fx.Devices
             // ----- Status -----
             {"measNotRun", "Měření neběží"},
             {"overloading", "Přetížení"},
+
+            {"ROI1NotRun", "ROI1 neběží"},
+            {"ROI2NotRun", "ROI2 neběží"},
+            {"ROI3NotRun", "ROI3 neběží"},
+            {"ROI4NotRun", "ROI4 neběží"},
+            {"overloading", "Přetížení"},
+            {"noHV", "HV není nahozeno"},
+            {"isSD", "Vložena SD karta"},
+            {"specRun", "Sbírání spektra"},
+
             {"standard", "Standard"},
             {"error", "Chyba"},
 
             // ----- Error -----
+            {"noErr", "Zažízení funguje v pořádku"},
             {"errHV", "Chyba HV zdroje"},
             {"errDet1", "Chyba detektoru 1"},
             {"errDet2", "Chyba detektoru 2"},
@@ -36,6 +48,8 @@ namespace Fx.Devices
             {"errDet4", "Chyba detektoru 4"},
             {"errTemp", "Chyba teplotního čidla"},
             {"errDev", "Chyba zařízení"},
+            {"errRTC", "Chyba RTC"},
+            {"errComm", "Chyba komunikace"},
 
             { "firmwareUpdate","Aktualizace firmwaru" },
             { "firmwareStartUpload","Start aktualizace firmwaru" },
@@ -89,7 +103,11 @@ namespace Fx.Devices
         #region Variables
 
         Communication com = new Communication();
-        NuviaProtocol prot;          // Protocol Class
+        eProtocol UsedProtocol = eProtocol.Auto;
+
+        NuviaProtocol nuvia;          // Protocol Class
+        ModbusProtocolExt mb;
+        
 
         DeviceInfo info;                                       // Device Info
         GeigerSettings egmSettings;                            // Device Settings
@@ -113,7 +131,32 @@ namespace Fx.Devices
         protected override void connect()
         {
             //prot.SetAddress((byte)address);
-            prot.Connect(Settings);
+            nuvia.Connect(Settings);
+
+            // ----- Check used protocol -----
+            try
+            {
+                nuvia.GetDevVersion();
+                UsedProtocol = eProtocol.Nuvia;
+            }
+            catch
+            {
+                nuvia.Disconnect();
+                mb.Connect(Settings);
+
+                try
+                {
+                    ushort[] regs = mb.ReadInputRegisters(1, 22);
+                    UsedProtocol = eProtocol.MODBUS;
+                } catch
+                {
+                    mb.Disconnect();
+                    nuvia.Connect(Settings);
+                    UsedProtocol = eProtocol.Nuvia;
+                }
+            }
+            
+
         }
         
         /// <summary>
@@ -121,7 +164,7 @@ namespace Fx.Devices
         /// </summary>
         protected override void disconnect()
         {
-            prot.Disconnect();
+            com.Close(); // nuvia.Disconnect();
         }
 
         /// <summary>
@@ -130,7 +173,7 @@ namespace Fx.Devices
         /// <returns></returns>
         protected override bool isConnected()
         {
-            return prot.isConnected();
+            return com.IsOpen();  // nuvia.isConnected();
         }
 
 
@@ -144,40 +187,14 @@ namespace Fx.Devices
         /// <returns></returns>
         protected override DeviceInfo getInfo()
         {
-            info = new DeviceInfo();
-            info.Version = prot.GetDevVersion();                                // get FW version
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                info.SN = prot.ParseParam(prot.GetParam("12"))[12];             // get SN
-                info.Model = prot.ParseParam(prot.GetParam("10027"))[10027];    // get Model
-                info.Date = "";
-
-                if (info.Version.Contains("EGM") || info.Version.Contains("GMS"))
-                    Type = DeviceType.EGM;
-                else if (info.Version.Contains("SCA") || info.Version.Contains("MCB"))
-                {
-                    Type = DeviceType.MCA;
-                    Support |= DevSupport.Spectrum;
-                }
-                    
-
-                info.Type = Type;
-
-                Support |= DevSupport.Firmware;
-
-                var perm = prot.ParseParam(prot.GetParam("10105"))[10105];    // get Model
-
-                if (perm.IndexOf("0") == 0) Permission = DevPermission.None;
-                if (perm.IndexOf("1") == 0) Permission = DevPermission.Advanced;
-                if (perm.IndexOf("2") == 0) Permission = DevPermission.Service;
-                if (perm.IndexOf("3") == 0) Permission = DevPermission.SuperUser;
-
-                Support |= DevSupport.Permission;
+                return mbGetInfo();
             }
-
-            catch { }
-
-            return info;
+            else
+            {
+                return nuviaGetInfo();
+            }
         }
 
         /// <summary>
@@ -191,7 +208,16 @@ namespace Fx.Devices
             if (language == "CZ") lng = 1;
             else lng = 2;
 
-            return prot.GetXML(lng);
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                return mbGetXML(lng);
+            }
+            else
+            {
+                return nuvia.GetXML(lng);
+            }
+
+            
         }
 
         /// <summary>
@@ -200,11 +226,21 @@ namespace Fx.Devices
         /// <returns>Measurement list with description</returns>
         protected override List<DevMeasVals> getMeasurement()
         {
-            lastMeas = prot.GetMeasurement();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                if (Type == DeviceType.EGM)
+                    return mbGetEGMMeasurement();
+                else
+                    return mbGetMCAMeasurement();
+            } 
+            else
+            {
+                lastMeas = nuvia.GetMeasurement();
 
-            if (MeasList == null) MeasList = CreateMeasList(getXML(), mode);     // Create Measurement list
+                if (MeasList == null) MeasList = CreateMeasList(getXML(), mode);     // Create Measurement list
 
-            return FillMeas(MeasList, lastMeas);                           // Fill Measurement values
+                return FillMeas(MeasList, lastMeas);                           // Fill Measurement values
+            }       
         }
 
         /// <summary>
@@ -213,11 +249,18 @@ namespace Fx.Devices
         /// <returns>Measurement list with description</returns>
         protected override List<DevParams> getDescription()
         {
-            lastMeas = prot.GetDescription();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                return mbGetDescription();
+            }
+            else
+            {
+                lastMeas = nuvia.GetDescription();
 
-            if (DescList == null) DescList = CreateDescriptionList(getXML(), mode);     // Create Measurement list
+                if (DescList == null) DescList = CreateDescriptionList(getXML(), mode);     // Create Measurement list
 
-            return FillParam(DescList, lastMeas);                           // Fill Measurement values
+                return FillParam(DescList, lastMeas);                           // Fill Measurement values
+            }
         }
 
         #endregion
@@ -231,10 +274,18 @@ namespace Fx.Devices
         /// <returns>Parameter</returns>
         protected override DevParamVals getParam(DevParamVals param)
         {
-            List<DevParamVals> parList;
-            string reply = prot.GetParam(param.ID.ToString());
-            parList = prot.ParseParamToList(reply);
-            return parList[0];
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                return mbGetParam(param);
+            }
+            else
+            {
+                List<DevParamVals> parList;
+                string reply = nuvia.GetParam(param.ID.ToString());
+                parList = nuvia.ParseParamToList(reply);
+                return parList[0];
+            }
+            
         }
 
         /// <summary>
@@ -244,19 +295,27 @@ namespace Fx.Devices
         /// <returns>Parameters list</returns>
         protected override List<DevParamVals> getParams(List<DevParamVals> param)
         {
-            List<DevParamVals> parList = new List<DevParamVals>();
-            if (param != null && param.Count > 0)
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                string request = "";
-                foreach (var item in param)
-                {
-                    if (request.Length > 0) request += ",";
-                    request += item.ID.ToString();
-                }
-                string reply = prot.GetParam(request);
-                parList = prot.ParseParamToList(reply);
+                return mbGetParams(param);
             }
-            return parList;
+            else
+            {
+                List<DevParamVals> parList = new List<DevParamVals>();
+                if (param != null && param.Count > 0)
+                {
+                    string request = "";
+                    foreach (var item in param)
+                    {
+                        if (request.Length > 0) request += ",";
+                        request += item.ID.ToString();
+                    }
+                    string reply = nuvia.GetParam(request);
+                    parList = nuvia.ParseParamToList(reply);
+                }
+                return parList;
+            }
+            
         }
 
         /// <summary>
@@ -265,24 +324,32 @@ namespace Fx.Devices
         /// <returns>Parameter list</returns>
         protected override List<DevParams> getAllParams()
         {
-            //if (ParamList == null)
-            ParamList = CreateParamList(getXML(), mode, Permission);
-
-            List<DevParams> list = new List<DevParams>();
-            string reply = prot.GetParam("0");
-
-            Dictionary<int, string> dict = prot.ParseParam(reply);
-
-            foreach (var item in ParamList)
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                try
-                {
-                    item.Value = dict[item.ID];
-                    list.Add(item);
-                }
-                catch { }
+                return mbGetAllParams();
             }
-            return list;
+            else
+            {
+                //if (ParamList == null)
+                ParamList = CreateParamList(getXML(), mode, Permission);
+
+                List<DevParams> list = new List<DevParams>();
+                string reply = nuvia.GetParam("0");
+
+                Dictionary<int, string> dict = nuvia.ParseParam(reply);
+
+                foreach (var item in ParamList)
+                {
+                    try
+                    {
+                        item.Value = dict[item.ID];
+                        list.Add(item);
+                    }
+                    catch { }
+                }
+                return list;
+            }
+            
         }
 
         /// <summary>
@@ -292,7 +359,15 @@ namespace Fx.Devices
         /// <param name="param">Parameter value</param>
         protected override void setParam(int id, string param)
         {
-            prot.SetParam(id.ToString() + "=" + param);
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mbSetParam(id, param);
+            }
+            else
+            {
+                nuvia.SetParam(id.ToString() + "=" + param);
+            }
+            
         }
 
         /// <summary>
@@ -301,15 +376,22 @@ namespace Fx.Devices
         /// <param name="param">Parameters list</param>
         protected override void setParams(List<DevParamVals> param)
         {
-            if (param != null && param.Count > 0)
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                string request = "";
-                foreach (var item in param)
+                mbSetParams(param);
+            }
+            else
+            {
+                if (param != null && param.Count > 0)
                 {
-                    if (request.Length > 0) request += ",";
-                    request += item.ID.ToString() + "=" + item.Value;
+                    string request = "";
+                    foreach (var item in param)
+                    {
+                        if (request.Length > 0) request += ",";
+                        request += item.ID.ToString() + "=" + item.Value;
+                    }
+                    nuvia.SetParam(request);
                 }
-                prot.SetParam(request);
             }
         }
 
@@ -323,7 +405,14 @@ namespace Fx.Devices
         /// <returns>Returns File list</returns>
         protected override string[] getDir()
         {
-            return prot.GetDir();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.GetDir();
+            }
         }
 
         /// <summary>
@@ -333,7 +422,14 @@ namespace Fx.Devices
         /// <returns>Returns File</returns>
         protected override string getFile(string fileName)
         {
-            return prot.GetFile(fileName);
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.GetFile(fileName);
+            }
         }
 
 
@@ -344,7 +440,14 @@ namespace Fx.Devices
         /// <returns>Returns true if succesfully deleted</returns>
         protected override bool delFile(string fileName)
         {
-            return prot.DelFile(fileName);
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.DelFile(fileName);
+            }
         }
 
         /// <summary>
@@ -353,7 +456,15 @@ namespace Fx.Devices
         /// <returns>Returns true if succesfully deleted</returns>
         protected override bool delAllFiles()
         {
-            return prot.DelAllFiles();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.DelAllFiles();
+            }
+            
         }
 
         #endregion
@@ -366,30 +477,37 @@ namespace Fx.Devices
         /// <returns>Returns true if succesfully deleted</returns>
         protected override string getConfig()
         {
-            string text = "";
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                text += prot.GetConfig(0);
+                throw new CommException("Not supported command!");
             }
-            catch { }
-            try
+            else
             {
-                text += prot.GetConfig(1);
+                string text = "";
+                try
+                {
+                    text += nuvia.GetConfig(0);
+                }
+                catch { }
+                try
+                {
+                    text += nuvia.GetConfig(1);
+                }
+                catch { }
+                try
+                {
+                    text += nuvia.GetConfig(2);
+                }
+                catch { }
+
+                text = text.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", "");
+                text = text.Replace("<config>\n", "");
+                text = text.Replace("</config>\n", "");
+
+                text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<config>\n" + text + "</config>\n";
+
+                return text;
             }
-            catch { }
-            try
-            {
-                text += prot.GetConfig(2);
-            }
-            catch { }
-
-            text = text.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", "");
-            text = text.Replace("<config>\n", "");
-            text = text.Replace("</config>\n", "");
-
-            text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<config>\n" + text + "</config>\n";
-
-            return text;
         }
 
         /// <summary>
@@ -398,17 +516,24 @@ namespace Fx.Devices
         /// <returns>Returns true if succesfully deleted</returns>
         protected override void setConfig(string fileName)
         {
-            string text = "";
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                text = System.IO.File.ReadAllText(fileName);
+                throw new CommException("Not supported command!");
             }
-            catch (Exception)
+            else
             {
-                throw new CommException("Bad file!");
-            }
+                string text = "";
+                try
+                {
+                    text = System.IO.File.ReadAllText(fileName);
+                }
+                catch (Exception)
+                {
+                    throw new CommException("Bad file!");
+                }
 
-            prot.SetConfig(text);
+                nuvia.SetConfig(text);
+            }
         }
 
         /// <summary>
@@ -417,7 +542,14 @@ namespace Fx.Devices
         /// <returns>Returns true if succesfully reset</returns>
         protected override bool resetConfig()
         {
-            return prot.ResetConfig();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.ResetConfig();
+            }
         }
 
         /// <summary>
@@ -426,7 +558,14 @@ namespace Fx.Devices
         /// <returns></returns>
         protected override bool createFactoryConfig()
         {
-            return prot.CreateFactoryConfig();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.CreateFactoryConfig();
+            }
         }
 
         #endregion
@@ -435,27 +574,49 @@ namespace Fx.Devices
 
         protected override DevPermission login(string password)
         {
-            return prot.Login(password);
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.Login(password);
+            }
+            
         }
         protected override DevPermission logout()
         {
-            return prot.Logout();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                return nuvia.Logout();
+            }
         }
         protected override eChangePassReply changePass(string password)
         {
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                prot.ChangePass(password);
-
+                throw new CommException("Not supported command!");
             }
-            catch (Exception Err)
+            else
             {
-                if (Err.Message.Contains("Bad password length")) return eChangePassReply.BadLength;
-                else if (Err.Message.Contains("No permission")) return eChangePassReply.NoPermissions;
-                else throw Err;
-            }
+                try
+                {
+                    nuvia.ChangePass(password);
 
-            return eChangePassReply.OK;
+                }
+                catch (Exception Err)
+                {
+                    if (Err.Message.Contains("Bad password length")) return eChangePassReply.BadLength;
+                    else if (Err.Message.Contains("No permission")) return eChangePassReply.NoPermissions;
+                    else throw Err;
+                }
+
+                return eChangePassReply.OK;
+            }
         }
 
         #endregion
@@ -468,128 +629,137 @@ namespace Fx.Devices
         /// <param name="fileName">Firmware file name</param>
         protected override void updateFirmware(string fileName)
         {
-            byte[] bin;             // Binary file data
-            int binIndex = 0;       // Binary index
-
-
-            // ----- Clear process log -----
-            /*ProcessLog.ClearMsg();
-            ProcessLog.SetProgress(0);
-            ProcessLog.SetName(Lng("firmwareUpdate", "Upload firmware file") + "...");
-
-            ProcessLog.AddMsg(Lng("firmwareStartUpload", "Start updating firmware") + "...", false);
-            ProcessLog.AddMsg("------------------------------------------------------------", false);*/
-
-            // ----- Stay in bootloader -----
-            prot.StayInBootloader();
-
-            // ----- Read firmware file -----
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                bin = System.IO.File.ReadAllBytes(fileName);
+                throw new CommException("Not supported command!");
             }
-            catch (Exception err)
+            else
             {
-                /*ProcessLog.AddMsg(Lng("firmwareFileError", "Read firmware file error!"));
+                byte[] bin;             // Binary file data
+                int binIndex = 0;       // Binary index
+
+
+                // ----- Clear process log -----
+                /*ProcessLog.ClearMsg();
                 ProcessLog.SetProgress(0);
-                ProcessLog.SetName("");*/
-                throw new Exception(Lng("firmwareFileError", "Read firmware file error!"), err);
-            }
+                ProcessLog.SetName(Lng("firmwareUpdate", "Upload firmware file") + "...");
 
-            /*ProcessLog.AddMsg(Lng("firmwareReadFile", "Read bin file") + ": " + fileName + " ... " + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes"));*/
+                ProcessLog.AddMsg(Lng("firmwareStartUpload", "Start updating firmware") + "...", false);
+                ProcessLog.AddMsg("------------------------------------------------------------", false);*/
 
-            // ----- Switch to bootloader -----
-            //prot.SwitchToBootloader();
+                // ----- Stay in bootloader -----
+                nuvia.StayInBootloader();
 
-            // ----- Wait for switching -----
-            //System.Threading.Thread.Sleep(10_000);
+                // ----- Read firmware file -----
+                try
+                {
+                    bin = System.IO.File.ReadAllBytes(fileName);
+                }
+                catch (Exception err)
+                {
+                    /*ProcessLog.AddMsg(Lng("firmwareFileError", "Read firmware file error!"));
+                    ProcessLog.SetProgress(0);
+                    ProcessLog.SetName("");*/
+                    throw new Exception(Lng("firmwareFileError", "Read firmware file error!"), err);
+                }
 
-            // ----- Get device buff size -----
-            int buffSize = (int)prot.GetBufferSize();
-            if (buffSize <= 0)
-            {
-                /*ProcessLog.AddMsg(Lng("firmwareBuffError", "Buff size is zero!"));
-                ProcessLog.SetProgress(0);
-                ProcessLog.SetName("");*/
-                throw new Exception(Lng("firmwareBuffError", "Buff size is zero!"));
-            }
+                /*ProcessLog.AddMsg(Lng("firmwareReadFile", "Read bin file") + ": " + fileName + " ... " + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes"));*/
 
-            // ----- Preprare data to sending -----
-            byte[] sendBin = new byte[buffSize];
-            int length = (bin.Length - binIndex);
-            if (length > buffSize) length = buffSize;
+                // ----- Switch to bootloader -----
+                //prot.SwitchToBootloader();
 
-            //List<byte> binDebug = new List<byte>();
+                // ----- Wait for switching -----
+                //System.Threading.Thread.Sleep(10_000);
 
-            // ----- Sending firmware packets -----
-            while (length > 0)
-            {
-                // ----- Create packet & send -----
-                if (sendBin.Length != length)
-                    sendBin = new byte[length];
+                // ----- Get device buff size -----
+                int buffSize = (int)nuvia.GetBufferSize();
+                if (buffSize <= 0)
+                {
+                    /*ProcessLog.AddMsg(Lng("firmwareBuffError", "Buff size is zero!"));
+                    ProcessLog.SetProgress(0);
+                    ProcessLog.SetName("");*/
+                    throw new Exception(Lng("firmwareBuffError", "Buff size is zero!"));
+                }
 
-                Array.Copy(bin, binIndex, sendBin, 0, length);
-
-                // debug 
-                //for (int x = 0; x < length; x++)  binDebug.Add(sendBin[x]);
-
-
-
-                /*ProcessLog.AddMsg(Lng("firmwareSendData", "Sending data") + "... " + length.ToString() + " " + Lng("firmwareBytes", "bytes") + " ... (" + (binIndex + length).ToString() + "/" + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes") + ")");
-                ProcessLog.SetProgress(((binIndex + length) * 100) / bin.Length);*/
-
-
-                var crc = prot.STM32Checksum(sendBin, 0, sendBin.Length);
-                /*ProcessLog.AddMsg("CRC... 0x" + crc.ToString("X"));*/
-
-                // Debug
-                //ProcessLog.AddMsg("CRC2... 0x" + prot.STM32Checksum(binDebug.ToArray(), 0, binDebug.Count).ToString("X"));
-
-
-                prot.SendAppData(binIndex, bin.Length, sendBin);
-                binIndex += buffSize;
-
-                length = (bin.Length - binIndex);
+                // ----- Preprare data to sending -----
+                byte[] sendBin = new byte[buffSize];
+                int length = (bin.Length - binIndex);
                 if (length > buffSize) length = buffSize;
-            }
 
-            /*ProcessLog.SetProgress(100);
-            ProcessLog.SetName(Lng("firmwareVerifing", "Verifyng firmware file") + "...");
-            ProcessLog.AddMsg(Lng("firmwareSendingDone", "Sending data done") + "...");*/
+                //List<byte> binDebug = new List<byte>();
 
+                // ----- Sending firmware packets -----
+                while (length > 0)
+                {
+                    // ----- Create packet & send -----
+                    if (sendBin.Length != length)
+                        sendBin = new byte[length];
 
+                    Array.Copy(bin, binIndex, sendBin, 0, length);
 
-            // ----- Check bin app CRC -----
-
-            System.Threading.Thread.Sleep(1000);
-
-            /*ProcessLog.AddMsg(Lng("firmwareCheckingCRC", "Checking CRC") + "...");*/
-
-            var compureCRC = prot.STM32Checksum(bin);
-            var CRC = prot.GetAppCRC(compureCRC);
+                    // debug 
+                    //for (int x = 0; x < length; x++)  binDebug.Add(sendBin[x]);
 
 
-            /*ProcessLog.SetProgress(0);
-            ProcessLog.SetName("");*/
 
-            if (CRC != compureCRC)
-            {
-                /*ProcessLog.AddMsg(Lng("firmwareCRCFailed", "Checking CRC failed") + ": " + "0x" + CRC.ToString("X") + "/" + "0x" + compureCRC.ToString("X") + "!");
+                    /*ProcessLog.AddMsg(Lng("firmwareSendData", "Sending data") + "... " + length.ToString() + " " + Lng("firmwareBytes", "bytes") + " ... (" + (binIndex + length).ToString() + "/" + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes") + ")");
+                    ProcessLog.SetProgress(((binIndex + length) * 100) / bin.Length);*/
+
+
+                    var crc = nuvia.STM32Checksum(sendBin, 0, sendBin.Length);
+                    /*ProcessLog.AddMsg("CRC... 0x" + crc.ToString("X"));*/
+
+                    // Debug
+                    //ProcessLog.AddMsg("CRC2... 0x" + prot.STM32Checksum(binDebug.ToArray(), 0, binDebug.Count).ToString("X"));
+
+
+                    nuvia.SendAppData(binIndex, bin.Length, sendBin);
+                    binIndex += buffSize;
+
+                    length = (bin.Length - binIndex);
+                    if (length > buffSize) length = buffSize;
+                }
+
+                /*ProcessLog.SetProgress(100);
+                ProcessLog.SetName(Lng("firmwareVerifing", "Verifyng firmware file") + "...");
+                ProcessLog.AddMsg(Lng("firmwareSendingDone", "Sending data done") + "...");*/
+
+
+
+                // ----- Check bin app CRC -----
+
+                System.Threading.Thread.Sleep(1000);
+
+                /*ProcessLog.AddMsg(Lng("firmwareCheckingCRC", "Checking CRC") + "...");*/
+
+                var compureCRC = nuvia.STM32Checksum(bin);
+                var CRC = nuvia.GetAppCRC(compureCRC);
+
+
+                /*ProcessLog.SetProgress(0);
+                ProcessLog.SetName("");*/
+
+                if (CRC != compureCRC)
+                {
+                    /*ProcessLog.AddMsg(Lng("firmwareCRCFailed", "Checking CRC failed") + ": " + "0x" + CRC.ToString("X") + "/" + "0x" + compureCRC.ToString("X") + "!");
+                    ProcessLog.AddMsg("------------------------------------------------------------", false);
+                    ProcessLog.AddMsg(Lng("firmwareUpdateFailed", "Updating firmware failed") + ".", false);*/
+                    throw new Exception(Lng("firmwareWrongCRC", "Wrong application CRC") + "!");
+                }
+
+                /*ProcessLog.AddMsg(Lng("firmwareCRCSuccess", "Checking CRC succesfull") + ".");
                 ProcessLog.AddMsg("------------------------------------------------------------", false);
-                ProcessLog.AddMsg(Lng("firmwareUpdateFailed", "Updating firmware failed") + ".", false);*/
-                throw new Exception(Lng("firmwareWrongCRC", "Wrong application CRC") + "!");
+                ProcessLog.AddMsg(Lng("firmwareUpdateDone", "Uploading done, you can start application") + ".", false);*/
+
+
+                // ----- Run app -----
+                //prot.RunApp();
+
+                // ----- Wait for switching -----
+                //System.Threading.Thread.Sleep(10_000);
             }
 
-            /*ProcessLog.AddMsg(Lng("firmwareCRCSuccess", "Checking CRC succesfull") + ".");
-            ProcessLog.AddMsg("------------------------------------------------------------", false);
-            ProcessLog.AddMsg(Lng("firmwareUpdateDone", "Uploading done, you can start application") + ".", false);*/
 
-
-            // ----- Run app -----
-            //prot.RunApp();
-
-            // ----- Wait for switching -----
-            //System.Threading.Thread.Sleep(10_000);
         }
 
 
@@ -599,21 +769,27 @@ namespace Fx.Devices
         /// </summary>
         protected override void runApp()
         {
-            // ----- Run app -----
-            prot.RunApp();
-
-            // ----- Wait for switching -----
-            int maxLen = 30;
-            /*ProcessLog.SetName(Lng("bootStartApp", "Starting App") + "...");*/
-            for (int i = 0; i < maxLen; i++)
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                /*ProcessLog.SetProgress((i * 100) / maxLen);*/
-                System.Threading.Thread.Sleep(100);
+                throw new CommException("Not supported command!");
             }
-            /*ProcessLog.SetName("");
+            else
+            {
+                // ----- Run app -----
+                nuvia.RunApp();
 
-            ProcessLog.SetProgress(0);*/
+                // ----- Wait for switching -----
+                int maxLen = 30;
+                /*ProcessLog.SetName(Lng("bootStartApp", "Starting App") + "...");*/
+                for (int i = 0; i < maxLen; i++)
+                {
+                    /*ProcessLog.SetProgress((i * 100) / maxLen);*/
+                    System.Threading.Thread.Sleep(100);
+                }
+                /*ProcessLog.SetName("");
 
+                ProcessLog.SetProgress(0);*/
+            }
         }
 
         /// <summary>
@@ -622,26 +798,34 @@ namespace Fx.Devices
         /// </summary>
         protected override void runBootloader()
         {
-            // ----- Run bootloader -----
-            if (prot.SwitchToBootloader())
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                // ----- Wait for switching -----
-                int maxLen = 30;
-                /*ProcessLog.SetName(Lng("bootStartBoot", "Starting Bootloader") + "...");*/
-                for (int i = 0; i < maxLen; i++)
-                {
-                    /*ProcessLog.SetProgress((i * 100) / maxLen);*/
-                    System.Threading.Thread.Sleep(100);
-                }
-                /*ProcessLog.SetName("");
-                ProcessLog.SetProgress(0);*/
-
+                mb.WriteCoil(100, true);
             }
             else
             {
-                throw new CommException("No permission!");
+                // ----- Run bootloader -----
+                if (nuvia.SwitchToBootloader())
+                {
+                    // ----- Wait for switching -----
+                    int maxLen = 30;
+                    /*ProcessLog.SetName(Lng("bootStartBoot", "Starting Bootloader") + "...");*/
+                    for (int i = 0; i < maxLen; i++)
+                    {
+                        /*ProcessLog.SetProgress((i * 100) / maxLen);*/
+                        System.Threading.Thread.Sleep(100);
+                    }
+                    /*ProcessLog.SetName("");
+                    ProcessLog.SetProgress(0);*/
 
+                }
+                else
+                {
+                    throw new CommException("No permission!");
+
+                }
             }
+            
         }
 
         /// <summary>
@@ -649,8 +833,15 @@ namespace Fx.Devices
         /// </summary>
         protected override void stayInBootloader()
         {
-            // ----- Run bootloader -----
-            prot.StayInBootloader();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                // ----- Run bootloader -----
+                nuvia.StayInBootloader();
+            }
         }
 
 
@@ -664,19 +855,42 @@ namespace Fx.Devices
         /// <param name="HV">Voltage</param>
         protected void setHV(int HV)
         {
-            setParam(13, HV.ToString());
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                setParam(32, HV.ToString());
+            }
+            else
+            {
+                setParam(13, HV.ToString());
+            }
         }
 
         protected void setCalibHVPoint(byte domain, byte point, float voltage)
         {
-            if (!prot.CalibrationHVSetPoint(domain, point, voltage))
-                throw new Exception("Can't set HV point!");
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                if (!nuvia.CalibrationHVSetPoint(domain, point, voltage))
+                    throw new CommException("Can't set HV point!");
+            }
+            
         }
 
         protected void setCalibHV(byte domain)
         {
-            if (!prot.CalibrationHVSet(domain))
-                throw new Exception("Can't set HV calibration!");
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                throw new CommException("Not supported command!");
+            }
+            else
+            {
+                if (!nuvia.CalibrationHVSet(domain))
+                    throw new CommException("Can't set HV calibration!");
+            }
+           
         }
 
         #endregion
@@ -688,7 +902,14 @@ namespace Fx.Devices
         /// </summary>
         protected void start()
         {
-            prot.StartROIs();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(6, true);
+            }
+            else
+            {
+                nuvia.StartROIs();
+            }
         }
 
         /// <summary>
@@ -696,7 +917,14 @@ namespace Fx.Devices
         /// </summary>
         protected void stop()
         {
-            prot.StopROIs();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(6, false);
+            }
+            else
+            {
+                nuvia.StopROIs();
+            }
         }
 
         /// <summary>
@@ -704,7 +932,14 @@ namespace Fx.Devices
         /// </summary>
         protected void latch()
         {
-            prot.LatchROIs();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(8, true);
+            }
+            else
+            {
+                nuvia.LatchROIs();
+            }
         }
 
         /// <summary>
@@ -712,7 +947,15 @@ namespace Fx.Devices
         /// </summary>
         protected void clear()
         {
-            prot.ClearROIs();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(7, true);
+            }
+            else
+            {
+                nuvia.ClearROIs();
+            }
+            
         }
 
         #endregion

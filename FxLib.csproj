@@ -52,7 +52,9 @@
     <Compile Include="Devices\DeviceEGM.cs" />
     <Compile Include="Devices\Devices\Nuvia\Nuvia.cs" />
     <Compile Include="Devices\Devices\Nuvia\NuviaEGM.cs" />
+    <Compile Include="Devices\Devices\Nuvia\NuviaMB.cs" />
     <Compile Include="Devices\Devices\Nuvia\NuviaMCA.cs" />
+    <Compile Include="Devices\Devices\Nuvia\NuviaNuvia.cs" />
     <Compile Include="Devices\Devices\Nuvia\NuviaPublic.cs" />
     <Compile Include="Devices\DevStructs.cs" />
     <Compile Include="Devices\IDevice.cs" />

@@ -135,7 +135,14 @@ namespace Fx.Devices
         /// </summary>
         protected void startSpectrum()
         {
-            prot.StartSpectrum();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(0, true);
+            }
+            else
+            {
+                nuvia.StartSpectrum();
+            }
         }
 
         /// <summary>
@@ -143,7 +150,14 @@ namespace Fx.Devices
         /// </summary>
         protected void stopSpectrum()
         {
-            prot.StopSpectrum();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(0, false);
+            }
+            else
+            {
+                nuvia.StopSpectrum();
+            }
         }
 
         /// <summary>
@@ -151,7 +165,14 @@ namespace Fx.Devices
         /// </summary>
         protected void clearSpectrum()
         {
-            prot.ClearSpectrum();
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(1, true);
+            }
+            else
+            {
+                nuvia.ClearSpectrum();
+            }
         }
 
         /// <summary>
@@ -160,13 +181,24 @@ namespace Fx.Devices
         /// <returns>Returns Spectrum</returns>
         protected Spectrum getSpectrum()
         {
-            Spectrum spectrum = prot.GetSpectrum();
+            Spectrum spectrum;
+
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                spectrum = mbGetSpectrum();
+            }
+            else
+            {
+                spectrum = nuvia.GetSpectrum();
+            }
 
             // ----- Set spectrum calibration -----
             spectrum.Energy = Calib.Energy;
 
             return spectrum;
         }
+
+
 
         #endregion
 
@@ -177,7 +209,14 @@ namespace Fx.Devices
         /// <param name="on">Turn On/Off</param>
         protected void switchHV(bool on)
         {
-            prot.SwitchHV(on);
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                mb.WriteCoil(2, on);
+            }
+            else
+            {
+                nuvia.SwitchHV(on);
+            }
         }
 
         #endregion
@@ -199,29 +238,13 @@ namespace Fx.Devices
         /// <returns>SCA measurement</returns>
         protected SCAValue getMCAValue()
         {
-            string Values = prot.GetParam("9999");
-
-            try
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                lastMeas = prot.ParseParam(Values);
-
-                // ----- Permissions -----
-                try
-                {
-                    var perm = lastMeas[10105];    // get Model
-
-                    if (perm.IndexOf("0") == 0) Permission = DevPermission.None;
-                    if (perm.IndexOf("1") == 0) Permission = DevPermission.Advanced;
-                    if (perm.IndexOf("2") == 0) Permission = DevPermission.Service;
-                    if (perm.IndexOf("3") == 0) Permission = DevPermission.SuperUser;
-                }
-                catch { }
-
-                return GetMCAValFromDict(lastMeas);
+                return mbGetMCAValue();
             }
-            catch
+            else
             {
-                throw new Exception("Data Parsing Error");
+                return nuviaGetMCAValue();
             }
         }
 
@@ -232,74 +255,14 @@ namespace Fx.Devices
         /// <returns>SCA measurement</returns>
         private SCAValue GetMCAValFromDict(Dictionary<int, string> dict)
         {
-            SCAValue val = new SCAValue();
-
-
-
-            // ----- ROI CPS -----
-            string CPS = dict[10302];
-            string[] CPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-            string aCPS = dict[10306];
-            string[] aCPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
-
-            int detNum = CPSarr.Length;                 // ROI count
-
-
-            val.CPS = new float[detNum];
-            val.ActualCPS = new float[detNum];
-
-            for (int i = 0; i < detNum; i++)
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                val.CPS[i] = Conv.ToFloatI(CPSarr[i], 0);
-                val.ActualCPS[i] = Conv.ToFloatI(aCPSarr[i], 0);
+                return mbGetMCAValFromDict(dict);
             }
-
-            // ----- Measurement Timestamp -----
-            val.timeStamp = Conv.ToInt(dict[10309], 0);
-            if (val.timeStamp > 0) val.Valid = true;
-            else val.Valid = false;
-
-            // ----- Temperature -----
-            try
+            else
             {
-                if (dict[10014] == "")
-                    val.Temperature = float.NaN;
-                else
-                    val.Temperature = Conv.ToFloatI(dict[10014], 0);
+                return nuviaGetMCAValFromDict(dict);
             }
-            catch
-            {
-                val.Temperature = float.NaN;
-            }
-
-            // ----- Status -----
-            try
-            {
-                val.Error = Conv.ToInt(dict[10100], 0);
-                val.Status = Conv.ToInt(dict[10100], 0);
-            }
-            catch
-            {
-                val.Error = 0;
-                val.Status = 0;
-            }
-
-            val.isROIRunning = true;
-            NuviaSCA_Status NuStat = (NuviaSCA_Status)val.Status;
-            if (NuStat.HasFlag(NuviaSCA_Status.NuSCA_STATUS_NOTRUN1))
-                val.isROIRunning = false;
-            if (NuStat.HasFlag(NuviaSCA_Status.NuSCA_STATUS_NOTRUN2))
-                val.isROIRunning = false;
-            if (NuStat.HasFlag(NuviaSCA_Status.NuSCA_STATUS_NOTRUN3))
-                val.isROIRunning = false;
-            if (NuStat.HasFlag(NuviaSCA_Status.NuSCA_STATUS_NOTRUN4))
-                val.isROIRunning = false;
-
-            val.isSpectRunning = false;
-            if (NuStat.HasFlag(NuviaSCA_Status.NuSCA_STATUS_SPECTRUM))
-                val.isSpectRunning = true;
-
-            return val;
         }
 
         /// <summary>
@@ -308,38 +271,14 @@ namespace Fx.Devices
         /// <returns>SCA Settings</returns>
         protected SCASettings getMCASettings()
         {
-            mcaSettings = new SCASettings();
-            prot.SetParam("1=0");    // Select ROI1
-            string param = prot.GetParam("1,3,4,5,6,13,14");
-            Dictionary<int, string> dict = prot.ParseParam(param);
-
-            mcaSettings.MeasureTime = Conv.ToInt(dict[6], 0);
-            //settings.isRunning = 
-
-            mcaSettings.HV = Conv.ToInt(dict[13], 0);
-            if (dict[14] == "1") mcaSettings.HV_up = true;
-            else mcaSettings.HV_up = false;
-
-            /*
-            settings.Channels = new SCAChannel[4];
-            
-            for (int i = 0; i < 4; i++)
+            if (UsedProtocol == eProtocol.MODBUS)
             {
-                if (i > 0)
-                {
-                    prot.SetParam("1=" + i.ToString());                             // Select ROI
-                    param = prot.GetParam("3,4,5,6");
-                    dict = prot.ParseParam(param);
-                }
-                settings.Channels[i].LLD = (uint)Conv.ToIntDef(dict[4], 0);         // Fill LLD
-                settings.Channels[i].ULD = (uint)Conv.ToIntDef(dict[5], 0);         // Fill ULD
-                settings.Channels[i].Time = (uint)Conv.ToIntDef(dict[6], 0);        // Fill Time
-                if (prot.ParseParam(param)[3] == "1") settings.Channels[i].Autostart = true;    // Fill Autostart
-                else settings.Channels[i].Autostart = false;
-            }*/
-
-
-            return mcaSettings;
+                return mbGetMCASettings();
+            }
+            else
+            {
+                return nuviaGetMCASettings();
+            }
         }
 
         /// <summary>
@@ -348,10 +287,20 @@ namespace Fx.Devices
         /// <param name="Time"></param>
         protected void setTime(float Time)
         {
-            int ms = (int)(Time * 1000);
-            int time = Conv.ToInt(prot.GetParam("27").Replace("27=", ""), 0);
-            if (time != ms)
-                prot.SetParam("27=" + ms.ToString());
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                uint ms = (uint)(Time * 1000);
+                uint time = mb.ReadUInt(54);
+                if (time != ms)
+                    mb.WriteUInt(54, ms);
+            }
+            else
+            {
+                int ms = (int)(Time * 1000);
+                int time = Conv.ToInt(nuvia.GetParam("27").Replace("27=", ""), 0);
+                if (time != ms)
+                    nuvia.SetParam("27=" + ms.ToString());
+            }
         }
 
         /// <summary>
@@ -362,8 +311,18 @@ namespace Fx.Devices
         {
             MCACalibration cal = new MCACalibration();
             cal.Energy.Type = EnergyCalibrationType.Polynomial;
+            byte[] data;
 
-            byte[] data = prot.GetUserData(0, 62);
+
+            if (UsedProtocol == eProtocol.MODBUS)
+            {
+                return cal;
+            }
+            else
+            {
+                data = nuvia.GetUserData(0, 62);
+            }
+
 
             string header = Encoding.GetEncoding(1250).GetString(data, 0, 8);
 

@@ -16,6 +16,15 @@ namespace Fx.IO.Protocols
     /// </summary>
     public class ModbusProtocolExt:ModbusProtocol
     {
+        public ModbusProtocolExt()
+        {
+            com = new Communication();
+        }
+
+        public ModbusProtocolExt(Communication com)
+        {
+            this.com = com;
+        }
 
         #region Integer
 
