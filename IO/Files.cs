@@ -125,10 +125,59 @@ namespace Fx.IO
                     return res.Split(new string[] { "\n", "\r\n" }, StringSplitOptions.None);
             else return new string[0];
         }
-        
+
         #endregion
 
         #region Save Files
+
+        /// <summary>
+        /// Save binary file
+        /// </summary>
+        /// <param name="filename">Filename</param>
+        /// <param name="bin">Binary data</param>
+        /// <returns>Return True if save Ok</returns>
+        public static bool Save(string filename, byte[] bin)
+        {
+            try
+            {
+                using (FileStream stream = new FileStream(filename, FileMode.Create))
+                {
+                    using (BinaryWriter writer = new BinaryWriter(stream))
+                    {
+                        writer.Write(bin);
+                        writer.Close();
+                    }
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Save binary file
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="bin">Binary data</param>
+        /// <returns>Return True if save Ok</returns>
+        public static bool Save(Stream stream, byte[] bin)
+        {
+            try
+            {
+                using (BinaryWriter writer = new BinaryWriter(stream))
+                {
+                    writer.Write(bin);
+                    writer.Close();
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         /// Save text file

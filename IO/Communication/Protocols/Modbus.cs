@@ -51,7 +51,7 @@ namespace Fx.IO.Protocols
         string port = "";               // Connected port
         string COM = "COM1";             // default COM port
         string IP = "192.168.1.10";     // default IP
-        int netPort = 17000;            // default TCP port
+        int netPort = 502;            // default TCP port
 
         commands cmd;
 

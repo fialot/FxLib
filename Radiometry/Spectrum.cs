@@ -43,40 +43,77 @@ namespace Fx.Radiometry
 
     public class Spectrum
     {
-        public Spectrum()
-        {
-            Channels = new uint[0];
-        }
-
+        
         /// <summary>
         /// Real time of spectrum
         /// </summary>
-        public float RealTime { get; set; }
+        public float RealTime { get; set; } = 0;
 
         /// <summary>
         /// Live time of spectrum
         /// </summary>
-        public float LiveTime { get; set; }
+        public float LiveTime { get; set; } = 0;
 
         /// <summary>
         /// Start time
         /// </summary>
-        public DateTime StartTime { get; set; }
+        public DateTime StartTime { get; set; } = DateTime.MinValue;
 
         /// <summary>
         /// Spectrum channels
         /// </summary>
-        public uint[] Channels { get; set; }
+        public uint[] Channels { get; set; } = new uint[0];
+
+        /// <summary>
+        /// Spectrum channels
+        /// </summary>
+        public float[] ChannelsEnergy { get; set; } = new float[0];
 
         /// <summary>
         /// Energy calibration
         /// </summary>
-        public EnergyCalibration Energy { get; set; }
-
+        public EnergyCalibration Energy
+        {
+            get
+            {
+                return _Energy;
+            }
+            set
+            {
+                _Energy = value;
+                RecalcEnergy();
+            }
+        }
+        
         /// <summary>
         /// FWHM calibration
         /// </summary>
         public FWHMCalibration FWHM { get; set; }
+
+
+        private EnergyCalibration _Energy = new EnergyCalibration() { B = 1 };
+
+        public Spectrum()
+        {
+
+        }
+
+        /// <summary>
+        /// Recalculate energy in channels
+        /// </summary>
+        public void RecalcEnergy()
+        {
+            // ----- Compute Energy to each channel -----
+            for (int i = 0; i < Channels.Length; i++)
+            {
+                float energy;
+                if ((_Energy.A == 0) && (_Energy.B == 0) && (_Energy.C == 0))
+                    energy = i;
+                else
+                    energy = (float)(_Energy.A + (_Energy.B * i) + (_Energy.C * i * i));
+                ChannelsEnergy[i] = energy;
+            }
+        }
     }
 
 }

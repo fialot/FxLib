@@ -51,12 +51,16 @@ namespace Fx.IO.FileTypes
             // ----- Parse XML to Structure -----
             var xml = XDocument.Parse(text);
             IEnumerable<XElement> spectrum;
-            spectrum = xml.Elements().Elements("Measurement").Elements("Spectrum").Elements();
+			
+			var ns = xml.Root.Name.Namespace;
 
-
+            spectrum = xml.Element(ns + "N42InstrumentData").Element(ns + "Measurement").Elements(ns + "Spectrum").Elements();
+			
+			// ----- Parse Spectrum section -----							 
             foreach (var data in spectrum)
             {
-                if (data.Name == "StartTime")
+					// ----- Parse Start time -----
+                if (data.Name == ns + "StartTime")
                 {
                     try
                     {
@@ -67,81 +71,104 @@ namespace Fx.IO.FileTypes
                         spect.StartTime = DateTime.MinValue;
                     }
                 }
-                else if (data.Name == "RealTime")
+                // ----- Parse Real time -----
+                else if (data.Name == ns + "RealTime")
                 {
                     spect.RealTime = (float)Conv.ToRealNumber(data.Value);
                 }
-                else if (data.Name == "LiveTime")
+                // ----- Parse Live time -----
+                else if (data.Name == ns + "LiveTime")
                 {
                     spect.LiveTime = (float)Conv.ToRealNumber(data.Value);
-                }
-                else if (data.Name == "Calibration")
+                }			
+                // ----- Parse Calibration -----
+                else if (data.Name == ns + "Calibration")
                 {
                     if (data.Attribute("Type") != null)
                     {
 
-                        XElement equation = data.Element("Equation");
-                        if (data.Attribute("Type").Value == "Energy")
+                        XElement equation = data.Element(ns + "Equation");
+                        if (equation != null)
                         {
-                            EnergyCalibration cal = new EnergyCalibration();
-                            if (equation.Attribute("Model") != null)
+                            if (data.Attribute("Type").Value == "Energy")
                             {
-                                if (equation.Attribute("Model").Value == "Linear")
-                                    cal.Type = EnergyCalibrationType.Linear;
-                                else if (equation.Attribute("Model").Value == "Polynomial")
-                                    cal.Type = EnergyCalibrationType.Polynomial;
-                                XElement coef = equation.Element("Coefficients");
-                                if (coef != null)
+                                EnergyCalibration cal = new EnergyCalibration();
+                                if (equation.Attribute("Model") != null)
                                 {
-                                    string[] strCoef = coef.Value.Split(new string[] { " " }, StringSplitOptions.None);
-                                    if (strCoef.Length >= 1) cal.A = Conv.ToFloatI(strCoef[0], 0);
-                                    if (strCoef.Length >= 2) cal.B = Conv.ToFloatI(strCoef[1], 0);
-                                    if (strCoef.Length >= 3) cal.C = Conv.ToFloatI(strCoef[2], 0);
+                                    if (equation.Attribute("Model").Value == "Linear")
+                                        cal.Type = EnergyCalibrationType.Linear;
+                                    else if (equation.Attribute("Model").Value == "Polynomial")
+                                        cal.Type = EnergyCalibrationType.Polynomial;
+                                    XElement coef = equation.Element("Coefficients");
+                                    if (coef != null)
+                                    {
+                                        string[] strCoef = coef.Value.Split(new string[] { " " }, StringSplitOptions.None);
+                                        if (strCoef.Length >= 1) cal.A = Conv.ToFloatI(strCoef[0], 0);
+                                        if (strCoef.Length >= 2) cal.B = Conv.ToFloatI(strCoef[1], 0);
+                                        if (strCoef.Length >= 3) cal.C = Conv.ToFloatI(strCoef[2], 0);
+                                    }
+
                                 }
-
+                                spect.Energy = cal;
                             }
-                            spect.Energy = cal;
-                        }
-                        else if (data.Attribute("Type").Value == "FWHM")
-                        {
-                            FWHMCalibration cal = new FWHMCalibration();
-
-                            if (equation.Attribute("Model") != null)
+                            else if (data.Attribute("Type").Value == "FWHM")
                             {
-                                if (equation.Attribute("Model").Value == "GENIE-SQRT")
-                                    cal.Type = FWHMCalibrationType.GenieSQRT;
-                                else if (equation.Attribute("Model").Value == "GENIE-POLYNOM")
-                                    cal.Type = FWHMCalibrationType.GeniePolynom;
-                                else if (equation.Attribute("Model").Value == "POLYNOMIAL")
-                                    cal.Type = FWHMCalibrationType.Polynomial;
-                                else if (equation.Attribute("Model").Value == "DH")
-                                    cal.Type = FWHMCalibrationType.DH;
-                                else if (equation.Attribute("Model").Value == "SRQADR")
-                                    cal.Type = FWHMCalibrationType.SRQADR;
-                                else if (equation.Attribute("Model").Value == "LINEAR")
-                                    cal.Type = FWHMCalibrationType.Linear;
-                                else if (equation.Attribute("Model").Value == "CONSTANT")
-                                    cal.Type = FWHMCalibrationType.Constant;
+                                FWHMCalibration cal = new FWHMCalibration();
 
-                                XElement coef = equation.Element("Coefficients");
-                                if (coef != null)
+                                if (equation.Attribute("Model") != null)
                                 {
-                                    string[] strCoef = coef.Value.Split(new string[] { " " }, StringSplitOptions.None);
-                                    if (strCoef.Length >= 1) cal.A = Conv.ToFloatI(strCoef[0], 0);
-                                    if (strCoef.Length >= 2) cal.B = Conv.ToFloatI(strCoef[1], 0);
-                                    if (strCoef.Length >= 3) cal.C = Conv.ToFloatI(strCoef[2], 0);
-                                }
+                                    if (equation.Attribute("Model").Value == "GENIE-SQRT")
+                                        cal.Type = FWHMCalibrationType.GenieSQRT;
+                                    else if (equation.Attribute("Model").Value == "GENIE-POLYNOM")
+                                        cal.Type = FWHMCalibrationType.GeniePolynom;
+                                    else if (equation.Attribute("Model").Value == "POLYNOMIAL")
+                                        cal.Type = FWHMCalibrationType.Polynomial;
+                                    else if (equation.Attribute("Model").Value == "DH")
+                                        cal.Type = FWHMCalibrationType.DH;
+                                    else if (equation.Attribute("Model").Value == "SRQADR")
+                                        cal.Type = FWHMCalibrationType.SRQADR;
+                                    else if (equation.Attribute("Model").Value == "LINEAR")
+                                        cal.Type = FWHMCalibrationType.Linear;
+                                    else if (equation.Attribute("Model").Value == "CONSTANT")
+                                        cal.Type = FWHMCalibrationType.Constant;
 
+                                    XElement coef = equation.Element("Coefficients");
+                                    if (coef != null)
+                                    {
+                                        string[] strCoef = coef.Value.Split(new string[] { " " }, StringSplitOptions.None);
+                                        if (strCoef.Length >= 1) cal.A = Conv.ToFloatI(strCoef[0], 0);
+                                        if (strCoef.Length >= 2) cal.B = Conv.ToFloatI(strCoef[1], 0);
+                                        if (strCoef.Length >= 3) cal.C = Conv.ToFloatI(strCoef[2], 0);
+                                    }
+
+                                }
+                                spect.FWHM = cal;
                             }
-                            spect.FWHM = cal;
                         }
                     }
                 }
-                else if (data.Name == "ChannelData")
+                // -----Parse Channels---- -
+                else if (data.Name == ns + "ChannelData")
                 {
+                    // ----- Get channels -----
                     string[] strChannels = data.Value.Split(new string[] { " ", "\n", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                    // ----- Create Spectrum -----
                     spect.Channels = new uint[strChannels.Length];
-                    for (int i = 0; i < spect.Channels.Length; i++) spect.Channels[i] = Conv.ToUInt(strChannels[i], 0);
+                    spect.ChannelsEnergy = new float[strChannels.Length];
+
+                    for (int i = 0; i < spect.Channels.Length; i++)
+                    {
+                        // ----- Fill channel -----
+                        spect.Channels[i] = Conv.ToUInt(strChannels[i], 0);
+
+                        // ----- Compute Energy to each channel -----
+                        float energy = 0;
+                        if ((spect.Energy.A == 0) && (spect.Energy.B == 0) && (spect.Energy.C == 0))
+                            energy = i;
+                        else
+                            energy = (float)(spect.Energy.A + (spect.Energy.B * i) + (spect.Energy.C * i * i));
+                        spect.ChannelsEnergy[i] = energy;
+                    }
                 }
             }
 
@@ -222,6 +249,7 @@ namespace Fx.IO.FileTypes
                 FWHMCoef = ((float)spectrum.FWHM.A).ToString(CultureInfo.InvariantCulture);
             }
 
+			// ----- Create N42 XML -----							 
             XDocument doc = new XDocument(
               new XDeclaration("1.0", "utf-8", null),
               new XElement("N42InstrumentData",
@@ -247,6 +275,7 @@ namespace Fx.IO.FileTypes
               )
             );
 
+			// ----- Save to string -----				 
             var wr = new Utf8StringWriter();
             doc.Save(wr);
             return wr.ToString();
