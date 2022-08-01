@@ -1140,6 +1140,32 @@ namespace Fx.Conversion
         }
 
         /// <summary>
+        /// String to DateTime Invariant ("yyyy-MM-dd HH:mm:ss")
+        /// </summary>
+        /// <param name="text">date time text</param>
+        /// <returns></returns>
+        public static DateTime ToDateTimeI(string text)
+        {
+            DateTime date;
+            bool isDate = DateTime.TryParseExact(text, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out date);
+            if (!isDate) date = DateTime.MinValue;
+            return date;
+        }
+
+        /// <summary>
+        /// String to DateTime Invariant ("yyyy-MM-dd HH:mm:ss")
+        /// </summary>
+        /// <param name="text">date time text</param>
+        /// <returns></returns>
+        public static DateTime? ToDateTimeINull(string text)
+        {
+            DateTime date;
+            bool isDate = DateTime.TryParseExact(text, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out date);
+            if (!isDate) return null;
+            return date;
+        }
+
+        /// <summary>
         /// String to encoding
         /// </summary>
         /// <param name="value"></param>
