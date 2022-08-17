@@ -1194,6 +1194,41 @@ namespace Fx.Conversion
         }
 
         /// <summary>
+        /// String to Color
+        /// </summary>
+        /// <param name="value">String color (Name or HEX)</param>
+        /// <returns>Color</returns>
+        public static Color ToColor(string value)
+        {
+            return ToColor(value, Color.White);
+        }
+
+        /// <summary>
+        /// String to Color
+        /// </summary>
+        /// <param name="value">String color (Name or HEX)</param>
+        /// <param name="def">Default color</param>
+        /// <returns>Color</returns>
+        public static Color ToColor(string value, Color def)
+        {
+            try
+            {
+                return Color.FromArgb(Int32.Parse(value, System.Globalization.NumberStyles.HexNumber));
+            }
+            catch
+            {
+                try
+                {
+                    return Color.FromName(value);
+                }
+                catch
+                {
+                    return def;
+                }
+            }
+        }
+
+        /// <summary>
         /// String to Enum
         /// </summary>
         /// <typeparam name="T"></typeparam>
