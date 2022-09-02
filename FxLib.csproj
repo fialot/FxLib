@@ -84,6 +84,11 @@
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)..\#Private\COMmunicator\$(TargetName).dll"
 copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)..\RAMS Station\DevInfo\$(TargetName).dll"
-copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)..\RAMS Station\StationViewer\$(TargetName).dll"</PostBuildEvent>
+copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)..\RAMS Station\StationViewer\$(TargetName).dll"
+copy /Y "$(TargetDir)$(TargetName).dll" "$(SolutionDir)..\RAMS Station\StationUpdater\$(TargetName).dll"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>
