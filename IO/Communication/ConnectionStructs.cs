@@ -107,7 +107,23 @@ namespace Fx.IO
             Port = port;
             LocalPort = localPortUDP;
         }
-                
+
+        /// <summary>
+        /// UDP constructor
+        /// </summary>
+        /// <param name="ip">IP</param>
+        /// <param name="port">Port</param>
+        /// <param name="localPortUDP">Local port</param>
+        public ConnectionSetting(string ip, int port, string login, string password, string privateKeyPath = "")
+        {
+            Type = ConnectionType.SSH;
+            IP = ip;
+            Port = port;
+            Login = login;
+            Password = password;
+            PrivateKeyPath = privateKeyPath;
+        }
+
         /// <summary>
         /// Constructor with load settings from XML element
         /// </summary>

@@ -69,6 +69,7 @@
     <Compile Include="IO\Dialogs.cs" />
     <Compile Include="IO\Files.cs" />
     <Compile Include="IO\FileTypes\CsvFile.cs" />
+    <Compile Include="IO\FileTypes\DevXmlFile.cs" />
     <Compile Include="IO\FileTypes\IniFile.cs" />
     <Compile Include="IO\FileTypes\N42File.cs" />
     <Compile Include="IO\FileTypes\XmlFile.cs" />
