@@ -31,6 +31,14 @@ namespace Fx.Radiometry
         public double A;
         public double B;
         public double C;
+
+        public EnergyCalibration(EnergyCalibrationType Type, double A, double B, double C)
+        {
+            this.Type = Type;
+            this.A = A;
+            this.B = B;
+            this.C = C;
+        }
     }
 
     public struct FWHMCalibration
@@ -39,6 +47,14 @@ namespace Fx.Radiometry
         public double A;
         public double B;
         public double C;
+
+        public FWHMCalibration(FWHMCalibrationType Type, double A, double B, double C)
+        {
+            this.Type = Type;
+            this.A = A;
+            this.B = B;
+            this.C = C;
+        }
     }
 
     public class Spectrum
@@ -103,6 +119,9 @@ namespace Fx.Radiometry
         /// </summary>
         public void RecalcEnergy()
         {
+            if (Channels.Length != ChannelsEnergy.Length)
+                ChannelsEnergy = new float[Channels.Length];
+
             // ----- Compute Energy to each channel -----
             for (int i = 0; i < Channels.Length; i++)
             {

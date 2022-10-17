@@ -54,7 +54,7 @@ namespace Fx.Devices
     public partial class DeviceNuvia : Device, IDeviceEGM, IDeviceMCA
     {
 
-        MCACalibration Calib = new MCACalibration();
+        MCACalibration Calib = new MCACalibration(500);
 
         #region Status
 
@@ -309,7 +309,7 @@ namespace Fx.Devices
         /// <returns></returns>
         protected MCACalibration getCalibration()
         {
-            MCACalibration cal = new MCACalibration();
+            MCACalibration cal = new MCACalibration(500);
             cal.Energy.Type = EnergyCalibrationType.Polynomial;
             byte[] data;
 

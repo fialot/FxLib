@@ -276,6 +276,13 @@ namespace Fx.Devices
         public EnergyCalibration Energy;
         public FWHMCalibration FWHM;
         public int HV;
+
+        public MCACalibration(int HV)
+        {
+            Energy = new EnergyCalibration(EnergyCalibrationType.Linear, 0, 1, 0);
+            FWHM = new FWHMCalibration(FWHMCalibrationType.Linear, 0, 1, 0);
+            this.HV = HV;
+        }
     }
 
     public static class DevicesFunc
