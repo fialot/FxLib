@@ -66,7 +66,9 @@
     <Compile Include="IO\Communication\Protocols\Modbus.cs" />
     <Compile Include="IO\Communication\Protocols\ModbusExt.cs" />
     <Compile Include="IO\Communication\Protocols\NuviaProtocol.cs" />
+    <Compile Include="IO\Communication\SerialAutoConnect.cs" />
     <Compile Include="IO\Dialogs.cs" />
+    <Compile Include="IO\Exceptions\CommExceptions.cs" />
     <Compile Include="IO\Files.cs" />
     <Compile Include="IO\FileTypes\CsvFile.cs" />
     <Compile Include="IO\FileTypes\DevXmlFile.cs" />

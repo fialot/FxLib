@@ -3,6 +3,7 @@
 using Fx.Conversion;
 using Fx.Devices;
 using Fx.IO;
+using Fx.IO.Exceptions;
 using Fx.Radiometry;
 using System;
 using System.Collections.Generic;
@@ -273,7 +274,7 @@ namespace Fx.IO.Protocols
         public void Connect(ConnectionSetting settings)
         {
             Settings = settings;
-            com.Connect(settings);
+            com.Connect(Settings);
         }
 
         /// <summary>

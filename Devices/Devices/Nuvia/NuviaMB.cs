@@ -1,5 +1,6 @@
 ﻿using Fx.Conversion;
 using Fx.IO;
+using Fx.IO.Exceptions;
 using Fx.Radiometry;
 using System;
 using System.Collections.Generic;

@@ -1,8 +1,10 @@
 ﻿using Fx.Conversion;
 using Fx.IO;
+using Fx.IO.Exceptions;
 using Fx.IO.Protocols;
 using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -129,33 +131,100 @@ namespace Fx.Devices
         /// </summary>
         protected override void connect()
         {
-            //prot.SetAddress((byte)address);
-            nuvia.Connect(Settings);
+            // ----- If serial auto connect -----
+            if (Settings.Type == ConnectionType.Serial && Settings.SerialPort.ToLower() == "auto")
+            {
+                Settings.StopBits = StopBits.One;
+                Settings.DataBits = 8;
+                Settings.Parity = Parity.None;
 
-            // ----- Check used protocol -----
+                SerialAutoConnect autoSett = new SerialAutoConnect();
+
+                // ----- Try Nuvia protocol -----
+
+                for (int i = 0; i < autoSett.Count; i++)
+                {
+                    Settings = autoSett.Next(Settings);
+
+                    try
+                    {
+                        nuvia.Connect(Settings);
+
+                        try
+                        {
+                            nuvia.GetDevVersion();
+                            UsedProtocol = eProtocol.Nuvia;
+                            return;
+                        } catch { }
+
+                        nuvia.Disconnect();
+                    }
+                    catch { }
+                }
+
+                // ----- Try MODBUS protocol -----
+
+                autoSett.Reset();
+
+                for (int i = 0; i < autoSett.Count; i++)
+                {
+                    Settings = autoSett.Next(Settings);
+
+                    try
+                    {
+                        mb.Connect(Settings);
+
+                        try
+                        {
+                            ushort[] regs = mb.ReadInputRegisters(1, 22);
+                            UsedProtocol = eProtocol.MODBUS;
+                            return;
+                        }
+                        catch { }
+
+                        mb.Disconnect();
+                    }
+                    catch { }
+                }
+
+                // ----- If not found device -> throw exception -----
+                throw new ConnectionFailedException();
+
+            }
+
             try
             {
-                nuvia.GetDevVersion();
-                UsedProtocol = eProtocol.Nuvia;
-            }
-            catch
-            {
-                nuvia.Disconnect();
-                mb.Connect(Settings);
+                //prot.SetAddress((byte)address);
+                nuvia.Connect(Settings);
 
+                // ----- Check used protocol -----
                 try
                 {
-                    ushort[] regs = mb.ReadInputRegisters(1, 22);
-                    UsedProtocol = eProtocol.MODBUS;
-                } catch
-                {
-                    mb.Disconnect();
-                    nuvia.Connect(Settings);
+                    nuvia.GetDevVersion();
                     UsedProtocol = eProtocol.Nuvia;
                 }
-            }
-            
+                catch
+                {
+                    nuvia.Disconnect();
+                    mb.Connect(Settings);
 
+                    try
+                    {
+                        ushort[] regs = mb.ReadInputRegisters(1, 22);
+                        UsedProtocol = eProtocol.MODBUS;
+                    }
+                    catch
+                    {
+                        mb.Disconnect();
+                        nuvia.Connect(Settings);
+                        UsedProtocol = eProtocol.Nuvia;
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                throw new ConnectionFailedException(err);
+            }
         }
         
         /// <summary>

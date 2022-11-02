@@ -15,32 +15,6 @@ namespace Fx.IO
     /// </summary>
     static class NamespaceDoc { }
 
-    /// <summary>
-    /// Communication Exception (with sended packets)
-    /// </summary>
-    public class CommException : Exception
-    {
-        public string SendedString { get; }
-        public string ReceivedString { get; }
-        public byte[] SendedData { get; }
-        public byte[] ReceivedData { get; }
-
-        public CommException() : base() { }
-        public CommException(string message) : base(message) { }
-        public CommException(string message, Exception innerException) : base(message, innerException) { }
-        public CommException(string message, string sended, string received) : base(message)
-        {
-            this.SendedString = sended;
-            this.ReceivedString = received;
-        }
-        public CommException(string message, byte[] SendedData, byte[] ReceivedData) : base(message)
-        {
-            this.SendedData = SendedData;
-            this.ReceivedData = ReceivedData;
-        }
-    }
-
-
     
 
     /// <summary>

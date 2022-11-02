@@ -1,4 +1,5 @@
 ﻿using Fx.IO;
+using Fx.IO.Exceptions;
 using Fx.IO.Protocols;
 using Fx.Radiometry;
 using System;
