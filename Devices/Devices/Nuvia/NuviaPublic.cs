@@ -68,9 +68,12 @@ namespace Fx.Devices
         /// Start measuring
         /// </summary>
         /// <returns>Returns true if communication ok</returns>
-        public bool Start()
+        public OkEx Start()
         {
-            return Start(out CommException Error);
+            if (Start(out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -101,9 +104,12 @@ namespace Fx.Devices
         /// Stop measuring
         /// </summary>
         /// <returns>Returns true if communication ok</returns>
-        public bool Stop()
+        public OkEx Stop()
         {
-            return Stop(out CommException Error);
+            if (Stop(out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -386,9 +392,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="On">Turn On/Off</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool SwitchHV(bool On)
+        public OkEx SwitchHV(bool On)
         {
-            return SwitchHV(On, out CommException Error);
+            if (SwitchHV(On, out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -421,9 +430,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="HV">Voltage</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool SetHV(int HV)
+        public OkEx SetHV(int HV)
         {
-            return SetHV(HV, out CommException Error);
+            if (SetHV(HV, out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -458,10 +470,12 @@ namespace Fx.Devices
         /// <param name="point">Point index</param>
         /// <param name="voltage">Real voltage</param>
         /// <returns>Returns true if ok</returns>
-        public bool CalibHV_SetPoint(byte domain, byte point, float voltage)
+        public OkEx CalibHV_SetPoint(byte domain, byte point, float voltage)
         {
-            CommException Error;
-            return CalibHV_SetPoint(domain, point, voltage, out Error);
+            if (CalibHV_SetPoint(domain, point, voltage, out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -496,10 +510,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="domain">Domain index</param>
         /// <returns>Returns true if ok</returns>
-        public bool CalibHV_Set(byte domain)
+        public OkEx CalibHV_Set(byte domain)
         {
-            CommException Error;
-            return CalibHV_Set(domain, out Error);
+            if (CalibHV_Set(domain, out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -538,10 +554,14 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Geiger Value</param>
         /// <returns>Returns true if read ok</returns>
-        public bool ReadValue(out GeigerValue Value)
+        public GeigerValueEx ReadValue()
         {
+            GeigerValue Value;
             CommException Error;
-            return ReadValue(out Value, out Error);
+            if (ReadValue(out Value, out Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -573,12 +593,15 @@ namespace Fx.Devices
         /// <summary>
         /// Get Geiger Value
         /// </summary>
-        /// <param name="Value">Geiger Value</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetValue(out GeigerValue Value)
+        public GeigerValueEx GetValue()
         {
+            GeigerValue Value;
             CommException Error = new CommException();
-            return GetValue(out Value, out Error);
+            if (GetValue(out Value, out Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -613,10 +636,14 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Geiger Settings</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetSettings(out GeigerSettings Value)
+        public GeigerSettingsEx GetSettings()
         {
+            GeigerSettings Value;
             CommException Error;
-            return GetSettings(out Value, out Error);
+            if (GetSettings(out Value, out Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -651,10 +678,14 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">DR limits</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetLimits(out GeigerLimits Value)
+        public GeigerLimitsEx GetLimits()
         {
+            GeigerLimits Value;
             CommException Error;
-            return GetLimits(out Value, out Error);
+            if (GetLimits(out Value, out Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -688,9 +719,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Time">Time</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool SetTime(int Time)
+        public OkEx SetTime(int Time)
         {
-            return SetTime(Time, out CommException Error);
+            if (SetTime(Time, out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>

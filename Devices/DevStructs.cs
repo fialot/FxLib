@@ -1,4 +1,6 @@
-﻿using Fx.Radiometry;
+﻿using Fx.IO.Exceptions;
+using Fx.Radiometry;
+using OneOf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,136 @@ namespace Fx.Devices
 
     public enum DevMode { Basic = 0, Advanced = 1, Service = 2, Debug = 3 }
     public enum DevPermission { None = 0, Advanced = 1, Service = 2, SuperUser = 3 }
+
+
+    public class OkEx : OneOfBase<bool, CommException>
+    {
+        OkEx(OneOf<bool, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator OkEx(bool _) => new OkEx(_);
+        public static implicit operator OkEx(CommException _) => new OkEx(_);
+
+    }
+
+    public class StringEx : OneOfBase<string, CommException>
+    {
+        StringEx(OneOf<string, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator StringEx(string _) => new StringEx(_);
+        public static implicit operator StringEx(CommException _) => new StringEx(_);
+    }
+
+    public class StringArrayEx : OneOfBase<string[], CommException>
+    {
+        StringArrayEx(OneOf<string[], CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator StringArrayEx(string[] _) => new StringArrayEx(_);
+        public static implicit operator StringArrayEx(CommException _) => new StringArrayEx(_);
+    }
+
+    public class DeviceInfoEx : OneOfBase<DeviceInfo, CommException>
+    {
+        DeviceInfoEx(OneOf<DeviceInfo, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator DeviceInfoEx(DeviceInfo _) => new DeviceInfoEx(_);
+        public static implicit operator DeviceInfoEx(CommException _) => new DeviceInfoEx(_);
+
+    }
+
+    public class DevParamsEx : OneOfBase<List<DevParams>, CommException>
+    {
+        DevParamsEx(OneOf<List<DevParams>, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator DevParamsEx(List<DevParams> _) => new DevParamsEx(_);
+        public static implicit operator DevParamsEx(CommException _) => new DevParamsEx(_);
+
+    }
+
+    public class DevMeasValsEx : OneOfBase<List<DevMeasVals>, CommException>
+    {
+        DevMeasValsEx(OneOf<List<DevMeasVals>, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator DevMeasValsEx(List<DevMeasVals> _) => new DevMeasValsEx(_);
+        public static implicit operator DevMeasValsEx(CommException _) => new DevMeasValsEx(_);
+
+    }
+
+    public class DevParamValueEx : OneOfBase<DevParamVals, CommException>
+    {
+        DevParamValueEx(OneOf<DevParamVals, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator DevParamValueEx(DevParamVals _) => new DevParamValueEx(_);
+        public static implicit operator DevParamValueEx(CommException _) => new DevParamValueEx(_);
+
+    }
+
+    public class DevParamValuesEx : OneOfBase<List<DevParamVals>, CommException>
+    {
+        DevParamValuesEx(OneOf<List<DevParamVals>, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator DevParamValuesEx(List<DevParamVals> _) => new DevParamValuesEx(_);
+        public static implicit operator DevParamValuesEx(CommException _) => new DevParamValuesEx(_);
+
+    }
+
+    public class PermissionEx : OneOfBase<DevPermission, CommException>
+    {
+        PermissionEx(OneOf<DevPermission, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator PermissionEx(DevPermission _) => new PermissionEx(_);
+        public static implicit operator PermissionEx(CommException _) => new PermissionEx(_);
+
+    }
+
+
+    public class GeigerValueEx : OneOfBase<GeigerValue, CommException>
+    {
+        GeigerValueEx(OneOf<GeigerValue, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator GeigerValueEx(GeigerValue _) => new GeigerValueEx(_);
+        public static implicit operator GeigerValueEx(CommException _) => new GeigerValueEx(_);
+    }
+
+    public class GeigerSettingsEx : OneOfBase<GeigerSettings, CommException>
+    {
+        GeigerSettingsEx(OneOf<GeigerSettings, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator GeigerSettingsEx(GeigerSettings _) => new GeigerSettingsEx(_);
+        public static implicit operator GeigerSettingsEx(CommException _) => new GeigerSettingsEx(_);
+    }
+
+    public class GeigerLimitsEx : OneOfBase<GeigerLimits, CommException>
+    {
+        GeigerLimitsEx(OneOf<GeigerLimits, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator GeigerLimitsEx(GeigerLimits _) => new GeigerLimitsEx(_);
+        public static implicit operator GeigerLimitsEx(CommException _) => new GeigerLimitsEx(_);
+    }
+    
 
     //public enum DeviceGroups { EGM, MCA, Linux }
     //public enum DevConnType { COM, TCP, UDP }
@@ -299,4 +431,6 @@ namespace Fx.Devices
             return dict;
         }
     }
+
+
 }

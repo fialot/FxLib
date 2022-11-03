@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
+    enum eDeviceMCARequest { None, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
+
     public interface IDeviceMCA : IDevice
     {
         bool GetSettings(out SCASettings Value);

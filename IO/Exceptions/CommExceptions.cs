@@ -14,14 +14,21 @@ namespace Fx.IO.Exceptions
         {
             { 0xE001, "General communication exception."},
             { 0xE002, "Connection attempt failed."},
-            { 0xE003, "A response was not received within the specified time."}
+            { 0xE003, "A response was not received within the specified time."},
+            { 0xE101, "Wrong length."},
+            { 0xE111, "No permission to make change."}
+            
         };
 
         readonly static Dictionary<int, string> CommExceptionMessagesCZ = new Dictionary<int, string>
         {
             { 0xE001, "Obecná chyba komunikace."},
             { 0xE002, "Selhal pokus o připojení."},
-            { 0xE003, "Odpověď nedorazila ve stanoveném čase."}
+            { 0xE003, "Odpověď nedorazila ve stanoveném čase."},
+            { 0xE101, "Špatná délka."},
+            { 0xE111, "Nedostatečné oprávnění na provedení změny."}
+
+
         };
 
         public static string GetMessage(int Code)
@@ -59,11 +66,11 @@ namespace Fx.IO.Exceptions
     /// </summary>
     public class CommException : Exception, ICommException
     {
-        public int Code { get; } = 0xE001;
-        public string SendedString { get; } = "";
-        public string ReceivedString { get; } = "";
-        public byte[] SendedData { get; } = new byte[0];
-        public byte[] ReceivedData { get; } = new byte[0];
+        public int Code { get; protected set; } = 0xE001;
+        public string SendedString { get; protected set; } = "";
+        public string ReceivedString { get; protected set; } = "";
+        public byte[] SendedData { get; protected set; } = new byte[0];
+        public byte[] ReceivedData { get; protected set; } = new byte[0];
 
         public CommException() : base(CommExceptions.GetMessage(0xE001)) { }
         public CommException(Exception innerException) : base(CommExceptions.GetMessage(0xE001), innerException) { }
@@ -84,47 +91,36 @@ namespace Fx.IO.Exceptions
         }
     }
 
-    public class ConnectionFailedException : Exception, ICommException
+    public class ConnectionFailedException : CommException, ICommException
     {
-        public int Code { get; } = 0xE002;
-        public string SendedString { get; } = "";
-        public string ReceivedString { get; } = "";
-        public byte[] SendedData { get; } = new byte[0];
-        public byte[] ReceivedData { get; } = new byte[0];
-
-
-        public ConnectionFailedException() : base() { }
-        //public NoResponseCommException(string message) : base(message) { }
-        //public NoResponseCommException(string message, Exception innerException) : base(message, innerException) { }
-        public ConnectionFailedException(Exception innerException) : base(CommExceptions.GetMessage(0xE002), innerException) { }
-
+        public ConnectionFailedException() : base(CommExceptions.GetMessage(0xE002)) { Code = 0xE002; }
+        public ConnectionFailedException(Exception innerException) : base(CommExceptions.GetMessage(0xE002), innerException) { Code = 0xE002; }
     }
 
     /// <summary>
     /// Communication Exception (with sended packets)
     /// </summary>
-    public class TimeOutException : Exception, ICommException
+    public class TimeOutException : CommException, ICommException
     {
-        public int Code { get; } = 0xE003;
-        public string SendedString { get; } = "";
-        public string ReceivedString { get; } = "";
-        public byte[] SendedData { get; } = new byte[0];
-        public byte[] ReceivedData { get; } = new byte[0];
+        public TimeOutException() : base(CommExceptions.GetMessage(0xE003)) { Code = 0xE003; }
+        public TimeOutException(Exception innerException) : base(CommExceptions.GetMessage(0xE003), innerException) { Code = 0xE003; }
+        public TimeOutException(string sended, string received) : base(CommExceptions.GetMessage(0xE003), sended, received) { Code = 0xE003; }
+        public TimeOutException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE003), sended, received) { Code = 0xE003; }
+    }
 
-        public TimeOutException() : base(CommExceptions.GetMessage(0xE003)) { }
-        public TimeOutException(Exception innerException) : base(CommExceptions.GetMessage(0xE003), innerException) { }
+    public class BadLengthException : CommException, ICommException
+    {
+        public BadLengthException() : base(CommExceptions.GetMessage(0xE101)) { Code = 0xE101; }
+        public BadLengthException(Exception innerException) : base(CommExceptions.GetMessage(0xE101), innerException) { Code = 0xE101; }
+        public BadLengthException(string sended, string received) : base(CommExceptions.GetMessage(0xE101), sended, received) { Code = 0xE101; }
+        public BadLengthException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE101), sended, received) { Code = 0xE101; }
+    }
 
-        public TimeOutException(string sended, string received) : base(CommExceptions.GetMessage(0xE003))
-        {
-            this.SendedString = sended;
-            this.ReceivedString = received;
-        }
-        public TimeOutException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE003))
-        {
-            this.SendedData = sended;
-            this.ReceivedData = received;
-            this.SendedString = "0x" + BitConverter.ToString(sended).Replace("-", "");
-            this.ReceivedString = "0x" + BitConverter.ToString(received).Replace("-", "");
-        }
+    public class NoPermissionException : CommException, ICommException
+    {
+        public NoPermissionException() : base(CommExceptions.GetMessage(0xE111)) { Code = 0xE111; }
+        public NoPermissionException(Exception innerException) : base(CommExceptions.GetMessage(0xE111), innerException) { Code = 0xE111; }
+        public NoPermissionException(string sended, string received) : base(CommExceptions.GetMessage(0xE111), sended, received) { Code = 0xE111; }
+        public NoPermissionException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE111), sended, received) { Code = 0xE111; }
     }
 }

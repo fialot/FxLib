@@ -12,6 +12,19 @@ namespace Fx.Components
     {
         private Thread workerThread;
 
+        public AbortableBackgroundWorker() : base()
+        {
+            this.WorkerSupportsCancellation = true;
+        }
+
+        public AbortableBackgroundWorker(DoWorkEventHandler WorkProcess, RunWorkerCompletedEventHandler WorkComplete) : base()
+        {
+            this.WorkerSupportsCancellation = true;
+
+            this.DoWork += WorkProcess;                                     // Select Update Job
+            this.RunWorkerCompleted += WorkComplete;
+        }
+
         protected override void OnDoWork(DoWorkEventArgs e)
         {
             workerThread = Thread.CurrentThread;

@@ -11,7 +11,7 @@ using System.Xml.Linq;
 namespace Fx.Devices
 {
 
-    public abstract class Device : IDevice
+    public abstract partial class Device : IDevice
     {
         
         #region Public
@@ -42,6 +42,10 @@ namespace Fx.Devices
         #region Constructor
         public Device()
         {
+            // ----- Auto reading -----
+            worker.DoWork += WorkProcess;                                  // Select Process Job
+            worker.RunWorkerCompleted += WorkComplete;                     // Select Done Job
+
             Support = 0;
             /*FileSupport = false;
             StartSupport = false;
@@ -63,9 +67,14 @@ namespace Fx.Devices
         /// Connect to device
         /// </summary>
         /// <returns>Returns true if connection ok</returns>
-        public bool Connect()
+        public OkEx Connect()
         {
-            return Connect(out Exception Error);
+            CommException Error;
+
+            if (Connect(out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -73,7 +82,7 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if connection ok</returns>
-        public bool Connect(out Exception Error)
+        public bool Connect(out CommException Error)
         {
             Error = null;
             try
@@ -83,17 +92,27 @@ namespace Fx.Devices
             }
             catch (Exception err)
             {
-                Error = err;
+                Error = new ConnectionFailedException(err);
             }
             return false;
         }
 
-        public bool Connect(ConnectionSetting settings)
+        /*public bool Connect(ConnectionSetting settings)
         {
             return Connect(settings, out Exception Error);
+        }*/
+
+        public OkEx Connect(ConnectionSetting settings)
+        {
+            CommException Error;
+
+            if (Connect(settings, out Error))
+                return true;
+            else
+                return Error;
         }
 
-        public bool Connect(ConnectionSetting settings, out Exception Error)
+        public bool Connect(ConnectionSetting settings, out CommException Error)
         {
             Error = null;
             try
@@ -104,7 +123,7 @@ namespace Fx.Devices
             }
             catch (Exception err)
             {
-                Error = err;
+                Error = new ConnectionFailedException(err);
             }
             return false;
         }
@@ -116,8 +135,7 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public bool Disconnect()
         {
-            Exception Error;
-            return Disconnect(out Error);
+            return Disconnect(out CommException Error);
         }
 
         /// <summary>
@@ -125,7 +143,7 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if connection ok</returns>
-        public bool Disconnect(out Exception Error)
+        public bool Disconnect(out CommException Error)
         {
             Error = null;
             try
@@ -135,7 +153,7 @@ namespace Fx.Devices
             }
             catch (Exception err)
             {
-                Error = err;
+                Error = new CommException(err.Message);
             }
             return false;
         }
@@ -156,6 +174,22 @@ namespace Fx.Devices
 
         #endregion
 
+        #region Auto reading
+
+        public bool StartReading()
+        {
+            return startReading();
+        }
+
+        public bool StopReading()
+        {
+
+            return stopReading();
+        }
+
+        #endregion
+
+
         #region Device Info
 
         /// <summary>
@@ -163,10 +197,15 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Device Info</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetInfo(out DeviceInfo Value)
+        public DeviceInfoEx GetInfo()
         {
+            DeviceInfo Value;
             CommException Error;
-            return GetInfo(out Value, out Error);
+
+            if (GetInfo(out Value, out Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -196,26 +235,20 @@ namespace Fx.Devices
         }
 
 
-        /// <summary>
-        /// Get device XML description
-        /// </summary>
-        /// <returns>Returns true if read ok</returns>
-        public bool GetXMLDesc()
-        {
-            CommException Error;
-            string XML;
-            return GetXMLDesc(out XML, out Error);
-        }
 
         /// <summary>
         /// Get device XML description
         /// </summary>
         /// <param name="XML">XML string</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetXMLDesc(out string XML)
+        public StringEx GetXMLDesc()
         {
+            string XML;
             CommException Error;
-            return GetXMLDesc(out XML, out Error);
+            if (GetXMLDesc(out XML, out Error))
+                return XML;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -360,10 +393,15 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Measurement</param>
         /// <returns>Returns true if connection ok</returns>
-        public bool GetDescription(out List<DevParams> Value)
+        public DevParamsEx GetDescription()
         {
+            List<DevParams> Value;
             CommException Error;
-            return GetDescription(out Value, out Error);
+
+            if (GetDescription(out Value, out Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -507,10 +545,14 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Measurement</param>
         /// <returns>Returns true if connection ok</returns>
-        public bool GetMeasurement(out List<DevMeasVals> Value)
+        public DevMeasValsEx GetMeasurement()
         {
+            List<DevMeasVals> Value;
             CommException Error;
-            return GetMeasurement(out Value, out Error);
+            if (GetMeasurement(out Value, out Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -733,16 +775,28 @@ namespace Fx.Devices
             }
             return ParamList;
         }
+        public DevParamValueEx GetParam(int ID)
+        {
+            CommException Error;
+            DevParamVals Param = new DevParamVals(ID, "");
+            if (GetParam(ref Param, out Error))
+                return Param;
+            else
+                return Error;
+        }
 
         /// <summary>
         /// Get device parameters
         /// </summary>
         /// <param name="Param">Parameter</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetParam(ref DevParamVals Param)
+        public DevParamValueEx GetParam(DevParamVals Param)
         {
             CommException Error;
-            return GetParam(ref Param, out Error);
+            if (GetParam(ref Param, out Error))
+                return Param;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -775,10 +829,13 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Param">Parameter list</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetParams(ref List<DevParamVals> Param)
+        public DevParamValuesEx GetParams(List<DevParamVals> Param)
         {
             CommException Error;
-            return GetParams(ref Param, out Error);
+            if (GetParams(ref Param, out Error))
+                return Param;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -811,10 +868,14 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Param">Parameter list</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetAllParams(out List<DevParams> Param)
+        public DevParamsEx GetAllParams()
         {
+            List<DevParams> Param;
             CommException Error;
-            return GetAllParams(out Param, out Error);
+            if (GetAllParams(out Param, out Error))
+                return Param;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -849,25 +910,37 @@ namespace Fx.Devices
         /// <param name="ID">Parameter ID</param>
         /// <param name="Param">Parameter Value</param>
         /// <returns></returns>
-        public bool SetParam(int ID, string Param)
+        public OkEx SetParam(int ID, string Param)
         {
             CommException Error;
-            return SetParam(ID, Param, out Error);
+            if (SetParam(ID, Param, out Error))
+                return true;
+            else
+                return Error;
+        }
+
+        public OkEx SetParam(DevParamVals Param)
+        {
+            CommException Error;
+            if (SetParam(Param.ID, Param.Value, out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
         /// Set device parameters
         /// </summary>
         /// <param name="ID">Parameter ID</param>
-        /// <param name="Param">Parameter Value</param>
+        /// <param name="Value">Parameter Value</param>
         /// <param name="Error">Error</param>
         /// <returns></returns>
-        public bool SetParam(int ID, string Param, out CommException Error)
+        public bool SetParam(int ID, string Value, out CommException Error)
         {
             Error = null;
             try
             {
-                setParam(ID, Param);
+                setParam(ID, Value);
                 return true;
             }
             catch (CommException err)
@@ -886,10 +959,13 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Param">Parameters</param>
         /// <returns>Returns true if write ok</returns>
-        public bool SetParams(List<DevParamVals> Param)
+        public OkEx SetParams(List<DevParamVals> Param)
         {
             CommException Error;
-            return SetParam(Param, out Error);
+            if (SetParam(Param, out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -917,10 +993,14 @@ namespace Fx.Devices
             return false;
         }
 
-        public bool Login(string password, out DevPermission permission)
+        public PermissionEx Login(string password)
         {
+            DevPermission permission;
             CommException Error;
-            return Login(password, out permission, out Error);
+            if (Login(password, out permission, out Error))
+                return permission;
+            else
+                return Error;
         }
 
         public bool Login(string password, out DevPermission permission, out CommException Error)
@@ -943,10 +1023,13 @@ namespace Fx.Devices
             return false;
         }
 
-        public bool Logout()
+        public OkEx Logout()
         {
             CommException Error;
-            return Logout(out Error);
+            if (Logout(out Error))
+                return true;
+            else
+                return Error;
         }
 
         public bool Logout(out CommException Error)
@@ -968,10 +1051,22 @@ namespace Fx.Devices
             return false;
         }
 
-        public bool ChangePassword(string password, out eChangePassReply reply)
+        public OkEx ChangePassword(string password)
         {
             CommException Error;
-            return ChangePassword(password, out reply, out Error);
+            eChangePassReply reply;
+            if (ChangePassword(password, out reply, out Error))
+            {
+                if (reply == eChangePassReply.BadLength)
+                    return new BadLengthException();
+                else if (reply == eChangePassReply.NoPermissions)
+                    return new NoPermissionException();
+                else
+                    return true;
+            }
+            else
+                return Error;
+
         }
 
         public bool ChangePassword(string password, out eChangePassReply reply, out CommException Error)
@@ -1004,10 +1099,14 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="FileList">File list</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetDir(out string[] FileList)
+        public StringArrayEx GetDir()
         {
+            string[] FileList;
             CommException Error;
-            return GetDir(out FileList, out Error);
+            if (GetDir(out FileList, out Error))
+                return FileList;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -1042,10 +1141,14 @@ namespace Fx.Devices
         /// <param name="FileName">File name</param>
         /// <param name="text">text</param>
         /// <returns>Returns true if ok</returns>
-        public bool GetFile(string FileName, out string text)
+        public StringEx GetFile(string FileName)
         {
+            string text;
             CommException Error;
-            return GetFile(FileName, out text, out Error);
+            if (GetFile(FileName, out text, out Error))
+                return text;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -1080,10 +1183,13 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="FileName">File name</param>
         /// <returns>Returns true if ok</returns>
-        public bool DelFile(string FileName)
+        public OkEx DelFile(string FileName)
         {
             CommException Error;
-            return DelFile(FileName, out Error);
+            if (DelFile(FileName, out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -1114,10 +1220,13 @@ namespace Fx.Devices
         /// Delete all files
         /// </summary>
         /// <returns>Returns true if ok</returns>
-        public bool DelAllFiles()
+        public OkEx DelAllFiles()
         {
             CommException Error;
-            return DelAllFiles(out Error);
+            if (DelAllFiles(out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -1143,10 +1252,14 @@ namespace Fx.Devices
             return false;
         }
 
-        public bool GetConfig(out string text)
+        public StringEx GetConfig()
         {
+            string text;
             CommException Error;
-            return GetConfig(out text, out Error);
+            if (GetConfig(out text, out Error))
+                return text;
+            else
+                return Error;
         }
 
         public bool GetConfig(out string text, out CommException Error)
@@ -1169,10 +1282,13 @@ namespace Fx.Devices
             return false;
         }
 
-        public bool SetConfig(string FileName)
+        public OkEx SetConfig(string FileName)
         {
             CommException Error;
-            return SetConfig(FileName, out Error);
+            if (SetConfig(FileName, out Error))
+                return true;
+            else
+                return Error;
         }
 
         public bool SetConfig(string FileName, out CommException Error)
@@ -1194,10 +1310,13 @@ namespace Fx.Devices
             return false;
         }
 
-        public bool ResetConfig()
+        public OkEx ResetConfig()
         {
             CommException Error;
-            return ResetConfig(out Error);
+            if (ResetConfig(out Error))
+                return true;
+            else
+                return Error;
         }
 
         public bool ResetConfig(out CommException Error)
@@ -1224,10 +1343,13 @@ namespace Fx.Devices
             return false;
         }
 
-        public bool CreateFactoryConfig()
+        public OkEx CreateFactoryConfig()
         {
             CommException Error;
-            return CreateFactoryConfig(out Error);
+            if (CreateFactoryConfig(out Error))
+                return true;
+            else
+                return Error;
         }
 
         public bool CreateFactoryConfig(out CommException Error)
@@ -1264,10 +1386,13 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="FileName">File name</param>
         /// <returns>Returns true if ok</returns>
-        public bool UpdateFirmware(string FileName)
+        public OkEx UpdateFirmware(string FileName)
         {
             CommException Error;
-            return UpdateFirmware(FileName, out Error);
+            if (UpdateFirmware(FileName, out Error))
+                return true;
+            else
+                return false;
         }
 
         /// <summary>
@@ -1299,10 +1424,13 @@ namespace Fx.Devices
         /// Run Application
         /// </summary>
         /// <returns>Returns true if ok</returns>
-        public bool RunApplication()
+        public OkEx RunApplication()
         {
             CommException Error;
-            return RunApplication(out Error);
+            if (RunApplication(out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -1333,10 +1461,13 @@ namespace Fx.Devices
         /// Run Bootloader
         /// </summary>
         /// <returns>Returns true if ok</returns>
-        public bool RunBootloader()
+        public OkEx RunBootloader()
         {
             CommException Error;
-            return RunBootloader(out Error);
+            if (RunBootloader(out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -1367,10 +1498,13 @@ namespace Fx.Devices
         /// Stay in bootloader
         /// </summary>
         /// <returns>Returns true if ok</returns>
-        public bool StayInBootloader()
+        public OkEx StayInBootloader()
         {
             CommException Error;
-            return StayInBootloader(out Error);
+            if (StayInBootloader(out Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -1408,7 +1542,9 @@ namespace Fx.Devices
 
         protected DevMode mode = DevMode.Basic;
 
+
         #endregion
+
 
         #region Abstract
 

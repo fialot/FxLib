@@ -915,6 +915,17 @@ namespace Fx.Devices
 
         #endregion
 
+
+        protected override void refreshDevData()
+        {
+
+        }
+
+        protected override void doDevRequest()
+        {
+
+        }
+
         #region HV 
 
         /// <summary>
@@ -960,6 +971,7 @@ namespace Fx.Devices
             }
            
         }
+
 
         #endregion
 

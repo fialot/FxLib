@@ -8,29 +8,33 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
+    enum eDeviceEGMRequest { None, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
+
+
+
     public interface IDeviceEGM : IDevice
     {
-        bool ReadValue(out GeigerValue Value);
+        GeigerValueEx ReadValue();
         bool ReadValue(out GeigerValue Value, out CommException Error);
-        bool GetValue(out GeigerValue Value);
+        GeigerValueEx GetValue();
         bool GetValue(out GeigerValue Value, out CommException Error);
-        bool GetSettings(out GeigerSettings Value);
+        GeigerSettingsEx GetSettings();
         bool GetSettings(out GeigerSettings Value, out CommException Error);
-        bool GetLimits(out GeigerLimits Value);
+        GeigerLimitsEx GetLimits();
         bool GetLimits(out GeigerLimits Value, out CommException Error);
-        bool SetTime(int Time);
+        OkEx SetTime(int Time);
         bool SetTime(int Time, out CommException Error);
 
 
-        bool Start();
-        bool Stop();
+        OkEx Start();
+        OkEx Stop();
 
 
-        bool SetHV(int HV);
+        OkEx SetHV(int HV);
         bool SetHV(int HV, out CommException Error);
-        bool CalibHV_SetPoint(byte domain, byte point, float voltage);
+        OkEx CalibHV_SetPoint(byte domain, byte point, float voltage);
         bool CalibHV_SetPoint(byte domain, byte point, float voltage, out CommException Error);
-        bool CalibHV_Set(byte domain);
+        OkEx CalibHV_Set(byte domain);
         bool CalibHV_Set(byte domain, out CommException Error);
 
     }

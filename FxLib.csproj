@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OneOf, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\OneOf.3.0.223\lib\net45\OneOf.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -56,6 +59,7 @@
     <Compile Include="Devices\Devices\Nuvia\NuviaMCA.cs" />
     <Compile Include="Devices\Devices\Nuvia\NuviaNuvia.cs" />
     <Compile Include="Devices\Devices\Nuvia\NuviaPublic.cs" />
+    <Compile Include="Devices\Device_AutoReading.cs" />
     <Compile Include="Devices\DevStructs.cs" />
     <Compile Include="Devices\IDevice.cs" />
     <Compile Include="Devices\IDeviceEGM.cs" />
@@ -82,6 +86,9 @@
     <Compile Include="Radiometry\Radiometry.cs" />
     <Compile Include="Radiometry\Spectrum.cs" />
     <Compile Include="Security\EncryptPassword.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
