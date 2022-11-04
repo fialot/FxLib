@@ -143,6 +143,46 @@ namespace Fx.Devices
         public static implicit operator GeigerLimitsEx(GeigerLimits _) => new GeigerLimitsEx(_);
         public static implicit operator GeigerLimitsEx(CommException _) => new GeigerLimitsEx(_);
     }
+
+    public class SpectrumEx : OneOfBase<Spectrum, CommException>
+    {
+        SpectrumEx(OneOf<Spectrum, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator SpectrumEx(Spectrum _) => new SpectrumEx(_);
+        public static implicit operator SpectrumEx(CommException _) => new SpectrumEx(_);
+    }
+
+    public class MCACalibrationEx : OneOfBase<MCACalibration, CommException>
+    {
+        MCACalibrationEx(OneOf<MCACalibration, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator MCACalibrationEx(MCACalibration _) => new MCACalibrationEx(_);
+        public static implicit operator MCACalibrationEx(CommException _) => new MCACalibrationEx(_);
+    }
+
+    public class SCASettingsEx : OneOfBase<SCASettings, CommException>
+    {
+        SCASettingsEx(OneOf<SCASettings, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator SCASettingsEx(SCASettings _) => new SCASettingsEx(_);
+        public static implicit operator SCASettingsEx(CommException _) => new SCASettingsEx(_);
+    }
+
+    public class SCAValueEx : OneOfBase<SCAValue, CommException>
+    {
+        SCAValueEx(OneOf<SCAValue, CommException> _) : base(_) { }
+
+        // optionally, define implicit conversions
+        // you could also make the constructor public
+        public static implicit operator SCAValueEx(SCAValue _) => new SCAValueEx(_);
+        public static implicit operator SCAValueEx(CommException _) => new SCAValueEx(_);
+    }
     
 
     //public enum DeviceGroups { EGM, MCA, Linux }

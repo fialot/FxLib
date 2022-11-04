@@ -36,27 +36,27 @@ namespace Fx.Devices
         /// <summary>
         /// Get Error list from Status code
         /// </summary>
-        /// <param name="code">Status Code</param>
+        /// <param name="Code">Status Code</param>
         /// <returns>Error list</returns>
-        public override string[] GetErrorList(int code)
+        public override string[] GetErrorList(int Code)
         {
             if (Type == DeviceType.EGM)
-                return getEGMErrorList(code);
+                return getEGMErrorList(Code);
             else
-                return getMCAErrorList(code);
+                return getMCAErrorList(Code);
         }
 
         /// <summary>
         /// Get Status list from Status code
         /// </summary>
-        /// <param name="code">Status Code</param>
+        /// <param name="Code">Status Code</param>
         /// <returns>Status list</returns>
-        public override string[] GetStatusList(int code)
+        public override string[] GetStatusList(int Code)
         {
             if (Type == DeviceType.EGM)
-                return getEGMStatusList(code);
+                return getEGMStatusList(Code);
             else
-                return getMCAStatusList(code);
+                return getMCAStatusList(Code);
         }
 
         #endregion
@@ -70,10 +70,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Start()
         {
-            if (Start(out CommException Error))
+            if (Start(out CommException error))
                 return true;
             else
-                return Error;
+                return error;
         }
 
         /// <summary>
@@ -106,10 +106,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Stop()
         {
-            if (Stop(out CommException Error))
+            if (Stop(out CommException error))
                 return true;
             else
-                return Error;
+                return error;
         }
 
         /// <summary>
@@ -140,9 +140,12 @@ namespace Fx.Devices
         /// Latch measuring
         /// </summary>
         /// <returns>Returns true if communication ok</returns>
-        public bool Latch()
+        public OkEx Latch()
         {
-            return Latch(out CommException Error);
+            if (Latch(out CommException error))
+                return true;
+            else
+                return error;
         }
 
         /// <summary>
@@ -173,9 +176,12 @@ namespace Fx.Devices
         /// Clear measuring
         /// </summary>
         /// <returns>Returns true if communication ok</returns>
-        public bool Clear()
+        public OkEx Clear()
         {
-            return Clear(out CommException Error);
+            if (Clear(out CommException error))
+                return true;
+            else
+                return error;
         }
 
         /// <summary>
@@ -210,9 +216,12 @@ namespace Fx.Devices
         /// Start Spectrum measuring
         /// </summary>
         /// <returns>Returns true if communication ok</returns>
-        public bool StartSpectrum()
+        public OkEx StartSpectrum()
         {
-            return StartSpectrum(out CommException Error);
+            if (StartSpectrum(out CommException error))
+                return true;
+            else
+                return error;
         }
 
         /// <summary>
@@ -243,9 +252,12 @@ namespace Fx.Devices
         /// Stop Spectrum measuring
         /// </summary>
         /// <returns>Returns true if communication ok</returns>
-        public bool StopSpectrum()
+        public OkEx StopSpectrum()
         {
-            return StopSpectrum(out CommException Error);
+            if (StopSpectrum(out CommException error))
+                return true;
+            else
+                return error;
         }
 
         /// <summary>
@@ -276,9 +288,12 @@ namespace Fx.Devices
         /// Clear spectrum
         /// </summary>
         /// <returns>Returns true if communication ok</returns>
-        public bool ClearSpectrum()
+        public OkEx ClearSpectrum()
         {
-            return ClearSpectrum(out CommException Error);
+            if (ClearSpectrum(out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -310,10 +325,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Spectrum">Spectrum</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool GetSpectrum(out Spectrum Spectrum)
+        public SpectrumEx GetSpectrum()
         {
-            CommException Error;
-            return GetSpectrum(out Spectrum, out Error);
+            if (GetSpectrum(out Spectrum spectrum, out CommException Error))
+                return spectrum;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -347,10 +364,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Calib">Calibration Coefficients</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool GetCalibration(out MCACalibration Calib)
+        public MCACalibrationEx GetMCACalibration()
         {
-            CommException Error;
-            return GetCalibration(out Calib, out Error);
+            if (GetMCACalibration(out MCACalibration Calib, out CommException Error))
+                return Calib;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -359,7 +378,7 @@ namespace Fx.Devices
         /// <param name="Calib">Calibration Coefficients</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool GetCalibration(out MCACalibration Calib, out CommException Error)
+        public bool GetMCACalibration(out MCACalibration Calib, out CommException Error)
         {
             Error = null;
             Calib = new MCACalibration();
@@ -554,11 +573,11 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Geiger Value</param>
         /// <returns>Returns true if read ok</returns>
-        public GeigerValueEx ReadValue()
+        public GeigerValueEx ReadEGMValue()
         {
             GeigerValue Value;
             CommException Error;
-            if (ReadValue(out Value, out Error))
+            if (ReadEGMValue(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -570,7 +589,7 @@ namespace Fx.Devices
         /// <param name="Value">Geiger Value</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool ReadValue(out GeigerValue Value, out CommException Error)
+        public bool ReadEGMValue(out GeigerValue Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerValue();
@@ -594,11 +613,11 @@ namespace Fx.Devices
         /// Get Geiger Value
         /// </summary>
         /// <returns>Returns true if read ok</returns>
-        public GeigerValueEx GetValue()
+        public GeigerValueEx GetEGMValue()
         {
             GeigerValue Value;
             CommException Error = new CommException();
-            if (GetValue(out Value, out Error))
+            if (GetEGMValue(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -610,7 +629,7 @@ namespace Fx.Devices
         /// <param name="Value">Geiger Value</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetValue(out GeigerValue Value, out CommException Error)
+        public bool GetEGMValue(out GeigerValue Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerValue();
@@ -636,11 +655,11 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Geiger Settings</param>
         /// <returns>Returns true if read ok</returns>
-        public GeigerSettingsEx GetSettings()
+        public GeigerSettingsEx GetEGMSettings()
         {
             GeigerSettings Value;
             CommException Error;
-            if (GetSettings(out Value, out Error))
+            if (GetEGMSettings(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -652,7 +671,7 @@ namespace Fx.Devices
         /// <param name="Value">Geiger Settings</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetSettings(out GeigerSettings Value, out CommException Error)
+        public bool GetEGMSettings(out GeigerSettings Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerSettings();
@@ -678,11 +697,11 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">DR limits</param>
         /// <returns>Returns true if read ok</returns>
-        public GeigerLimitsEx GetLimits()
+        public GeigerLimitsEx GetEGMLimits()
         {
             GeigerLimits Value;
             CommException Error;
-            if (GetLimits(out Value, out Error))
+            if (GetEGMLimits(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -694,7 +713,7 @@ namespace Fx.Devices
         /// <param name="Value">DR limits</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetLimits(out GeigerLimits Value, out CommException Error)
+        public bool GetEGMLimits(out GeigerLimits Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerLimits();
@@ -762,9 +781,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">SCA settings values</param>
         /// <returns>Returns true if get ok></returns>
-        public bool GetSettings(out SCASettings Value)
+        public SCASettingsEx GetSCASettings()
         {
-            return GetSettings(out Value, out CommException Error);
+            if (GetSCASettings(out SCASettings Value, out CommException Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -773,7 +795,7 @@ namespace Fx.Devices
         /// <param name="Value">SCA settings values</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if get ok</returns>
-        public bool GetSettings(out SCASettings Value, out CommException Error)
+        public bool GetSCASettings(out SCASettings Value, out CommException Error)
         {
             Error = null;
             Value = new SCASettings();
@@ -799,9 +821,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">SCA Value</param>
         /// <returns>Returns true if read ok</returns>
-        public bool ReadValue(out SCAValue Value)
+        public SCAValueEx ReadSCAValue()
         {
-            return ReadValue(out Value, out CommException Error);
+            if (ReadSCAValue(out SCAValue Value, out CommException Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -810,7 +835,7 @@ namespace Fx.Devices
         /// <param name="Value">SCA Value</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool ReadValue(out SCAValue Value, out CommException Error)
+        public bool ReadSCAValue(out SCAValue Value, out CommException Error)
         {
             Error = null;
             Value = new SCAValue();
@@ -835,9 +860,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">SCA value</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetValue(out SCAValue Value)
+        public SCAValueEx GetSCAValue()
         {
-            return GetValue(out Value, out CommException Error);
+            if (GetSCAValue(out SCAValue Value, out CommException Error))
+                return Value;
+            else
+                return Error;
         }
 
         /// <summary>
@@ -846,7 +874,7 @@ namespace Fx.Devices
         /// <param name="Value">SCA value</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetValue(out SCAValue Value, out CommException Error)
+        public bool GetSCAValue(out SCAValue Value, out CommException Error)
         {
             Error = null;
             Value = new SCAValue();
@@ -871,9 +899,12 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Time">Time</param>
         /// <returns>Returns true if communication ok</returns>
-        public bool SetTime(float Time)
+        public OkEx SetTime(float Time)
         {
-            return SetTime(Time, out CommException Error);
+            if (SetTime(Time, out CommException Error))
+                return true;
+            else
+                return Error;
         }
 
         /// <summary>

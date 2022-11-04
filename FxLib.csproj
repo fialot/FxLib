@@ -59,7 +59,9 @@
     <Compile Include="Devices\Devices\Nuvia\NuviaMCA.cs" />
     <Compile Include="Devices\Devices\Nuvia\NuviaNuvia.cs" />
     <Compile Include="Devices\Devices\Nuvia\NuviaPublic.cs" />
+    <Compile Include="Devices\Devices\Nuvia\NuviaRequest.cs" />
     <Compile Include="Devices\Device_AutoReading.cs" />
+    <Compile Include="Devices\Device_Private.cs" />
     <Compile Include="Devices\DevStructs.cs" />
     <Compile Include="Devices\IDevice.cs" />
     <Compile Include="Devices\IDeviceEGM.cs" />

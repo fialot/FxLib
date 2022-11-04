@@ -921,10 +921,7 @@ namespace Fx.Devices
 
         }
 
-        protected override void doDevRequest()
-        {
-
-        }
+        
 
         #region HV 
 

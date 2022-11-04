@@ -9,50 +9,50 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    enum eDeviceMCARequest { None, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
+    enum eDeviceMCARequest { None, SetTime, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
 
     public interface IDeviceMCA : IDevice
     {
-        bool GetSettings(out SCASettings Value);
-        bool GetSettings(out SCASettings Value, out CommException Error);
-        bool ReadValue(out SCAValue Value);
-        bool ReadValue(out SCAValue Value, out CommException Error);
-        bool GetValue(out SCAValue Value);
-        bool GetValue(out SCAValue Value, out CommException Error);
+        SCASettingsEx GetSCASettings();
+        bool GetSCASettings(out SCASettings Value, out CommException Error);
+        SCAValueEx ReadSCAValue();
+        bool ReadSCAValue(out SCAValue Value, out CommException Error);
+        SCAValueEx GetSCAValue();
+        bool GetSCAValue(out SCAValue Value, out CommException Error);
 
 
-        bool SetTime(float Time);
+        OkEx SetTime(float Time);
         bool SetTime(float Time, out CommException Error);
 
 
-        bool Start();
+        OkEx Start();
         bool Start(out CommException Error);
-        bool Stop();
+        OkEx Stop();
         bool Stop(out CommException Error);
-        bool Latch();
+        OkEx Latch();
         bool Latch(out CommException Error);
-        bool Clear();
+        OkEx Clear();
         bool Clear(out CommException Error);
-        bool SwitchHV(bool On);
+        OkEx SwitchHV(bool On);
         bool SwitchHV(bool On, out CommException Error);
 
-        bool StartSpectrum();
+        OkEx StartSpectrum();
         bool StartSpectrum(out CommException Error);
-        bool StopSpectrum();
+        OkEx StopSpectrum();
         bool StopSpectrum(out CommException Error);
-        bool ClearSpectrum();
+        OkEx ClearSpectrum();
         bool ClearSpectrum(out CommException Error);
-        bool GetSpectrum(out Spectrum spectrum);
+        SpectrumEx GetSpectrum();
         bool GetSpectrum(out Spectrum spectrum, out CommException Error);
-        bool GetCalibration(out MCACalibration Calib);
-        bool GetCalibration(out MCACalibration Calib, out CommException Error);
+        MCACalibrationEx GetMCACalibration();
+        bool GetMCACalibration(out MCACalibration Calib, out CommException Error);
 
 
-        bool SetHV(int HV);
+        OkEx SetHV(int HV);
         bool SetHV(int HV, out CommException Error);
-        bool CalibHV_SetPoint(byte domain, byte point, float voltage);
+        OkEx CalibHV_SetPoint(byte domain, byte point, float voltage);
         bool CalibHV_SetPoint(byte domain, byte point, float voltage, out CommException Error);
-        bool CalibHV_Set(byte domain);
+        OkEx CalibHV_Set(byte domain);
         bool CalibHV_Set(byte domain, out CommException Error);
     }
 }

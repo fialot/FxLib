@@ -69,12 +69,15 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public OkEx Connect()
         {
-            CommException Error;
-
-            if (Connect(out Error))
+            try
+            {
+                connect();
                 return true;
-            else
-                return Error;
+            }
+            catch (Exception err)
+            {
+                return new ConnectionFailedException(err);
+            }
         }
 
         /// <summary>
@@ -84,17 +87,10 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public bool Connect(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                connect();
-                return true;
-            }
-            catch (Exception err)
-            {
-                Error = new ConnectionFailedException(err);
-            }
-            return false;
+            CommException error = null;
+            var reply = Connect().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /*public bool Connect(ConnectionSetting settings)
@@ -104,17 +100,6 @@ namespace Fx.Devices
 
         public OkEx Connect(ConnectionSetting settings)
         {
-            CommException Error;
-
-            if (Connect(settings, out Error))
-                return true;
-            else
-                return Error;
-        }
-
-        public bool Connect(ConnectionSetting settings, out CommException Error)
-        {
-            Error = null;
             try
             {
                 Settings = settings;
@@ -123,9 +108,16 @@ namespace Fx.Devices
             }
             catch (Exception err)
             {
-                Error = new ConnectionFailedException(err);
+                return new ConnectionFailedException(err);
             }
-            return false;
+        }
+
+        public bool Connect(ConnectionSetting settings, out CommException Error)
+        {
+            CommException error = null;
+            var reply = Connect(settings).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
 
@@ -133,9 +125,17 @@ namespace Fx.Devices
         /// Disconnect device
         /// </summary>
         /// <returns>Returns true if connection ok</returns>
-        public bool Disconnect()
+        public OkEx Disconnect()
         {
-            return Disconnect(out CommException Error);
+            try
+            {
+                disconnect();
+                return true;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message);
+            }
         }
 
         /// <summary>
@@ -145,17 +145,10 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public bool Disconnect(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                disconnect();
-                return true;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message);
-            }
-            return false;
+            CommException error = null;
+            var reply = Disconnect().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -199,13 +192,18 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public DeviceInfoEx GetInfo()
         {
-            DeviceInfo Value;
-            CommException Error;
-
-            if (GetInfo(out Value, out Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return getInfo();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -216,22 +214,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetInfo(out DeviceInfo Value, out CommException Error)
         {
-            Error = null;
-            Value = new DeviceInfo();
-            try
-            {
-                Value = getInfo();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            DeviceInfo value = new DeviceInfo();
+            var reply = GetInfo().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
 
@@ -243,12 +231,21 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public StringEx GetXMLDesc()
         {
-            string XML;
-            CommException Error;
-            if (GetXMLDesc(out XML, out Error))
+            string XML = "";
+            try
+            {
+                XML = getXML();
+                GetSupport(XML);
                 return XML;
-            else
-                return Error;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -259,23 +256,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetXMLDesc(out string XML, out CommException Error)
         {
-            Error = null;
-            XML = "";
-            try
-            {
-                XML = getXML();
-                GetSupport(XML);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            string value = "";
+            var reply = GetXMLDesc().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            XML = value;
+            return reply;
         }
 
         /// <summary>
@@ -395,13 +381,18 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public DevParamsEx GetDescription()
         {
-            List<DevParams> Value;
-            CommException Error;
-
-            if (GetDescription(out Value, out Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return getDescription();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -412,22 +403,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetDescription(out List<DevParams> Value, out CommException Error)
         {
-            Error = null;
-            Value = new List<DevParams>();
-            try
-            {
-                Value = getDescription();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            List<DevParams> value = new List<DevParams>();
+            var reply = GetDescription().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         #endregion
@@ -547,12 +528,18 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public DevMeasValsEx GetMeasurement()
         {
-            List<DevMeasVals> Value;
-            CommException Error;
-            if (GetMeasurement(out Value, out Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return getMeasurement();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -563,22 +550,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetMeasurement(out List<DevMeasVals> Value, out CommException Error)
         {
-            Error = null;
-            Value = new List<DevMeasVals>();
-            try
-            {
-                Value = getMeasurement();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            List<DevMeasVals> value = new List<DevMeasVals>();
+            var reply = GetMeasurement().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         #endregion
@@ -777,13 +754,9 @@ namespace Fx.Devices
         }
         public DevParamValueEx GetParam(int ID)
         {
-            CommException Error;
-            DevParamVals Param = new DevParamVals(ID, "");
-            if (GetParam(ref Param, out Error))
-                return Param;
-            else
-                return Error;
+            return GetParam(new DevParamVals(ID, ""));
         }
+            
 
         /// <summary>
         /// Get device parameters
@@ -792,11 +765,18 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public DevParamValueEx GetParam(DevParamVals Param)
         {
-            CommException Error;
-            if (GetParam(ref Param, out Error))
-                return Param;
-            else
-                return Error;
+            try
+            {
+                return getParam(Param);
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -807,21 +787,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetParam(ref DevParamVals Param, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                Param = getParam(Param);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            DevParamVals value = new DevParamVals();
+            var reply = GetParam(Param).Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Param = value;
+            return reply;
         }
 
         /// <summary>
@@ -831,11 +802,18 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public DevParamValuesEx GetParams(List<DevParamVals> Param)
         {
-            CommException Error;
-            if (GetParams(ref Param, out Error))
-                return Param;
-            else
-                return Error;
+            try
+            {
+                return getParams(Param);
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -846,21 +824,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetParams(ref List<DevParamVals> Param, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                Param = getParams(Param);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            List<DevParamVals> value = new List<DevParamVals>();
+            var reply = GetParams(Param).Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Param = value;
+            return reply;
         }
 
         /// <summary>
@@ -870,12 +839,18 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public DevParamsEx GetAllParams()
         {
-            List<DevParams> Param;
-            CommException Error;
-            if (GetAllParams(out Param, out Error))
-                return Param;
-            else
-                return Error;
+            try
+            {
+                return getAllParams();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -886,22 +861,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetAllParams(out List<DevParams> Param, out CommException Error)
         {
-            Error = null;
-            Param = null;
-            try
-            {
-                Param = getAllParams();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            List<DevParams> value = new List<DevParams>();
+            var reply = GetAllParams().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Param = value;
+            return reply;
         }
 
         /// <summary>
@@ -912,20 +877,24 @@ namespace Fx.Devices
         /// <returns></returns>
         public OkEx SetParam(int ID, string Param)
         {
-            CommException Error;
-            if (SetParam(ID, Param, out Error))
+            try
+            {
+                setParam(ID, Param);
                 return true;
-            else
-                return Error;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         public OkEx SetParam(DevParamVals Param)
         {
-            CommException Error;
-            if (SetParam(Param.ID, Param.Value, out Error))
-                return true;
-            else
-                return Error;
+            return SetParam(Param.ID, Param.Value);
         }
 
         /// <summary>
@@ -937,21 +906,10 @@ namespace Fx.Devices
         /// <returns></returns>
         public bool SetParam(int ID, string Value, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setParam(ID, Value);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SetParam(ID, Value).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -961,11 +919,19 @@ namespace Fx.Devices
         /// <returns>Returns true if write ok</returns>
         public OkEx SetParams(List<DevParamVals> Param)
         {
-            CommException Error;
-            if (SetParam(Param, out Error))
+            try
+            {
+                setParams(Param);
                 return true;
-            else
-                return Error;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -974,67 +940,42 @@ namespace Fx.Devices
         /// <param name="Param">Parameters</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if write ok</returns>
-        public bool SetParam(List<DevParamVals> Param, out CommException Error)
+        public bool SetParams(List<DevParamVals> Param, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setParams(Param);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SetParams(Param).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         public PermissionEx Login(string password)
         {
-            DevPermission permission;
-            CommException Error;
-            if (Login(password, out permission, out Error))
-                return permission;
-            else
-                return Error;
+            try
+            {
+                return login(password);
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         public bool Login(string password, out DevPermission permission, out CommException Error)
         {
-            Error = null;
-            permission = DevPermission.None;
-            try
-            {
-                permission = login(password);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            DevPermission value = DevPermission.None;
+            var reply = Login(password).Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            permission = value;
+            return reply;
         }
 
         public OkEx Logout()
         {
-            CommException Error;
-            if (Logout(out Error))
-                return true;
-            else
-                return Error;
-        }
-
-        public bool Logout(out CommException Error)
-        {
-            Error = null;
             try
             {
                 logout();
@@ -1042,21 +983,28 @@ namespace Fx.Devices
             }
             catch (CommException err)
             {
-                Error = err;
+                return err;
             }
             catch (Exception err)
             {
-                Error = new CommException(err.Message, err);
+                return new CommException(err.Message, err);
             }
-            return false;
+        }
+
+        public bool Logout(out CommException Error)
+        {
+            CommException error = null;
+            var reply = Logout().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         public OkEx ChangePassword(string password)
         {
-            CommException Error;
-            eChangePassReply reply;
-            if (ChangePassword(password, out reply, out Error))
+            try
             {
+                var reply = changePass(password);
+
                 if (reply == eChangePassReply.BadLength)
                     return new BadLengthException();
                 else if (reply == eChangePassReply.NoPermissions)
@@ -1064,29 +1012,22 @@ namespace Fx.Devices
                 else
                     return true;
             }
-            else
-                return Error;
-
-        }
-
-        public bool ChangePassword(string password, out eChangePassReply reply, out CommException Error)
-        {
-            Error = null;
-            reply = eChangePassReply.NoPermissions;
-            try
-            {
-                reply = changePass(password);
-                return true;
-            }
             catch (CommException err)
             {
-                Error = err;
+                return err;
             }
             catch (Exception err)
             {
-                Error = new CommException(err.Message, err);
+                return new CommException(err.Message, err);
             }
-            return false;
+        }
+
+        public bool ChangePassword(string password, out CommException Error)
+        {
+            CommException error = null;
+            var reply = ChangePassword(password).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         #endregion
@@ -1101,12 +1042,18 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public StringArrayEx GetDir()
         {
-            string[] FileList;
-            CommException Error;
-            if (GetDir(out FileList, out Error))
-                return FileList;
-            else
-                return Error;
+            try
+            {
+                return getDir();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1117,22 +1064,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetDir(out string[] FileList, out CommException Error)
         {
-            Error = null;
-            FileList = new string[0];
-            try
-            {
-                FileList = getDir();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            string[] value = new string[0];
+            var reply = GetDir().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            FileList = value;
+            return reply;
         }
 
         /// <summary>
@@ -1143,12 +1080,18 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public StringEx GetFile(string FileName)
         {
-            string text;
-            CommException Error;
-            if (GetFile(FileName, out text, out Error))
-                return text;
-            else
-                return Error;
+            try
+            {
+                return getFile(FileName);
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1160,22 +1103,12 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool GetFile(string FileName, out string text, out CommException Error)
         {
-            Error = null;
-            text = "";
-            try
-            {
-                text = getFile(FileName);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            string value = "";
+            var reply = GetFile(FileName).Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            text = value;
+            return reply;
         }
 
         /// <summary>
@@ -1185,11 +1118,18 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx DelFile(string FileName)
         {
-            CommException Error;
-            if (DelFile(FileName, out Error))
-                return true;
-            else
-                return Error;
+            try
+            {
+                return delFile(FileName);
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1200,20 +1140,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool DelFile(string FileName, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                return delFile(FileName);
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = DelFile(FileName).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -1222,11 +1152,18 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx DelAllFiles()
         {
-            CommException Error;
-            if (DelAllFiles(out Error))
-                return true;
-            else
-                return Error;
+            try
+            {
+                return delAllFiles();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1236,64 +1173,40 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool DelAllFiles(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                return delAllFiles();
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = DelAllFiles().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         public StringEx GetConfig()
         {
-            string text;
-            CommException Error;
-            if (GetConfig(out text, out Error))
-                return text;
-            else
-                return Error;
+            try
+            {
+                return getConfig();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         public bool GetConfig(out string text, out CommException Error)
         {
-            text = "";
-            Error = null;
-            try
-            {
-                text = getConfig();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            string value = "";
+            var reply = GetConfig().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            text = value;
+            return reply;
         }
 
         public OkEx SetConfig(string FileName)
         {
-            CommException Error;
-            if (SetConfig(FileName, out Error))
-                return true;
-            else
-                return Error;
-        }
-
-        public bool SetConfig(string FileName, out CommException Error)
-        {
-            Error = null;
             try
             {
                 setConfig(FileName);
@@ -1301,79 +1214,74 @@ namespace Fx.Devices
             }
             catch (CommException err)
             {
-                Error = err;
+                return err;
             }
             catch (Exception err)
             {
-                Error = new CommException(err.Message, err);
+                return new CommException(err.Message, err);
             }
-            return false;
+        }
+
+        public bool SetConfig(string FileName, out CommException Error)
+        {
+            CommException error = null;
+            var reply = SetConfig(FileName).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         public OkEx ResetConfig()
         {
-            CommException Error;
-            if (ResetConfig(out Error))
-                return true;
-            else
-                return Error;
+            try
+            {
+                if (!resetConfig())
+                    return new NoPermissionException();
+                else
+                    return true;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         public bool ResetConfig(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                if (!resetConfig())
-                {
-                    Error = new CommException("No permissions!");
-                    return false;
-                }
-                else
-                    return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = ResetConfig().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         public OkEx CreateFactoryConfig()
         {
-            CommException Error;
-            if (CreateFactoryConfig(out Error))
-                return true;
-            else
-                return Error;
-        }
-
-        public bool CreateFactoryConfig(out CommException Error)
-        {
-            Error = null;
             try
             {
                 if (!createFactoryConfig())
-                {
-                    Error = new CommException("No permissions!");
-                    return false;
-                }
+                    return new NoPermissionException();
                 else
                     return true;
             }
             catch (CommException err)
             {
-                Error = err;
+                return err;
             }
             catch (Exception err)
             {
-                Error = new CommException(err.Message, err);
+                return new CommException(err.Message, err);
             }
-            return false;
+        }
+
+        public bool CreateFactoryConfig(out CommException Error)
+        {
+            CommException error = null;
+            var reply = CreateFactoryConfig().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         #endregion
@@ -1388,11 +1296,19 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx UpdateFirmware(string FileName)
         {
-            CommException Error;
-            if (UpdateFirmware(FileName, out Error))
+            try
+            {
+                updateFirmware(FileName);
                 return true;
-            else
-                return false;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1403,21 +1319,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool UpdateFirmware(string FileName, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                updateFirmware(FileName);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = UpdateFirmware(FileName).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -1426,11 +1331,19 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx RunApplication()
         {
-            CommException Error;
-            if (RunApplication(out Error))
+            try
+            {
+                runApp();
                 return true;
-            else
-                return Error;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1440,21 +1353,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool RunApplication(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                runApp();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = RunApplication().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -1463,11 +1365,19 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx RunBootloader()
         {
-            CommException Error;
-            if (RunBootloader(out Error))
+            try
+            {
+                runBootloader();
                 return true;
-            else
-                return Error;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1477,21 +1387,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool RunBootloader(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                runBootloader();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = RunBootloader().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -1500,11 +1399,19 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx StayInBootloader()
         {
-            CommException Error;
-            if (StayInBootloader(out Error))
+            try
+            {
+                stayInBootloader();
                 return true;
-            else
-                return Error;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -1514,21 +1421,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool StayInBootloader(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                stayInBootloader();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = StayInBootloader().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
         #endregion
 

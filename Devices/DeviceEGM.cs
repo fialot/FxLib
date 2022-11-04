@@ -15,11 +15,11 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Geiger Value</param>
         /// <returns>Returns true if read ok</returns>
-        public GeigerValueEx ReadValue()
+        public GeigerValueEx ReadEGMValue()
         {
             GeigerValue Value;
             CommException Error;
-            if (ReadValue(out Value, out Error))
+            if (ReadEGMValue(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -31,7 +31,7 @@ namespace Fx.Devices
         /// <param name="Value">Geiger Value</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool ReadValue(out GeigerValue Value, out CommException Error)
+        public bool ReadEGMValue(out GeigerValue Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerValue();
@@ -55,11 +55,11 @@ namespace Fx.Devices
         /// Get Geiger Value
         /// </summary>
         /// <returns>Returns true if read ok</returns>
-        public GeigerValueEx GetValue()
+        public GeigerValueEx GetEGMValue()
         {
             GeigerValue Value;
             CommException Error = new CommException();
-            if (GetValue(out Value, out Error))
+            if (GetEGMValue(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -71,7 +71,7 @@ namespace Fx.Devices
         /// <param name="Value">Geiger Value</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetValue(out GeigerValue Value, out CommException Error)
+        public bool GetEGMValue(out GeigerValue Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerValue();
@@ -97,11 +97,11 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">Geiger Settings</param>
         /// <returns>Returns true if read ok</returns>
-        public GeigerSettingsEx GetSettings()
+        public GeigerSettingsEx GetEGMSettings()
         {
             GeigerSettings Value;
             CommException Error;
-            if (GetSettings(out Value, out Error))
+            if (GetEGMSettings(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -113,7 +113,7 @@ namespace Fx.Devices
         /// <param name="Value">Geiger Settings</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetSettings(out GeigerSettings Value, out CommException Error)
+        public bool GetEGMSettings(out GeigerSettings Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerSettings();
@@ -139,11 +139,11 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="Value">DR limits</param>
         /// <returns>Returns true if read ok</returns>
-        public GeigerLimitsEx GetLimits()
+        public GeigerLimitsEx GetEGMLimits()
         {
             GeigerLimits Value;
             CommException Error;
-            if (GetLimits(out Value, out Error))
+            if (GetEGMLimits(out Value, out Error))
                 return Value;
             else
                 return Error;
@@ -155,7 +155,7 @@ namespace Fx.Devices
         /// <param name="Value">DR limits</param>
         /// <param name="Error">Error</param>
         /// <returns>Returns true if read ok</returns>
-        public bool GetLimits(out GeigerLimits Value, out CommException Error)
+        public bool GetEGMLimits(out GeigerLimits Value, out CommException Error)
         {
             Error = null;
             Value = new GeigerLimits();
@@ -417,6 +417,12 @@ namespace Fx.Devices
 
         #endregion
 
+        #region Auto Measurement
+        protected override void refreshDevData() { }
+
+        protected override void doDevRequest() { }
+
+        #endregion
 
         protected abstract GeigerValue readEGMValue();
         protected abstract GeigerValue getEGMValue();

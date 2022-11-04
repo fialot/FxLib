@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    enum eDeviceEGMRequest { None, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
+    enum eDeviceEGMRequest { None, SetTime, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
 
 
 
     public interface IDeviceEGM : IDevice
     {
-        GeigerValueEx ReadValue();
-        bool ReadValue(out GeigerValue Value, out CommException Error);
-        GeigerValueEx GetValue();
-        bool GetValue(out GeigerValue Value, out CommException Error);
-        GeigerSettingsEx GetSettings();
-        bool GetSettings(out GeigerSettings Value, out CommException Error);
-        GeigerLimitsEx GetLimits();
-        bool GetLimits(out GeigerLimits Value, out CommException Error);
+        GeigerValueEx ReadEGMValue();
+        bool ReadEGMValue(out GeigerValue Value, out CommException Error);
+        GeigerValueEx GetEGMValue();
+        bool GetEGMValue(out GeigerValue Value, out CommException Error);
+        GeigerSettingsEx GetEGMSettings();
+        bool GetEGMSettings(out GeigerSettings Value, out CommException Error);
+        GeigerLimitsEx GetEGMLimits();
+        bool GetEGMLimits(out GeigerLimits Value, out CommException Error);
         OkEx SetTime(int Time);
         bool SetTime(int Time, out CommException Error);
 

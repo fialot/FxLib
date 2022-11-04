@@ -37,7 +37,7 @@ namespace Fx.Devices
         OkEx Connect(ConnectionSetting settings);
         bool Connect(ConnectionSetting settings, out CommException Error);
 
-        bool Disconnect();
+        OkEx Disconnect();
         bool Disconnect(out CommException Error);
         bool IsConnected();
         void SetConnectionSettings(ConnectionSetting settings);
@@ -79,7 +79,7 @@ namespace Fx.Devices
         OkEx SetParam(DevParamVals Param);
         bool SetParam(int ID, string Param, out CommException Error);
         OkEx SetParams(List<DevParamVals> Param);
-        bool SetParam(List<DevParamVals> Param, out CommException Error);
+        bool SetParams(List<DevParamVals> Param, out CommException Error);
 
         // ----- Login -----
         PermissionEx Login(string password);
@@ -87,7 +87,7 @@ namespace Fx.Devices
         OkEx Logout();
         bool Logout(out CommException Error);
         OkEx ChangePassword(string password);
-        bool ChangePassword(string password, out eChangePassReply reply, out CommException Error);
+        bool ChangePassword(string password, out CommException Error);
 
 
         // ----- Files -----
