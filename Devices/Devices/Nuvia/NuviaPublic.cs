@@ -70,10 +70,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Start()
         {
-            if (Start(out CommException error))
-                return true;
+            if (!RunningMeasurement)
+                return start();
             else
-                return error;
+                return requestStart();
         }
 
         /// <summary>
@@ -83,21 +83,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool Start(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                start();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = Start().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -106,10 +95,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Stop()
         {
-            if (Stop(out CommException error))
-                return true;
+            if (!RunningMeasurement)
+                return stop();
             else
-                return error;
+                return requestStop();
         }
 
         /// <summary>
@@ -119,21 +108,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool Stop(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                stop();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = Stop().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -142,10 +120,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Latch()
         {
-            if (Latch(out CommException error))
-                return true;
+            if (!RunningMeasurement)
+                return latch();
             else
-                return error;
+                return requestLatch();
         }
 
         /// <summary>
@@ -155,21 +133,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool Latch(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                latch();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = Latch().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -178,10 +145,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Clear()
         {
-            if (Clear(out CommException error))
-                return true;
+            if (!RunningMeasurement)
+                return clear();
             else
-                return error;
+                return requestClear();
         }
 
         /// <summary>
@@ -191,21 +158,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool Clear(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                clear();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = Clear().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         #endregion
@@ -218,10 +174,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx StartSpectrum()
         {
-            if (StartSpectrum(out CommException error))
-                return true;
+            if (!RunningMeasurement)
+                return startSpectrum();
             else
-                return error;
+                return requestStartSpectrum();
         }
 
         /// <summary>
@@ -231,21 +187,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool StartSpectrum(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                startSpectrum();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = StartSpectrum().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -254,10 +199,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx StopSpectrum()
         {
-            if (StopSpectrum(out CommException error))
-                return true;
+            if (!RunningMeasurement)
+                return stopSpectrum();
             else
-                return error;
+                return requestStopSpectrum();
         }
 
         /// <summary>
@@ -267,21 +212,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool StopSpectrum(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                stopSpectrum();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = StopSpectrum().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -290,10 +224,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx ClearSpectrum()
         {
-            if (ClearSpectrum(out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return clearSpectrum();
             else
-                return Error;
+                return requestClearSpectrum();
         }
 
         /// <summary>
@@ -303,34 +237,22 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool ClearSpectrum(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                clearSpectrum();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = ClearSpectrum().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
         /// Get Spectrum
         /// </summary>
-        /// <param name="Spectrum">Spectrum</param>
-        /// <returns>Returns true if communication ok</returns>
+        /// <returns>Returns Spectrum if communication ok</returns>
         public SpectrumEx GetSpectrum()
         {
-            if (GetSpectrum(out Spectrum spectrum, out CommException Error))
-                return spectrum;
+            if (!RunningMeasurement)
+                return getSpectrum();
             else
-                return Error;
+                return requestGetSpectrum();
         }
 
         /// <summary>
@@ -341,35 +263,24 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool GetSpectrum(out Spectrum spectrum, out CommException Error)
         {
-            Error = null;
-            spectrum = new Spectrum();
-            try
-            {
-                spectrum = getSpectrum();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            Spectrum spect = null;
+            CommException error = null;
+            var reply = GetSpectrum().Match(ok => { spect = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            spectrum = spect;
+            return reply;
         }
 
         /// <summary>
         /// Get calibration coeficients (Energy, FWHM)
         /// </summary>
-        /// <param name="Calib">Calibration Coefficients</param>
-        /// <returns>Returns true if communication ok</returns>
+        /// <returns>Returns Calibration if communication ok</returns>
         public MCACalibrationEx GetMCACalibration()
         {
-            if (GetMCACalibration(out MCACalibration Calib, out CommException Error))
-                return Calib;
+            if (!RunningMeasurement)
+                return getMCACalibration();
             else
-                return Error;
+                return requestGetMCACalibration();
         }
 
         /// <summary>
@@ -380,22 +291,12 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool GetMCACalibration(out MCACalibration Calib, out CommException Error)
         {
-            Error = null;
-            Calib = new MCACalibration();
-            try
-            {
-                Calib = getCalibration();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            MCACalibration calib = new MCACalibration();
+            CommException error = null;
+            var reply = GetMCACalibration().Match(ok => { calib = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Calib = calib;
+            return reply;
         }
 
 
@@ -413,10 +314,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx SwitchHV(bool On)
         {
-            if (SwitchHV(On, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return switchHV(On);
             else
-                return Error;
+                return requestSwitchHV(On);
         }
 
         /// <summary>
@@ -427,21 +328,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool SwitchHV(bool On, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                switchHV(On);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SwitchHV(On).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -451,10 +341,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx SetHV(int HV)
         {
-            if (SetHV(HV, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return setHV(HV);
             else
-                return Error;
+                return requestSetHV(HV);
         }
 
         /// <summary>
@@ -465,21 +355,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool SetHV(int HV, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setHV(HV);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SetHV(HV).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -491,10 +370,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx CalibHV_SetPoint(byte domain, byte point, float voltage)
         {
-            if (CalibHV_SetPoint(domain, point, voltage, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return calibHV_SetPoint(domain, point, voltage);
             else
-                return Error;
+                return requestCalibHV_SetPoint(domain, point, voltage);
         }
 
         /// <summary>
@@ -507,21 +386,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool CalibHV_SetPoint(byte domain, byte point, float voltage, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setCalibHVPoint(domain, point, voltage);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = CalibHV_SetPoint(domain, point, voltage).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -531,10 +399,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx CalibHV_Set(byte domain)
         {
-            if (CalibHV_Set(domain, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return calibHV_Set(domain);
             else
-                return Error;
+                return requestCalibHV_Set(domain);
         }
 
         /// <summary>
@@ -545,21 +413,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool CalibHV_Set(byte domain, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setCalibHV(domain);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = CalibHV_Set(domain).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         #endregion
@@ -571,16 +428,21 @@ namespace Fx.Devices
         /// <summary>
         /// Read Geiger Value from last Measurement
         /// </summary>
-        /// <param name="Value">Geiger Value</param>
         /// <returns>Returns true if read ok</returns>
         public GeigerValueEx ReadEGMValue()
         {
-            GeigerValue Value;
-            CommException Error;
-            if (ReadEGMValue(out Value, out Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return devReadEGMValue();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -591,22 +453,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool ReadEGMValue(out GeigerValue Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerValue();
-            try
-            {
-                Value = readEGMValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            GeigerValue value = new GeigerValue();
+            CommException error = null;
+            var reply = ReadEGMValue().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         /// <summary>
@@ -615,12 +467,10 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public GeigerValueEx GetEGMValue()
         {
-            GeigerValue Value;
-            CommException Error = new CommException();
-            if (GetEGMValue(out Value, out Error))
-                return Value;
+            if (!RunningMeasurement)
+                return getEGMValue();
             else
-                return Error;
+                return requestGetEGMValue();
         }
 
         /// <summary>
@@ -631,38 +481,25 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetEGMValue(out GeigerValue Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerValue();
-            try
-            {
-                Value = getEGMValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            GeigerValue value = new GeigerValue();
+            CommException error = null;
+            var reply = GetEGMValue().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
 
         /// <summary>
         /// Get Device Settings
         /// </summary>
-        /// <param name="Value">Geiger Settings</param>
         /// <returns>Returns true if read ok</returns>
         public GeigerSettingsEx GetEGMSettings()
         {
-            GeigerSettings Value;
-            CommException Error;
-            if (GetEGMSettings(out Value, out Error))
-                return Value;
+            if (!RunningMeasurement)
+                return getEGMSettings();
             else
-                return Error;
+                return requestGetEGMSettings();
         }
 
         /// <summary>
@@ -673,38 +510,25 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetEGMSettings(out GeigerSettings Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerSettings();
-            try
-            {
-                Value = getEGMSettings();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            GeigerSettings value = new GeigerSettings();
+            CommException error = null;
+            var reply = GetEGMSettings().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
 
         /// <summary>
         /// Get limits
         /// </summary>
-        /// <param name="Value">DR limits</param>
         /// <returns>Returns true if read ok</returns>
         public GeigerLimitsEx GetEGMLimits()
         {
-            GeigerLimits Value;
-            CommException Error;
-            if (GetEGMLimits(out Value, out Error))
-                return Value;
+            if (!RunningMeasurement)
+                return getEGMLimits();
             else
-                return Error;
+                return requestGetEGMLimits();
         }
 
         /// <summary>
@@ -715,22 +539,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetEGMLimits(out GeigerLimits Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerLimits();
-            try
-            {
-                Value = getEGMLimits();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            GeigerLimits value = new GeigerLimits();
+            CommException error = null;
+            var reply = GetEGMLimits().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         /// <summary>
@@ -740,10 +554,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx SetTime(int Time)
         {
-            if (SetTime(Time, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return setTime(Time);
             else
-                return Error;
+                return requestSetTime(Time);
         }
 
         /// <summary>
@@ -754,21 +568,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool SetTime(int Time, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setTime(Time);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SetTime(Time).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
 
@@ -783,10 +586,18 @@ namespace Fx.Devices
         /// <returns>Returns true if get ok></returns>
         public SCASettingsEx GetSCASettings()
         {
-            if (GetSCASettings(out SCASettings Value, out CommException Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return devGetMCASettings();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -797,22 +608,12 @@ namespace Fx.Devices
         /// <returns>Returns true if get ok</returns>
         public bool GetSCASettings(out SCASettings Value, out CommException Error)
         {
-            Error = null;
-            Value = new SCASettings();
-            try
-            {
-                Value = getMCASettings();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            SCASettings value = new SCASettings();
+            CommException error = null;
+            var reply = GetSCASettings().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
 
@@ -823,10 +624,18 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public SCAValueEx ReadSCAValue()
         {
-            if (ReadSCAValue(out SCAValue Value, out CommException Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return devReadMCAValue();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -837,22 +646,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool ReadSCAValue(out SCAValue Value, out CommException Error)
         {
-            Error = null;
-            Value = new SCAValue();
-            try
-            {
-                Value = readMCAValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            SCAValue value = new SCAValue();
+            CommException error = null;
+            var reply = ReadSCAValue().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         /// <summary>
@@ -862,10 +661,18 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public SCAValueEx GetSCAValue()
         {
-            if (GetSCAValue(out SCAValue Value, out CommException Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return devGetMCAValue();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -876,22 +683,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetSCAValue(out SCAValue Value, out CommException Error)
         {
-            Error = null;
-            Value = new SCAValue();
-            try
-            {
-                Value = getMCAValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            SCAValue value = new SCAValue();
+            CommException error = null;
+            var reply = GetSCAValue().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         /// <summary>
@@ -901,10 +698,19 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx SetTime(float Time)
         {
-            if (SetTime(Time, out CommException Error))
+            try
+            {
+                devSetTime(Time);
                 return true;
-            else
-                return Error;
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -915,21 +721,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool SetTime(float Time, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setTime(Time);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SetTime(Time).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         #endregion

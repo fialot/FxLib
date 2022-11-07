@@ -220,7 +220,19 @@ namespace Fx.Devices
     public enum eChangePassReply { OK, BadLength, NoPermissions };
 
 
+    public struct CalibHVPoint
+    {
+        public byte Domain;
+        public byte Point;
+        public float HV;
 
+        public CalibHVPoint(byte Domain, byte Point, float HV)
+        {
+            this.Domain = Domain;
+            this.Point = Point;
+            this.HV = HV;
+        }
+    }
 
     public class DevParams
     {

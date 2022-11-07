@@ -123,7 +123,7 @@ namespace Fx.Devices
         /// Read last values
         /// </summary>
         /// <returns></returns>
-        protected GeigerValue readEGMValue()
+        protected GeigerValue devReadEGMValue()
         {
             return GetEGMValFromDict(lastMeas);
         }
@@ -132,7 +132,7 @@ namespace Fx.Devices
         /// Get Geiger Value from device
         /// </summary>
         /// <returns>Geiger measurement</returns>
-        protected GeigerValue getEGMValue()
+        protected GeigerValue devGetEGMValue()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -172,7 +172,7 @@ namespace Fx.Devices
         /// Get EGM settings
         /// </summary>
         /// <returns>EGM Settings</returns>
-        protected GeigerSettings getEGMSettings()
+        protected GeigerSettings devGetEGMSettings()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -188,7 +188,7 @@ namespace Fx.Devices
         /// Dose Rate Limits
         /// </summary>
         /// <returns>Limits</returns>
-        protected GeigerLimits getEGMLimits()
+        protected GeigerLimits devGetEGMLimits()
         {
             egmLimits = new GeigerLimits();
 
@@ -219,7 +219,7 @@ namespace Fx.Devices
         /// Set Measurement Time
         /// </summary>
         /// <param name="Time"></param>
-        protected void setTime(int Time)
+        protected void devSetTime(int Time)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {

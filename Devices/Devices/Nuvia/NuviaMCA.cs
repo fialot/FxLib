@@ -133,7 +133,7 @@ namespace Fx.Devices
         /// <summary>
         /// Start Spectrum measuring
         /// </summary>
-        protected void startSpectrum()
+        protected void devStartSpectrum()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -148,7 +148,7 @@ namespace Fx.Devices
         /// <summary>
         /// Stop Spectrum Measurement
         /// </summary>
-        protected void stopSpectrum()
+        protected void devStopSpectrum()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -163,7 +163,7 @@ namespace Fx.Devices
         /// <summary>
         /// Clear Spectrum
         /// </summary>
-        protected void clearSpectrum()
+        protected void devClearSpectrum()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -179,7 +179,7 @@ namespace Fx.Devices
         /// Get Spectrum
         /// </summary>
         /// <returns>Returns Spectrum</returns>
-        protected Spectrum getSpectrum()
+        protected Spectrum devGetSpectrum()
         {
             Spectrum spectrum;
 
@@ -207,7 +207,7 @@ namespace Fx.Devices
         /// Switch HV
         /// </summary>
         /// <param name="on">Turn On/Off</param>
-        protected void switchHV(bool on)
+        protected void devSwitchHV(bool on)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -227,7 +227,7 @@ namespace Fx.Devices
         /// Read last values
         /// </summary>
         /// <returns>SCA measurement</returns>
-        protected SCAValue readMCAValue()
+        protected SCAValue devReadMCAValue()
         {
             return GetMCAValFromDict(lastMeas);
         }
@@ -236,7 +236,7 @@ namespace Fx.Devices
         /// Get SCA Value from device
         /// </summary>
         /// <returns>SCA measurement</returns>
-        protected SCAValue getMCAValue()
+        protected SCAValue devGetMCAValue()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -269,7 +269,7 @@ namespace Fx.Devices
         /// Get SCA settings
         /// </summary>
         /// <returns>SCA Settings</returns>
-        protected SCASettings getMCASettings()
+        protected SCASettings devGetMCASettings()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -285,7 +285,7 @@ namespace Fx.Devices
         /// Set Measurement Time
         /// </summary>
         /// <param name="Time"></param>
-        protected void setTime(float Time)
+        protected void devSetTime(float Time)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -307,7 +307,7 @@ namespace Fx.Devices
         /// Get MCA Calibration
         /// </summary>
         /// <returns></returns>
-        protected MCACalibration getCalibration()
+        protected MCACalibration devGetCalibration()
         {
             MCACalibration cal = new MCACalibration(500);
             cal.Energy.Type = EnergyCalibrationType.Polynomial;

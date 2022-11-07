@@ -253,7 +253,7 @@ namespace Fx.Devices
         /// Get Device Info
         /// </summary>
         /// <returns></returns>
-        protected override DeviceInfo getInfo()
+        protected override DeviceInfo devGetInfo()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -269,7 +269,7 @@ namespace Fx.Devices
         /// Get XML description
         /// </summary>
         /// <returns></returns>
-        protected override string getXML()
+        protected override string devGetXML()
         {
 
             byte lng;
@@ -292,7 +292,7 @@ namespace Fx.Devices
         /// Get all measurement data
         /// </summary>
         /// <returns>Measurement list with description</returns>
-        protected override List<DevMeasVals> getMeasurement()
+        protected override List<DevMeasVals> devGetMeasurement()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -305,7 +305,7 @@ namespace Fx.Devices
             {
                 lastMeas = nuvia.GetMeasurement();
 
-                if (MeasList == null) MeasList = CreateMeasList(getXML(), mode);     // Create Measurement list
+                if (MeasList == null) MeasList = CreateMeasList(devGetXML(), mode);     // Create Measurement list
 
                 return FillMeas(MeasList, lastMeas);                           // Fill Measurement values
             }       
@@ -315,7 +315,7 @@ namespace Fx.Devices
         /// Get all description data
         /// </summary>
         /// <returns>Measurement list with description</returns>
-        protected override List<DevParams> getDescription()
+        protected override List<DevParams> devGetDescription()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -325,7 +325,7 @@ namespace Fx.Devices
             {
                 lastMeas = nuvia.GetDescription();
 
-                if (DescList == null) DescList = CreateDescriptionList(getXML(), mode);     // Create Measurement list
+                if (DescList == null) DescList = CreateDescriptionList(devGetXML(), mode);     // Create Measurement list
 
                 return FillParam(DescList, lastMeas);                           // Fill Measurement values
             }
@@ -340,7 +340,7 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="param">Parameter ID</param>
         /// <returns>Parameter</returns>
-        protected override DevParamVals getParam(DevParamVals param)
+        protected override DevParamVals devGetParam(DevParamVals param)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -361,7 +361,7 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="param">Parameters list</param>
         /// <returns>Parameters list</returns>
-        protected override List<DevParamVals> getParams(List<DevParamVals> param)
+        protected override List<DevParamVals> devGetParams(List<DevParamVals> param)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -390,7 +390,7 @@ namespace Fx.Devices
         /// Get All device parameter with description
         /// </summary>
         /// <returns>Parameter list</returns>
-        protected override List<DevParams> getAllParams()
+        protected override List<DevParams> devGetAllParams()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -399,7 +399,7 @@ namespace Fx.Devices
             else
             {
                 //if (ParamList == null)
-                ParamList = CreateParamList(getXML(), mode, Permission);
+                ParamList = CreateParamList(devGetXML(), mode, Permission);
 
                 List<DevParams> list = new List<DevParams>();
                 string reply = nuvia.GetParam("0");
@@ -425,15 +425,15 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="id">Parameter ID</param>
         /// <param name="param">Parameter value</param>
-        protected override void setParam(int id, string param)
+        protected override void devSetParam(DevParamVals param)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
-                mbSetParam(id, param);
+                mbSetParam(param.ID, param.Value);
             }
             else
             {
-                nuvia.SetParam(id.ToString() + "=" + param);
+                nuvia.SetParam(param.ID.ToString() + "=" + param.Value);
             }
             
         }
@@ -442,7 +442,7 @@ namespace Fx.Devices
         /// Set parameters
         /// </summary>
         /// <param name="param">Parameters list</param>
-        protected override void setParams(List<DevParamVals> param)
+        protected override void devSetParams(List<DevParamVals> param)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -471,7 +471,7 @@ namespace Fx.Devices
         /// Get directory (file list)
         /// </summary>
         /// <returns>Returns File list</returns>
-        protected override string[] getDir()
+        protected override string[] devGetDir()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -488,7 +488,7 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="fileName">File name</param>
         /// <returns>Returns File</returns>
-        protected override string getFile(string fileName)
+        protected override string devGetFile(string fileName)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -506,7 +506,7 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="fileName">File name</param>
         /// <returns>Returns true if succesfully deleted</returns>
-        protected override bool delFile(string fileName)
+        protected override bool devDelFile(string fileName)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -522,7 +522,7 @@ namespace Fx.Devices
         /// Delete all files
         /// </summary>
         /// <returns>Returns true if succesfully deleted</returns>
-        protected override bool delAllFiles()
+        protected override bool devDelAllFiles()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -543,7 +543,7 @@ namespace Fx.Devices
         /// Download Config from device
         /// </summary>
         /// <returns>Returns true if succesfully deleted</returns>
-        protected override string getConfig()
+        protected override string devGetConfig()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -582,7 +582,7 @@ namespace Fx.Devices
         /// Update Config from file
         /// </summary>
         /// <returns>Returns true if succesfully deleted</returns>
-        protected override void setConfig(string fileName)
+        protected override void devSetConfig(string fileName)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -608,7 +608,7 @@ namespace Fx.Devices
         /// Reset Config to factory default
         /// </summary>
         /// <returns>Returns true if succesfully reset</returns>
-        protected override bool resetConfig()
+        protected override bool devResetConfig()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -624,7 +624,7 @@ namespace Fx.Devices
         /// Create factory config
         /// </summary>
         /// <returns></returns>
-        protected override bool createFactoryConfig()
+        protected override bool devCreateFactoryConfig()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -640,7 +640,7 @@ namespace Fx.Devices
 
         #region Login
 
-        protected override DevPermission login(string password)
+        protected override DevPermission devLogin(string password)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -652,7 +652,7 @@ namespace Fx.Devices
             }
             
         }
-        protected override DevPermission logout()
+        protected override DevPermission devLogout()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -663,7 +663,7 @@ namespace Fx.Devices
                 return nuvia.Logout();
             }
         }
-        protected override eChangePassReply changePass(string password)
+        protected override eChangePassReply devChangePass(string password)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -695,7 +695,7 @@ namespace Fx.Devices
         /// Update firmware
         /// </summary>
         /// <param name="fileName">Firmware file name</param>
-        protected override void updateFirmware(string fileName)
+        protected override void devUpdateFirmware(string fileName)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -835,7 +835,7 @@ namespace Fx.Devices
         /// Run application 
         /// (from bootloader)
         /// </summary>
-        protected override void runApp()
+        protected override void devRunApp()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -864,7 +864,7 @@ namespace Fx.Devices
         /// Run bootloader
         /// (from application)
         /// </summary>
-        protected override void runBootloader()
+        protected override void devRunBootloader()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -899,7 +899,7 @@ namespace Fx.Devices
         /// <summary>
         /// Stay in bootloader
         /// </summary>
-        protected override void stayInBootloader()
+        protected override void devStayInBootloader()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -929,19 +929,19 @@ namespace Fx.Devices
         /// Set HV
         /// </summary>
         /// <param name="HV">Voltage</param>
-        protected void setHV(int HV)
+        protected void devSetHV(int HV)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
-                setParam(32, HV.ToString());
+                devSetParam(new DevParamVals(32, HV.ToString()));
             }
             else
             {
-                setParam(13, HV.ToString());
+                devSetParam(new DevParamVals(13, HV.ToString()));
             }
         }
 
-        protected void setCalibHVPoint(byte domain, byte point, float voltage)
+        protected void devSetCalibHVPoint(byte domain, byte point, float voltage)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -955,7 +955,7 @@ namespace Fx.Devices
             
         }
 
-        protected void setCalibHV(byte domain)
+        protected void devSetCalibHV(byte domain)
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -977,7 +977,7 @@ namespace Fx.Devices
         /// <summary>
         /// Start measuring
         /// </summary>
-        protected void start()
+        protected void devStart()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -992,7 +992,7 @@ namespace Fx.Devices
         /// <summary>
         /// Stop Measuring
         /// </summary>
-        protected void stop()
+        protected void devStop()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -1007,7 +1007,7 @@ namespace Fx.Devices
         /// <summary>
         /// Stop Measuring
         /// </summary>
-        protected void latch()
+        protected void devLatch()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
@@ -1022,7 +1022,7 @@ namespace Fx.Devices
         /// <summary>
         /// Clear Measuring
         /// </summary>
-        protected void clear()
+        protected void devClear()
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {

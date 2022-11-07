@@ -8,6 +8,15 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
+    enum eDeviceRequest { None, GetInfo, GetXmlDescription, GetDescription, GetMeasurement,
+        GetParameter, GetParameters, GetAllParameters, SetParameter, SetParameters,
+        Login, Logout, ChangePassword,
+        GetDirectory, GetFile, DeleteFile, DeleteAllFiles,
+        GetConfig, SetConfig, ResetConfig, CreateFactoryConfig,
+        UpdateFirmware, RunApplication, RunBootloader, StayInBootloader
+    }
+
+
     public interface IDevice
     {
         string DeviceName { get; }
@@ -84,8 +93,8 @@ namespace Fx.Devices
         // ----- Login -----
         PermissionEx Login(string password);
         bool Login(string password, out DevPermission permission, out CommException Error);
-        OkEx Logout();
-        bool Logout(out CommException Error);
+        PermissionEx Logout();
+        bool Logout(out DevPermission permission, out CommException Error);
         OkEx ChangePassword(string password);
         bool ChangePassword(string password, out CommException Error);
 

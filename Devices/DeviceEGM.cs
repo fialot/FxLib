@@ -8,21 +8,26 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    public abstract class DeviceEGM : Device, IDeviceEGM
+    public abstract partial class DeviceEGM : Device, IDeviceEGM
     {
         /// <summary>
         /// Read Geiger Value from last Measurement
         /// </summary>
-        /// <param name="Value">Geiger Value</param>
-        /// <returns>Returns true if read ok</returns>
+        /// <returns>Returns EGM value</returns>
         public GeigerValueEx ReadEGMValue()
         {
-            GeigerValue Value;
-            CommException Error;
-            if (ReadEGMValue(out Value, out Error))
-                return Value;
-            else
-                return Error;
+            try
+            {
+                return devReadEGMValue();
+            }
+            catch (CommException err)
+            {
+                return err;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message, err);
+            }
         }
 
         /// <summary>
@@ -33,22 +38,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool ReadEGMValue(out GeigerValue Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerValue();
-            try
-            {
-                Value = readEGMValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            GeigerValue value = new GeigerValue();
+            var reply = ReadEGMValue().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         /// <summary>
@@ -57,12 +52,10 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public GeigerValueEx GetEGMValue()
         {
-            GeigerValue Value;
-            CommException Error = new CommException();
-            if (GetEGMValue(out Value, out Error))
-                return Value;
+            if (!RunningMeasurement)
+                return getEGMValue();
             else
-                return Error;
+                return requestGetEGMValue();
         }
 
         /// <summary>
@@ -73,38 +66,25 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetEGMValue(out GeigerValue Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerValue();
-            try
-            {
-                Value = getEGMValue();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            GeigerValue value = new GeigerValue();
+            var reply = GetEGMValue().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
 
         /// <summary>
         /// Get Device Settings
         /// </summary>
-        /// <param name="Value">Geiger Settings</param>
-        /// <returns>Returns true if read ok</returns>
+        /// <returns>Returns settings if read ok</returns>
         public GeigerSettingsEx GetEGMSettings()
         {
-            GeigerSettings Value;
-            CommException Error;
-            if (GetEGMSettings(out Value, out Error))
-                return Value;
+            if (!RunningMeasurement)
+                return getEGMSettings();
             else
-                return Error;
+                return requestGetEGMSettings();
         }
 
         /// <summary>
@@ -115,38 +95,25 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetEGMSettings(out GeigerSettings Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerSettings();
-            try
-            {
-                Value = getEGMSettings();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            GeigerSettings value = new GeigerSettings();
+            var reply = GetEGMSettings().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
 
         /// <summary>
         /// Get limits
         /// </summary>
-        /// <param name="Value">DR limits</param>
-        /// <returns>Returns true if read ok</returns>
+        /// <returns>Returns limits if read ok</returns>
         public GeigerLimitsEx GetEGMLimits()
         {
-            GeigerLimits Value;
-            CommException Error;
-            if (GetEGMLimits(out Value, out Error))
-                return Value;
+            if (!RunningMeasurement)
+                return getEGMLimits();
             else
-                return Error;
+                return requestGetEGMLimits();
         }
 
         /// <summary>
@@ -157,22 +124,12 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public bool GetEGMLimits(out GeigerLimits Value, out CommException Error)
         {
-            Error = null;
-            Value = new GeigerLimits();
-            try
-            {
-                Value = getEGMLimits();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            GeigerLimits value = new GeigerLimits();
+            var reply = GetEGMLimits().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
+            Error = error;
+            Value = value;
+            return reply;
         }
 
         /// <summary>
@@ -182,10 +139,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx SetTime(int Time)
         {
-            if (SetTime(Time, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return setTime(Time);
             else
-                return Error;
+                return requestSetTime(Time);
         }
 
         /// <summary>
@@ -196,21 +153,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool SetTime(int Time, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setTime(Time);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SetTime(Time).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         #region Measurement 
@@ -222,10 +168,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Start()
         {
-            if (Start(out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return start();
             else
-                return Error;
+                return requestStart();
         }
 
         /// <summary>
@@ -235,21 +181,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool Start(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                start();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = Start().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -258,10 +193,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx Stop()
         {
-            if (Stop(out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return stop();
             else
-                return Error;
+                return requestStop();
         }
 
         /// <summary>
@@ -271,21 +206,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool Stop(out CommException Error)
         {
-            Error = null;
-            try
-            {
-                stop();
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = Stop().Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
 
@@ -304,10 +228,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public OkEx SetHV(int HV)
         {
-            if (SetHV(HV, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return setHV(HV);
             else
-                return Error;
+                return requestSetHV(HV);
         }
 
         /// <summary>
@@ -318,21 +242,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         public bool SetHV(int HV, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setHV(HV);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = SetHV(HV).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -344,10 +257,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx CalibHV_SetPoint(byte domain, byte point, float voltage)
         {
-            if (CalibHV_SetPoint(domain, point, voltage, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return calibHV_SetPoint(domain, point, voltage);
             else
-                return Error;
+                return requestCalibHV_SetPoint(domain, point, voltage);
         }
 
         /// <summary>
@@ -360,21 +273,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool CalibHV_SetPoint(byte domain, byte point, float voltage, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setCalibHVPoint(domain, point, voltage);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = CalibHV_SetPoint(domain, point, voltage).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         /// <summary>
@@ -384,10 +286,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx CalibHV_Set(byte domain)
         {
-            if (CalibHV_Set(domain, out CommException Error))
-                return true;
+            if (!RunningMeasurement)
+                return calibHV_Set(domain);
             else
-                return Error;
+                return requestCalibHV_Set(domain);
         }
 
         /// <summary>
@@ -398,21 +300,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public bool CalibHV_Set(byte domain, out CommException Error)
         {
-            Error = null;
-            try
-            {
-                setCalibHV(domain);
-                return true;
-            }
-            catch (CommException err)
-            {
-                Error = err;
-            }
-            catch (Exception err)
-            {
-                Error = new CommException(err.Message, err);
-            }
-            return false;
+            CommException error = null;
+            var reply = CalibHV_Set(domain).Match(ok => true, err => { error = err; return false; });
+            Error = error;
+            return reply;
         }
 
         #endregion
@@ -420,23 +311,76 @@ namespace Fx.Devices
         #region Auto Measurement
         protected override void refreshDevData() { }
 
-        protected override void doDevRequest() { }
+        protected override void doDevRequest()
+        {
+            try
+            {
+                switch ((eDeviceEGMRequest)request)
+                {
+                    case eDeviceEGMRequest.None:
+                        break;
+                    case eDeviceEGMRequest.GetEGMValue:
+                        requestReply = devGetEGMValue();
+                        break;
+                    case eDeviceEGMRequest.GetEGMSettings:
+                        requestReply = devGetEGMSettings();
+                        break;
+                    case eDeviceEGMRequest.GetEGMLimits:
+                        requestReply = devGetEGMLimits();
+                        break;
+                    case eDeviceEGMRequest.SetTime:
+                        devSetTime((int)requestValue);
+                        requestReply = true;
+                        break;
+                    case eDeviceEGMRequest.Start:
+                        devStart();
+                        requestReply = true;
+                        break;
+                    case eDeviceEGMRequest.Stop:
+                        devStop();
+                        requestReply = true;
+                        break;
+                    case eDeviceEGMRequest.SetHV:
+                        devSetHV((int)requestValue);
+                        requestReply = true;
+                        break;
+                    case eDeviceEGMRequest.CalibHV_SetPoint:
+                        CalibHVPoint point = (CalibHVPoint)requestValue;
+                        devSetCalibHVPoint(point.Domain, point.Point, point.HV);
+                        requestReply = true;
+                        break;
+                    case eDeviceEGMRequest.CalibHV_Set:
+                        devSetCalibHV((byte)requestValue);
+                        requestReply = true;
+                        break;
+
+                }
+            }
+            catch (CommException err)
+            {
+                requestReply = err;
+            }
+            catch (Exception err)
+            {
+                requestReply = new CommException(err.Message, err);
+            }
+        }
 
         #endregion
 
-        protected abstract GeigerValue readEGMValue();
-        protected abstract GeigerValue getEGMValue();
-        protected abstract GeigerSettings getEGMSettings();
-        protected abstract GeigerLimits getEGMLimits();
-        protected abstract void setTime(int time);
+        protected abstract GeigerValue devReadEGMValue();
+        protected abstract GeigerValue devGetEGMValue();
+        protected abstract GeigerSettings devGetEGMSettings();
+        protected abstract GeigerLimits devGetEGMLimits();
+        protected abstract void devSetTime(int time);
 
-        protected abstract void start();
-        protected abstract void stop();
+        protected abstract void devStart();
+        protected abstract void devStop();
 
-        protected abstract void setHV(int HV);
+        protected abstract void devSetHV(int HV);
 
-        protected abstract void setCalibHVPoint(byte domain, byte point, float voltage);
-        protected abstract void setCalibHV(byte domain);
+        protected abstract void devSetCalibHVPoint(byte domain, byte point, float voltage);
+        protected abstract void devSetCalibHV(byte domain);
 
     }
 }

@@ -616,7 +616,7 @@ namespace Fx.Devices
 
             Dictionary<int, string> valDict = new Dictionary<int, string>();
 
-            if (MeasList == null) MeasList = CreateMeasList(getXML(), mode);                     // Create Measurement list
+            if (MeasList == null) MeasList = CreateMeasList(devGetXML(), mode);                     // Create Measurement list
 
             ushort[] egmStatus = new ushort[0];
             ushort[] egmData = new ushort[0];
@@ -723,7 +723,7 @@ namespace Fx.Devices
 
             Dictionary<int, string> valDict = new Dictionary<int, string>();
 
-            if (MeasList == null) MeasList = CreateMeasList(getXML(), mode);                     // Create Measurement list
+            if (MeasList == null) MeasList = CreateMeasList(devGetXML(), mode);                     // Create Measurement list
 
             ushort[] scaData;
             ushort[] scaStatus = new ushort[0];
@@ -879,7 +879,7 @@ namespace Fx.Devices
 
         DevParamVals mbGetParam(DevParamVals param)
         {
-            if (ParamList == null) ParamList = CreateParamList(getXML(), mode, Permission);
+            if (ParamList == null) ParamList = CreateParamList(devGetXML(), mode, Permission);
 
             bool find = false;
             foreach (var item in ParamList)
@@ -918,7 +918,7 @@ namespace Fx.Devices
 
         List<DevParamVals> mbGetParams(List<DevParamVals> param)
         {
-            if (ParamList == null) ParamList = CreateParamList(getXML(), mode, Permission);
+            if (ParamList == null) ParamList = CreateParamList(devGetXML(), mode, Permission);
             List<DevParamVals> list = new List<DevParamVals>();
 
 
@@ -972,7 +972,7 @@ namespace Fx.Devices
             ushort[] regs = mb.ReadRegisters(0, regLen);
             mb.SetTimeOuts();
 
-            if (ParamList == null) ParamList = CreateParamList(getXML(), mode, Permission);
+            if (ParamList == null) ParamList = CreateParamList(devGetXML(), mode, Permission);
 
             foreach (var item in ParamList)
             {
@@ -1007,7 +1007,7 @@ namespace Fx.Devices
 
         void mbSetParam(int id, string param)
         {
-            if (ParamList == null) ParamList = CreateParamList(getXML(), mode, Permission);
+            if (ParamList == null) ParamList = CreateParamList(devGetXML(), mode, Permission);
 
             bool find = false;
             foreach (var item in ParamList)
@@ -1042,7 +1042,7 @@ namespace Fx.Devices
 
         void mbSetParams(List<DevParamVals> param)
         {
-            if (ParamList == null) ParamList = CreateParamList(getXML(), mode, Permission);
+            if (ParamList == null) ParamList = CreateParamList(devGetXML(), mode, Permission);
 
             for (int i = 0; i < param.Count; i++)
             {

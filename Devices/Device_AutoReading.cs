@@ -1,4 +1,5 @@
 ﻿using Fx.Components;
+using Fx.IO.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -52,6 +53,8 @@ namespace Fx.Devices
 
         private void WorkProcess(object sender, DoWorkEventArgs e)
         {
+            RunningMeasurement = true;
+
             DateTime lastRefreshTime = DateTime.MinValue;
             DateTime nowTime = DateTime.Now;
 
@@ -113,7 +116,132 @@ namespace Fx.Devices
 
         private void doRequest()
         {
-            doDevRequest();
+            bool isGlobalDeviceRequest = false;
+            eDeviceRequest devRequest = eDeviceRequest.None;
+            try
+            {
+                devRequest = (eDeviceRequest)request;
+                isGlobalDeviceRequest = true;
+            }
+            catch { }
+
+            if (isGlobalDeviceRequest)
+            {
+                try
+                {
+                    switch (devRequest)
+                    {
+                        case eDeviceRequest.None:
+                            break;
+                        case eDeviceRequest.GetInfo:
+                            requestReply = devGetInfo();
+                            break;
+                        case eDeviceRequest.GetXmlDescription:
+                            requestReply = devGetXML();
+                            GetSupport((string)requestReply);
+                            break;
+                        case eDeviceRequest.GetDescription:
+                            requestReply = devGetDescription();
+                            break;
+                        case eDeviceRequest.GetMeasurement:
+                            requestReply = devGetMeasurement();
+                            break;
+                        case eDeviceRequest.GetParameter:
+                            requestReply = devGetParam((DevParamVals)requestValue);
+                            break;
+                        case eDeviceRequest.GetParameters:
+                            requestReply = devGetParams((List<DevParamVals>)requestValue);
+                            break;
+                        case eDeviceRequest.GetAllParameters:
+                            requestReply = devGetAllParams();
+                            break;
+                        case eDeviceRequest.SetParameter:
+                            devSetParam((DevParamVals)requestValue);
+                            requestReply = true;
+                            break;
+                        case eDeviceRequest.SetParameters:
+                            devSetParams((List<DevParamVals>)requestValue);
+                            requestReply = true;
+                            break;
+                        case eDeviceRequest.Login:
+                            requestReply = devLogin((string)requestValue);
+                            break;
+                        case eDeviceRequest.Logout:
+                            requestReply = devLogout();
+                            break;
+                        case eDeviceRequest.ChangePassword:
+                            var reply = devChangePass((string)requestValue);
+
+                            if (reply == eChangePassReply.BadLength)
+                                requestReply = new BadLengthException();
+                            else if (reply == eChangePassReply.NoPermissions)
+                                requestReply = new NoPermissionException();
+                            else
+                                requestReply = true;
+                            break;
+                        case eDeviceRequest.GetDirectory:
+                            requestReply = devGetDir();
+                            break;
+                        case eDeviceRequest.GetFile:
+                            requestReply = devGetFile((string)requestValue);
+                            break;
+                        case eDeviceRequest.DeleteFile:
+                            requestReply = devDelFile((string)requestValue);
+                            break;
+                        case eDeviceRequest.DeleteAllFiles:
+                            requestReply = devDelAllFiles();
+                            break;
+                        case eDeviceRequest.GetConfig:
+                            requestReply = devGetConfig();
+                            break;
+                        case eDeviceRequest.SetConfig:
+                            devSetConfig((string)requestValue);
+                            requestReply = true;
+                            break;
+                        case eDeviceRequest.ResetConfig:
+                            if (!devResetConfig())
+                                requestReply = new NoPermissionException();
+                            else
+                                requestReply = true;
+                            break;
+                        case eDeviceRequest.CreateFactoryConfig:
+                            if (!devCreateFactoryConfig())
+                                requestReply = new NoPermissionException();
+                            else
+                                requestReply = true;
+                            break;
+                        case eDeviceRequest.UpdateFirmware:
+                            devUpdateFirmware((string)requestValue);
+                            requestReply = true;
+                            break;
+                        case eDeviceRequest.RunApplication:
+                            devRunApp();
+                            requestReply = true;
+                            break;
+                        case eDeviceRequest.RunBootloader:
+                            devRunBootloader();
+                            requestReply = true;
+                            break;
+                        case eDeviceRequest.StayInBootloader:
+                            devStayInBootloader();
+                            requestReply = true;
+                            break;
+
+                    }
+                }
+                catch (CommException err)
+                {
+                    requestReply = err;
+                }
+                catch (Exception err)
+                {
+                    requestReply = new CommException(err.Message, err);
+                }
+            }
+            else
+            {
+                doDevRequest();
+            }
         }
 
         protected abstract void refreshDevData();

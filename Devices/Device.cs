@@ -3,6 +3,7 @@ using Fx.IO;
 using Fx.IO.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -188,22 +189,13 @@ namespace Fx.Devices
         /// <summary>
         /// Get Device Info
         /// </summary>
-        /// <param name="Value">Device Info</param>
         /// <returns>Returns true if read ok</returns>
         public DeviceInfoEx GetInfo()
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getInfo();
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetInfo();
         }
 
         /// <summary>
@@ -231,21 +223,10 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         public StringEx GetXMLDesc()
         {
-            string XML = "";
-            try
-            {
-                XML = getXML();
-                GetSupport(XML);
-                return XML;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return getXMLDesc();
+            else
+                return requestGetXMLDesc();
         }
 
         /// <summary>
@@ -377,22 +358,13 @@ namespace Fx.Devices
         /// <summary>
         /// Get measurement
         /// </summary>
-        /// <param name="Value">Measurement</param>
-        /// <returns>Returns true if connection ok</returns>
+        /// <returns>Returns device description</returns>
         public DevParamsEx GetDescription()
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getDescription();
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetDescription();
         }
 
         /// <summary>
@@ -524,22 +496,13 @@ namespace Fx.Devices
         /// <summary>
         /// Get measurement
         /// </summary>
-        /// <param name="Value">Measurement</param>
-        /// <returns>Returns true if connection ok</returns>
+        /// <returns>Returns Measurement</returns>
         public DevMeasValsEx GetMeasurement()
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getMeasurement();
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetMeasurement();
         }
 
         /// <summary>
@@ -762,21 +725,13 @@ namespace Fx.Devices
         /// Get device parameters
         /// </summary>
         /// <param name="Param">Parameter</param>
-        /// <returns>Returns true if read ok</returns>
+        /// <returns>Returns Device parameter values</returns>
         public DevParamValueEx GetParam(DevParamVals Param)
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getParam(Param);
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetParam(Param);
         }
 
         /// <summary>
@@ -799,21 +754,13 @@ namespace Fx.Devices
         /// Get device parameters
         /// </summary>
         /// <param name="Param">Parameter list</param>
-        /// <returns>Returns true if read ok</returns>
+        /// <returns>Returns parameter list</returns>
         public DevParamValuesEx GetParams(List<DevParamVals> Param)
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getParams(Param);
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetParams(Param);
         }
 
         /// <summary>
@@ -835,22 +782,13 @@ namespace Fx.Devices
         /// <summary>
         /// Get all device parameters
         /// </summary>
-        /// <param name="Param">Parameter list</param>
-        /// <returns>Returns true if read ok</returns>
+        /// <returns>Returns parameter list</returns>
         public DevParamsEx GetAllParams()
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getAllParams();
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetAllParams();
         }
 
         /// <summary>
@@ -874,27 +812,18 @@ namespace Fx.Devices
         /// </summary>
         /// <param name="ID">Parameter ID</param>
         /// <param name="Param">Parameter Value</param>
-        /// <returns></returns>
-        public OkEx SetParam(int ID, string Param)
+        /// <returns>Return true if ok</returns>
+        public OkEx SetParam(int ID, string Value)
         {
-            try
-            {
-                setParam(ID, Param);
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            return SetParam(new DevParamVals(ID, Value));
         }
 
         public OkEx SetParam(DevParamVals Param)
         {
-            return SetParam(Param.ID, Param.Value);
+            if (!RunningMeasurement)
+                return setParam(Param);
+            else
+                return requestSetParam(Param);
         }
 
         /// <summary>
@@ -919,19 +848,10 @@ namespace Fx.Devices
         /// <returns>Returns true if write ok</returns>
         public OkEx SetParams(List<DevParamVals> Param)
         {
-            try
-            {
-                setParams(Param);
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return setParams(Param);
+            else
+                return requestSetParams(Param);
         }
 
         /// <summary>
@@ -948,20 +868,17 @@ namespace Fx.Devices
             return reply;
         }
 
+        /// <summary>
+        /// Login function
+        /// </summary>
+        /// <param name="password">Passowrd</param>
+        /// <returns>Return actual permissions</returns>
         public PermissionEx Login(string password)
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return login(password);
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestLogin(password);
         }
 
         public bool Login(string password, out DevPermission permission, out CommException Error)
@@ -974,52 +891,40 @@ namespace Fx.Devices
             return reply;
         }
 
-        public OkEx Logout()
+        /// <summary>
+        /// Logout function
+        /// </summary>
+        /// <returns>Returns true if ok</returns>
+        public PermissionEx Logout()
         {
-            try
-            {
-                logout();
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return logout();
+            else
+                return requestLogout();
         }
 
-        public bool Logout(out CommException Error)
+        public bool Logout(out DevPermission permission, out CommException Error)
         {
             CommException error = null;
-            var reply = Logout().Match(ok => true, err => { error = err; return false; });
+
+            DevPermission value = DevPermission.None;
+            var reply = Logout().Match(ok => { value = ok; return true; }, err => { error = err; return false; });
             Error = error;
+            permission = value;
             return reply;
         }
 
+        /// <summary>
+        /// Change password
+        /// </summary>
+        /// <param name="password">password</param>
+        /// <returns>Return true if ok</returns>
         public OkEx ChangePassword(string password)
         {
-            try
-            {
-                var reply = changePass(password);
-
-                if (reply == eChangePassReply.BadLength)
-                    return new BadLengthException();
-                else if (reply == eChangePassReply.NoPermissions)
-                    return new NoPermissionException();
-                else
-                    return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return changePassword(password);
+            else
+                return requestChangePassword(password);
         }
 
         public bool ChangePassword(string password, out CommException Error)
@@ -1038,22 +943,13 @@ namespace Fx.Devices
         /// <summary>
         /// Get directory (file list)
         /// </summary>
-        /// <param name="FileList">File list</param>
-        /// <returns>Returns true if read ok</returns>
+        /// <returns>Returns file list if read ok</returns>
         public StringArrayEx GetDir()
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getDir();
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetDir();
         }
 
         /// <summary>
@@ -1076,22 +972,13 @@ namespace Fx.Devices
         /// Get file
         /// </summary>
         /// <param name="FileName">File name</param>
-        /// <param name="text">text</param>
-        /// <returns>Returns true if ok</returns>
+        /// <returns>Returns file if ok</returns>
         public StringEx GetFile(string FileName)
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getFile(FileName);
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetFile(FileName);
         }
 
         /// <summary>
@@ -1118,18 +1005,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx DelFile(string FileName)
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return delFile(FileName);
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestDelFile(FileName);
         }
 
         /// <summary>
@@ -1152,18 +1031,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx DelAllFiles()
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return delAllFiles();
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestDelAllFiles();
         }
 
         /// <summary>
@@ -1179,20 +1050,16 @@ namespace Fx.Devices
             return reply;
         }
 
+        /// <summary>
+        /// Get configuration XML
+        /// </summary>
+        /// <returns></returns>
         public StringEx GetConfig()
         {
-            try
-            {
+            if (!RunningMeasurement)
                 return getConfig();
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            else
+                return requestGetConfig();
         }
 
         public bool GetConfig(out string text, out CommException Error)
@@ -1205,21 +1072,17 @@ namespace Fx.Devices
             return reply;
         }
 
+        /// <summary>
+        /// Set configuration XML
+        /// </summary>
+        /// <param name="FileName">Path to configuration XML file</param>
+        /// <returns>Return true if OK</returns>
         public OkEx SetConfig(string FileName)
         {
-            try
-            {
-                setConfig(FileName);
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return setConfig(FileName);
+            else
+                return requestSetConfig(FileName);
         }
 
         public bool SetConfig(string FileName, out CommException Error)
@@ -1230,23 +1093,16 @@ namespace Fx.Devices
             return reply;
         }
 
+        /// <summary>
+        /// Reset configuration to Facroty settings
+        /// </summary>
+        /// <returns>Return true if OK</returns>
         public OkEx ResetConfig()
         {
-            try
-            {
-                if (!resetConfig())
-                    return new NoPermissionException();
-                else
-                    return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return resetConfig();
+            else
+                return requestResetConfig();
         }
 
         public bool ResetConfig(out CommException Error)
@@ -1257,23 +1113,16 @@ namespace Fx.Devices
             return reply;
         }
 
+        /// <summary>
+        /// Create factory configuration
+        /// </summary>
+        /// <returns>Return true if OK</returns>
         public OkEx CreateFactoryConfig()
         {
-            try
-            {
-                if (!createFactoryConfig())
-                    return new NoPermissionException();
-                else
-                    return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return createFactoryConfig();
+            else
+                return requestCreateFactoryConfig();
         }
 
         public bool CreateFactoryConfig(out CommException Error)
@@ -1296,19 +1145,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx UpdateFirmware(string FileName)
         {
-            try
-            {
-                updateFirmware(FileName);
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return updateFirmware(FileName);
+            else
+                return requestUpdateFirmware(FileName);
         }
 
         /// <summary>
@@ -1331,19 +1171,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx RunApplication()
         {
-            try
-            {
-                runApp();
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return runApplication();
+            else
+                return requestRunApplication();
         }
 
         /// <summary>
@@ -1365,19 +1196,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx RunBootloader()
         {
-            try
-            {
-                runBootloader();
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return runBootloader();
+            else
+                return requestRunBootloader();
         }
 
         /// <summary>
@@ -1399,19 +1221,10 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         public OkEx StayInBootloader()
         {
-            try
-            {
-                stayInBootloader();
-                return true;
-            }
-            catch (CommException err)
-            {
-                return err;
-            }
-            catch (Exception err)
-            {
-                return new CommException(err.Message, err);
-            }
+            if (!RunningMeasurement)
+                return stayInBootloader();
+            else
+                return requestStayInBootloader();
         }
 
         /// <summary>
@@ -1450,43 +1263,43 @@ namespace Fx.Devices
         protected abstract bool isConnected();
 
         // ----- Get info -----
-        protected abstract DeviceInfo getInfo();
-        protected abstract string getXML();
-        protected abstract List<DevMeasVals> getMeasurement();
-        protected abstract List<DevParams> getDescription();
+        protected abstract DeviceInfo devGetInfo();
+        protected abstract string devGetXML();
+        protected abstract List<DevMeasVals> devGetMeasurement();
+        protected abstract List<DevParams> devGetDescription();
 
         // ----- Parameters -----
-        protected abstract DevParamVals getParam(DevParamVals param);
-        protected abstract List<DevParamVals> getParams(List<DevParamVals> param);
-        protected abstract List<DevParams> getAllParams();
-        protected abstract void setParam(int id, string param);
-        protected abstract void setParams(List<DevParamVals> param);
+        protected abstract DevParamVals devGetParam(DevParamVals param);
+        protected abstract List<DevParamVals> devGetParams(List<DevParamVals> param);
+        protected abstract List<DevParams> devGetAllParams();
+        protected abstract void devSetParam(DevParamVals param);
+        protected abstract void devSetParams(List<DevParamVals> param);
 
         // ----- Files -----
-        protected abstract string[] getDir();
-        protected abstract string getFile(string fileName);
-        protected abstract bool delFile(string fileName);
-        protected abstract bool delAllFiles();
+        protected abstract string[] devGetDir();
+        protected abstract string devGetFile(string fileName);
+        protected abstract bool devDelFile(string fileName);
+        protected abstract bool devDelAllFiles();
 
 
         // ----- Configuration -----
-        protected abstract string getConfig();
-        protected abstract void setConfig(string fileName);
-        protected abstract bool resetConfig();
-        protected abstract bool createFactoryConfig();
+        protected abstract string devGetConfig();
+        protected abstract void devSetConfig(string fileName);
+        protected abstract bool devResetConfig();
+        protected abstract bool devCreateFactoryConfig();
 
         // ----- Login -----
-        protected abstract DevPermission login(string password);
-        protected abstract DevPermission logout();
-        protected abstract eChangePassReply changePass(string password);
+        protected abstract DevPermission devLogin(string password);
+        protected abstract DevPermission devLogout();
+        protected abstract eChangePassReply devChangePass(string password);
 
 
        
         // ----- Firmware -----
-        protected abstract void updateFirmware(string fileName);
-        protected abstract void runApp();
-        protected abstract void runBootloader();
-        protected abstract void stayInBootloader();
+        protected abstract void devUpdateFirmware(string fileName);
+        protected abstract void devRunApp();
+        protected abstract void devRunBootloader();
+        protected abstract void devStayInBootloader();
 
         // ----- Status -----
         public abstract string[] GetStatusList(int code);
