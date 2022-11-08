@@ -19,6 +19,10 @@ namespace Fx.Devices
 
     public interface IDevice
     {
+        
+        event NewDataEventHandler NewData;
+        int RefreshInterval { get; set; }
+        bool RunningMeasurement { get; }
         string DeviceName { get; }
         DeviceType Type { get; }
         ConnectionSetting Settings { get; }

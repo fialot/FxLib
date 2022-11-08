@@ -42,7 +42,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetInfo;
 
             if (WaitForRequestDone())
-                return (DeviceInfoEx)requestReply;
+                return DeviceInfoEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -56,7 +56,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetXmlDescription;
 
             if (WaitForRequestDone())
-                return (StringEx)requestReply;
+                return StringEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -70,7 +70,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetDescription;
 
             if (WaitForRequestDone())
-                return (DevParamsEx)requestReply;
+                return DevParamsEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -84,7 +84,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetMeasurement;
 
             if (WaitForRequestDone())
-                return (DevMeasValsEx)requestReply;
+                return DevMeasValsEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -100,7 +100,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetParameter;
 
             if (WaitForRequestDone())
-                return (DevParamValueEx)requestReply;
+                return DevParamValueEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -116,7 +116,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetParameters;
 
             if (WaitForRequestDone())
-                return (DevParamValuesEx)requestReply;
+                return DevParamValuesEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -130,7 +130,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetAllParameters;
 
             if (WaitForRequestDone())
-                return (DevParamsEx)requestReply;
+                return DevParamsEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -146,7 +146,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.SetParameter;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -162,7 +162,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.SetParameters;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -178,7 +178,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.Login;
 
             if (WaitForRequestDone())
-                return (PermissionEx)requestReply;
+                return PermissionEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -192,7 +192,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.Logout;
 
             if (WaitForRequestDone())
-                return (PermissionEx)requestReply;
+                return PermissionEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -208,7 +208,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.ChangePassword;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -222,7 +222,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetDirectory;
 
             if (WaitForRequestDone())
-                return (StringArrayEx)requestReply;
+                return StringArrayEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -238,7 +238,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetFile;
 
             if (WaitForRequestDone())
-                return (StringEx)requestReply;
+                return StringEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -254,7 +254,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.DeleteFile;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -268,7 +268,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.DeleteAllFiles;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -282,7 +282,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.GetConfig;
 
             if (WaitForRequestDone())
-                return (StringEx)requestReply;
+                return StringEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -298,7 +298,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.SetConfig;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -312,7 +312,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.ResetConfig;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -326,7 +326,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.CreateFactoryConfig;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -342,7 +342,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.UpdateFirmware;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -356,7 +356,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.RunApplication;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -370,7 +370,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.RunBootloader;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -384,7 +384,7 @@ namespace Fx.Devices
             request = (int)eDeviceRequest.StayInBootloader;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }

@@ -25,6 +25,11 @@ namespace Fx.Devices
         public static implicit operator OkEx(bool _) => new OkEx(_);
         public static implicit operator OkEx(CommException _) => new OkEx(_);
 
+        public static OkEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(bool)) return new OkEx((bool)obj);
+            else return new OkEx((CommException)obj);
+        }
     }
 
     public class StringEx : OneOfBase<string, CommException>
@@ -35,6 +40,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator StringEx(string _) => new StringEx(_);
         public static implicit operator StringEx(CommException _) => new StringEx(_);
+
+        public static StringEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(string)) return new StringEx((string)obj);
+            else return new StringEx((CommException)obj);
+        }
     }
 
     public class StringArrayEx : OneOfBase<string[], CommException>
@@ -45,6 +56,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator StringArrayEx(string[] _) => new StringArrayEx(_);
         public static implicit operator StringArrayEx(CommException _) => new StringArrayEx(_);
+
+        public static StringArrayEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(string[])) return new StringArrayEx((string[])obj);
+            else return new StringArrayEx((CommException)obj);
+        }
     }
 
     public class DeviceInfoEx : OneOfBase<DeviceInfo, CommException>
@@ -55,6 +72,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator DeviceInfoEx(DeviceInfo _) => new DeviceInfoEx(_);
         public static implicit operator DeviceInfoEx(CommException _) => new DeviceInfoEx(_);
+
+        public static DeviceInfoEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(DeviceInfo)) return new DeviceInfoEx((DeviceInfo)obj);
+            else return new DeviceInfoEx((CommException)obj);
+        }
 
     }
 
@@ -67,6 +90,11 @@ namespace Fx.Devices
         public static implicit operator DevParamsEx(List<DevParams> _) => new DevParamsEx(_);
         public static implicit operator DevParamsEx(CommException _) => new DevParamsEx(_);
 
+        public static DevParamsEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(List<DevParams>)) return new DevParamsEx((List<DevParams>)obj);
+            else return new DevParamsEx((CommException)obj);
+        }
     }
 
     public class DevMeasValsEx : OneOfBase<List<DevMeasVals>, CommException>
@@ -78,6 +106,11 @@ namespace Fx.Devices
         public static implicit operator DevMeasValsEx(List<DevMeasVals> _) => new DevMeasValsEx(_);
         public static implicit operator DevMeasValsEx(CommException _) => new DevMeasValsEx(_);
 
+        public static DevMeasValsEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(List<DevMeasVals>)) return new DevMeasValsEx((List<DevMeasVals>)obj);
+            else return new DevMeasValsEx((CommException)obj);
+        }
     }
 
     public class DevParamValueEx : OneOfBase<DevParamVals, CommException>
@@ -89,6 +122,11 @@ namespace Fx.Devices
         public static implicit operator DevParamValueEx(DevParamVals _) => new DevParamValueEx(_);
         public static implicit operator DevParamValueEx(CommException _) => new DevParamValueEx(_);
 
+        public static DevParamValueEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(DevParamVals)) return new DevParamValueEx((DevParamVals)obj);
+            else return new DevParamValueEx((CommException)obj);
+        }
     }
 
     public class DevParamValuesEx : OneOfBase<List<DevParamVals>, CommException>
@@ -100,6 +138,11 @@ namespace Fx.Devices
         public static implicit operator DevParamValuesEx(List<DevParamVals> _) => new DevParamValuesEx(_);
         public static implicit operator DevParamValuesEx(CommException _) => new DevParamValuesEx(_);
 
+        public static DevParamValuesEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(List<DevParamVals>)) return new DevParamValuesEx((List<DevParamVals>)obj);
+            else return new DevParamValuesEx((CommException)obj);
+        }
     }
 
     public class PermissionEx : OneOfBase<DevPermission, CommException>
@@ -111,6 +154,11 @@ namespace Fx.Devices
         public static implicit operator PermissionEx(DevPermission _) => new PermissionEx(_);
         public static implicit operator PermissionEx(CommException _) => new PermissionEx(_);
 
+        public static PermissionEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(DevPermission)) return new PermissionEx((DevPermission)obj);
+            else return new PermissionEx((CommException)obj);
+        }
     }
 
 
@@ -122,6 +170,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator GeigerValueEx(GeigerValue _) => new GeigerValueEx(_);
         public static implicit operator GeigerValueEx(CommException _) => new GeigerValueEx(_);
+
+        public static GeigerValueEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(GeigerValue)) return new GeigerValueEx((GeigerValue)obj);
+            else return new GeigerValueEx((CommException)obj);
+        }
     }
 
     public class GeigerSettingsEx : OneOfBase<GeigerSettings, CommException>
@@ -132,6 +186,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator GeigerSettingsEx(GeigerSettings _) => new GeigerSettingsEx(_);
         public static implicit operator GeigerSettingsEx(CommException _) => new GeigerSettingsEx(_);
+
+        public static GeigerSettingsEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(GeigerSettings)) return new GeigerSettingsEx((GeigerSettings)obj);
+            else return new GeigerSettingsEx((CommException)obj);
+        }
     }
 
     public class GeigerLimitsEx : OneOfBase<GeigerLimits, CommException>
@@ -142,6 +202,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator GeigerLimitsEx(GeigerLimits _) => new GeigerLimitsEx(_);
         public static implicit operator GeigerLimitsEx(CommException _) => new GeigerLimitsEx(_);
+
+        public static GeigerLimitsEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(GeigerLimits)) return new GeigerLimitsEx((GeigerLimits)obj);
+            else return new GeigerLimitsEx((CommException)obj);
+        }
     }
 
     public class SpectrumEx : OneOfBase<Spectrum, CommException>
@@ -152,6 +218,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator SpectrumEx(Spectrum _) => new SpectrumEx(_);
         public static implicit operator SpectrumEx(CommException _) => new SpectrumEx(_);
+
+        public static SpectrumEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(Spectrum)) return new SpectrumEx((Spectrum)obj);
+            else return new SpectrumEx((CommException)obj);
+        }
     }
 
     public class MCACalibrationEx : OneOfBase<MCACalibration, CommException>
@@ -162,6 +234,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator MCACalibrationEx(MCACalibration _) => new MCACalibrationEx(_);
         public static implicit operator MCACalibrationEx(CommException _) => new MCACalibrationEx(_);
+
+        public static MCACalibrationEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(MCACalibration)) return new MCACalibrationEx((MCACalibration)obj);
+            else return new MCACalibrationEx((CommException)obj);
+        }
     }
 
     public class SCASettingsEx : OneOfBase<SCASettings, CommException>
@@ -172,6 +250,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator SCASettingsEx(SCASettings _) => new SCASettingsEx(_);
         public static implicit operator SCASettingsEx(CommException _) => new SCASettingsEx(_);
+
+        public static SCASettingsEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(SCASettings)) return new SCASettingsEx((SCASettings)obj);
+            else return new SCASettingsEx((CommException)obj);
+        }
     }
 
     public class SCAValueEx : OneOfBase<SCAValue, CommException>
@@ -182,6 +266,12 @@ namespace Fx.Devices
         // you could also make the constructor public
         public static implicit operator SCAValueEx(SCAValue _) => new SCAValueEx(_);
         public static implicit operator SCAValueEx(CommException _) => new SCAValueEx(_);
+
+        public static SCAValueEx Convert(object obj)
+        {
+            if (obj.GetType() == typeof(SCAValue)) return new SCAValueEx((SCAValue)obj);
+            else return new SCAValueEx((CommException)obj);
+        }
     }
     
 

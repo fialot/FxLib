@@ -18,7 +18,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.Start;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -32,7 +32,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.Stop;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -46,7 +46,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.Latch;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -60,7 +60,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.Clear;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -74,7 +74,7 @@ namespace Fx.Devices
             request = (int)eDeviceMCARequest.StartSpec;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -88,7 +88,7 @@ namespace Fx.Devices
             request = (int)eDeviceMCARequest.StopSpec;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -102,7 +102,7 @@ namespace Fx.Devices
             //request = (int)eDeviceMCARequest.ClearSpec;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -116,7 +116,7 @@ namespace Fx.Devices
             //request = (int)eDeviceMCARequest.GetSpectrum;
 
             if (WaitForRequestDone())
-                return (SpectrumEx)requestReply;
+                return SpectrumEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -130,7 +130,7 @@ namespace Fx.Devices
             //request = (int)eDeviceMCARequest.GetSpectrum;
 
             if (WaitForRequestDone())
-                return (MCACalibrationEx)requestReply;
+                return MCACalibrationEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -145,7 +145,7 @@ namespace Fx.Devices
             //request = (int)eDeviceMCARequest.SwitchHV;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -160,7 +160,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.SetHV;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -177,7 +177,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.CalibHV_SetPoint;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -192,7 +192,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.CalibHV_Set;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -206,7 +206,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.GetEGMValue;
 
             if (WaitForRequestDone())
-                return (GeigerValueEx)requestReply;
+                return GeigerValueEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -220,7 +220,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.GetEGMSettings;
 
             if (WaitForRequestDone())
-                return (GeigerSettingsEx)requestReply;
+                return GeigerSettingsEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -234,7 +234,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.GetEGMLimits;
 
             if (WaitForRequestDone())
-                return (GeigerLimitsEx)requestReply;
+                return GeigerLimitsEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
@@ -249,7 +249,7 @@ namespace Fx.Devices
             request = (int)eDeviceEGMRequest.SetTime;
 
             if (WaitForRequestDone())
-                return (OkEx)requestReply;
+                return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();
         }
