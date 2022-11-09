@@ -21,6 +21,8 @@ namespace Fx.Devices
     {
         
         event NewDataEventHandler NewData;
+        event NewLogEventHandler NewLog;
+
         int RefreshInterval { get; set; }
         bool RunningMeasurement { get; }
         string DeviceName { get; }

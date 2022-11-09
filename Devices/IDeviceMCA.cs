@@ -11,8 +11,14 @@ namespace Fx.Devices
 {
     enum eDeviceMCARequest { None, SetTime, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
 
+
+    public delegate void NewSpectrumEventHandler(object source, Spectrum newSpectrum);
+
     public interface IDeviceMCA : IDevice
     {
+
+        event NewSpectrumEventHandler NewSpectrum;
+
         SCASettingsEx GetSCASettings();
         bool GetSCASettings(out SCASettings Value, out CommException Error);
         SCAValueEx ReadSCAValue();

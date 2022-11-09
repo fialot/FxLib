@@ -12,6 +12,8 @@ namespace Fx.Devices
 {
     public partial class DeviceNuvia : Device, IDeviceEGM, IDeviceMCA
     {
+        public event NewSpectrumEventHandler NewSpectrum = null;
+
         #region Constructor
 
         public DeviceNuvia()

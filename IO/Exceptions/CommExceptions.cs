@@ -16,8 +16,9 @@ namespace Fx.IO.Exceptions
             { 0xE002, "Connection attempt failed."},
             { 0xE003, "A response was not received within the specified time."},
             { 0xE101, "Wrong length."},
-            { 0xE111, "No permission to make change."}
-            
+            { 0xE111, "No permission to make change."},
+            { 0xE112, "Not supported command."}
+
         };
 
         readonly static Dictionary<int, string> CommExceptionMessagesCZ = new Dictionary<int, string>
@@ -26,8 +27,8 @@ namespace Fx.IO.Exceptions
             { 0xE002, "Selhal pokus o připojení."},
             { 0xE003, "Odpověď nedorazila ve stanoveném čase."},
             { 0xE101, "Špatná délka."},
-            { 0xE111, "Nedostatečné oprávnění na provedení změny."}
-
+            { 0xE111, "Nedostatečné oprávnění na provedení změny."},
+            { 0xE112, "Nepodporovaný příkaz."}
 
         };
 
@@ -122,5 +123,13 @@ namespace Fx.IO.Exceptions
         public NoPermissionException(Exception innerException) : base(CommExceptions.GetMessage(0xE111), innerException) { Code = 0xE111; }
         public NoPermissionException(string sended, string received) : base(CommExceptions.GetMessage(0xE111), sended, received) { Code = 0xE111; }
         public NoPermissionException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE111), sended, received) { Code = 0xE111; }
+    }
+
+    public class NotSupportedCommandException : CommException, ICommException
+    {
+        public NotSupportedCommandException() : base(CommExceptions.GetMessage(0xE112)) { Code = 0xE112; }
+        public NotSupportedCommandException(Exception innerException) : base(CommExceptions.GetMessage(0xE112), innerException) { Code = 0xE112; }
+        public NotSupportedCommandException(string sended, string received) : base(CommExceptions.GetMessage(0xE112), sended, received) { Code = 0xE112; }
+        public NotSupportedCommandException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE112), sended, received) { Code = 0xE112; }
     }
 }

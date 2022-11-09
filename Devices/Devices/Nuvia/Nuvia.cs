@@ -232,7 +232,14 @@ namespace Fx.Devices
         /// </summary>
         protected override void disconnect()
         {
-            com.Close(); // nuvia.Disconnect();
+            MeasList = null;
+            ParamList = null;
+            DescList = null;
+
+            if (UsedProtocol == eProtocol.MODBUS)
+                mb.Disconnect();
+            else
+                nuvia.Disconnect();
         }
 
         /// <summary>
@@ -241,7 +248,10 @@ namespace Fx.Devices
         /// <returns></returns>
         protected override bool isConnected()
         {
-            return com.IsOpen();  // nuvia.isConnected();
+            if (UsedProtocol == eProtocol.MODBUS)
+                return mb.isConnected();
+            else
+                return nuvia.isConnected();
         }
 
 
@@ -707,13 +717,10 @@ namespace Fx.Devices
                 int binIndex = 0;       // Binary index
 
 
-                // ----- Clear process log -----
-                /*ProcessLog.ClearMsg();
-                ProcessLog.SetProgress(0);
-                ProcessLog.SetName(Lng("firmwareUpdate", "Upload firmware file") + "...");
+                setLogTitle(Lng("firmwareUpdate", "Upload firmware file") + "...");
 
-                ProcessLog.AddMsg(Lng("firmwareStartUpload", "Start updating firmware") + "...", false);
-                ProcessLog.AddMsg("------------------------------------------------------------", false);*/
+                log(Lng("firmwareStartUpload", "Start updating firmware") + "..." + Environment.NewLine, 0);
+                log("------------------------------------------------------------" + Environment.NewLine);
 
                 // ----- Stay in bootloader -----
                 nuvia.StayInBootloader();
@@ -725,13 +732,12 @@ namespace Fx.Devices
                 }
                 catch (Exception err)
                 {
-                    /*ProcessLog.AddMsg(Lng("firmwareFileError", "Read firmware file error!"));
-                    ProcessLog.SetProgress(0);
-                    ProcessLog.SetName("");*/
+                    setLogTitle("");
+                    log(Lng("firmwareFileError", "Read firmware file error!") + Environment.NewLine, 0);
                     throw new Exception(Lng("firmwareFileError", "Read firmware file error!"), err);
                 }
 
-                /*ProcessLog.AddMsg(Lng("firmwareReadFile", "Read bin file") + ": " + fileName + " ... " + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes"));*/
+                log(Lng("firmwareReadFile", "Read bin file") + ": " + fileName + " ... " + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes") + Environment.NewLine);
 
                 // ----- Switch to bootloader -----
                 //prot.SwitchToBootloader();
@@ -743,9 +749,8 @@ namespace Fx.Devices
                 int buffSize = (int)nuvia.GetBufferSize();
                 if (buffSize <= 0)
                 {
-                    /*ProcessLog.AddMsg(Lng("firmwareBuffError", "Buff size is zero!"));
-                    ProcessLog.SetProgress(0);
-                    ProcessLog.SetName("");*/
+                    setLogTitle("");
+                    log(Lng("firmwareBuffError", "Buff size is zero!") + Environment.NewLine, 0);
                     throw new Exception(Lng("firmwareBuffError", "Buff size is zero!"));
                 }
 
@@ -770,12 +775,13 @@ namespace Fx.Devices
 
 
 
-                    /*ProcessLog.AddMsg(Lng("firmwareSendData", "Sending data") + "... " + length.ToString() + " " + Lng("firmwareBytes", "bytes") + " ... (" + (binIndex + length).ToString() + "/" + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes") + ")");
-                    ProcessLog.SetProgress(((binIndex + length) * 100) / bin.Length);*/
+                    log(Lng("firmwareSendData", "Sending data") + "... " + length.ToString() + " " 
+                        + Lng("firmwareBytes", "bytes") + " ... (" + (binIndex + length).ToString() + "/" + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes") + ")" + Environment.NewLine,
+                        ((binIndex + length) * 100) / bin.Length);
 
 
                     var crc = nuvia.STM32Checksum(sendBin, 0, sendBin.Length);
-                    /*ProcessLog.AddMsg("CRC... 0x" + crc.ToString("X"));*/
+                    log("CRC... 0x" + crc.ToString("X") + Environment.NewLine);
 
                     // Debug
                     //ProcessLog.AddMsg("CRC2... 0x" + prot.STM32Checksum(binDebug.ToArray(), 0, binDebug.Count).ToString("X"));
@@ -788,9 +794,8 @@ namespace Fx.Devices
                     if (length > buffSize) length = buffSize;
                 }
 
-                /*ProcessLog.SetProgress(100);
-                ProcessLog.SetName(Lng("firmwareVerifing", "Verifyng firmware file") + "...");
-                ProcessLog.AddMsg(Lng("firmwareSendingDone", "Sending data done") + "...");*/
+                setLogTitle(Lng("firmwareVerifing", "Verifyng firmware file") + "...");
+                log(Lng("firmwareSendingDone", "Sending data done") + "..." + Environment.NewLine, 100);
 
 
 
@@ -798,26 +803,26 @@ namespace Fx.Devices
 
                 System.Threading.Thread.Sleep(1000);
 
-                /*ProcessLog.AddMsg(Lng("firmwareCheckingCRC", "Checking CRC") + "...");*/
+                log(Lng("firmwareCheckingCRC", "Checking CRC") + "..." + Environment.NewLine);
 
                 var compureCRC = nuvia.STM32Checksum(bin);
                 var CRC = nuvia.GetAppCRC(compureCRC);
 
+                setLogTitle("");
+                log("", 0);
 
-                /*ProcessLog.SetProgress(0);
-                ProcessLog.SetName("");*/
 
                 if (CRC != compureCRC)
                 {
-                    /*ProcessLog.AddMsg(Lng("firmwareCRCFailed", "Checking CRC failed") + ": " + "0x" + CRC.ToString("X") + "/" + "0x" + compureCRC.ToString("X") + "!");
-                    ProcessLog.AddMsg("------------------------------------------------------------", false);
-                    ProcessLog.AddMsg(Lng("firmwareUpdateFailed", "Updating firmware failed") + ".", false);*/
+                    log(Lng("firmwareCRCFailed", "Checking CRC failed") + ": " + "0x" + CRC.ToString("X") + "/" + "0x" + compureCRC.ToString("X") + "!" + Environment.NewLine);
+                    log("------------------------------------------------------------" + Environment.NewLine);
+                    log(Lng("firmwareUpdateFailed", "Updating firmware failed") + "." + Environment.NewLine);
                     throw new Exception(Lng("firmwareWrongCRC", "Wrong application CRC") + "!");
                 }
 
-                /*ProcessLog.AddMsg(Lng("firmwareCRCSuccess", "Checking CRC succesfull") + ".");
-                ProcessLog.AddMsg("------------------------------------------------------------", false);
-                ProcessLog.AddMsg(Lng("firmwareUpdateDone", "Uploading done, you can start application") + ".", false);*/
+                log(Lng("firmwareCRCSuccess", "Checking CRC succesfull") + "." + Environment.NewLine);
+                log("------------------------------------------------------------" + Environment.NewLine);
+                log(Lng("firmwareUpdateDone", "Uploading done, you can start application") + "." + Environment.NewLine);
 
 
                 // ----- Run app -----
@@ -916,10 +921,6 @@ namespace Fx.Devices
         #endregion
 
 
-        protected override void refreshDevData()
-        {
-
-        }
 
         
 

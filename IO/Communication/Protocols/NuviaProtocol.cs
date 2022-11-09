@@ -317,6 +317,7 @@ namespace Fx.IO.Protocols
         /// </summary>
         public void Disconnect()
         {
+            XMLdesc = "";
             com.Close();
         }
 

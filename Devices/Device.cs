@@ -1,6 +1,7 @@
 ﻿using Fx.Conversion;
 using Fx.IO;
 using Fx.IO.Exceptions;
+using Fx.Radiometry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,12 +12,14 @@ using System.Xml.Linq;
 
 namespace Fx.Devices
 {
+    public delegate void NewLogEventHandler(object source, string title, string log, int progress);
 
     public abstract partial class Device : IDevice
     {
-        
+
         #region Public
 
+        public event NewLogEventHandler NewLog = null;
 
         public string DeviceName { get; protected set; }
         public DeviceType Type { get; protected set; }

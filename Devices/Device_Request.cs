@@ -17,14 +17,14 @@ namespace Fx.Devices
         /// Wait until the request is processed
         /// </summary>
         /// <returns></returns>
-        protected bool WaitForRequestDone()
+        protected bool WaitForRequestDone(int timeout = requestTimeout)
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
             while (request != (int)eDeviceRequest.None)
             {
-                if (stopwatch.Elapsed.TotalSeconds > requestTimeout)
+                if (stopwatch.Elapsed.TotalSeconds > timeout)
                     return false;
 
                 System.Threading.Thread.Sleep(requestSleep);
@@ -341,7 +341,7 @@ namespace Fx.Devices
             requestValue = FileName;
             request = (int)eDeviceRequest.UpdateFirmware;
 
-            if (WaitForRequestDone())
+            if (WaitForRequestDone(5000))
                 return OkEx.Convert(requestReply);
             else
                 return new TimeOutException();

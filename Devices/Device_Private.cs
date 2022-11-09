@@ -10,6 +10,30 @@ namespace Fx.Devices
 {
     public abstract partial class Device : IDevice
     {
+        string logTitle = "";
+        int logProgress = 0;
+
+        protected void setLogTitle(string title)
+        {
+            logTitle = title;
+        }
+
+        protected void log(string text, int progress = -1)
+        {
+            if (progress >= 0)
+                logProgress = progress;
+
+            if (NewLog != null)
+            {
+                //NewLog(this, logTitle, text, logProgress);
+                try
+                {
+                    Task.Run(() => NewLog(this, logTitle, text, logProgress));
+                }
+                catch { }
+            }
+        }
+
         /// <summary>
         /// Get Device Info
         /// </summary>

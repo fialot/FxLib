@@ -333,6 +333,50 @@ namespace Fx.Devices
         }
 
 
+        protected override void refreshDevData()
+        {
+            if (Type == DeviceType.MCA)
+            {
+                ReadSCAValue().Switch(
+                    value =>
+                    {
+                        
+                        if (value.isSpectRunning)
+                        {
+                            GetSpectrum().Switch(
+                                spectrum =>
+                                {
+                                    if (NewSpectrum != null)
+                                    {
+                                        Task.Run(() => NewSpectrum(this, spectrum));
+                                    }
+
+                                },
+                                error => { }
+                            );
+                        }
+                    },
+                    error => { }
+                );
+            }
+            else if (Type == DeviceType.General)
+            {
+                
+                if (Support.HasFlag(DevSupport.Spectrum))
+                {
+                    GetSpectrum().Switch(
+                        spectrum =>
+                        {
+                            if (NewSpectrum != null)
+                            {
+                                Task.Run(() => NewSpectrum(this, spectrum));
+                            }
+                        },
+                        error => { }
+                    );
+                }
+            }
+        }
 
     }
 }

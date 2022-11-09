@@ -3,6 +3,7 @@ using Fx.IO.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,9 +46,27 @@ namespace Fx.Devices
 
         private bool stopReading()
         {
+            // ----- Cancel job -----
             worker.CancelAsync();
 
-            //if (worker.IsBusy) worker.Abort();
+            
+            // ----- Wait for done -----
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            while (RunningMeasurement)
+            {
+                // ----- On timeout -> kill job -----
+                if (stopwatch.Elapsed.TotalSeconds > 10)
+                {
+                    RunningMeasurement = false;
+                    worker.Abort();
+                    break;
+                }
+                    
+                System.Threading.Thread.Sleep(requestSleep);
+            }
+
             return true;
         }
 
@@ -83,6 +102,7 @@ namespace Fx.Devices
                 // ----- Check cancel request -----
                 if (worker.CancellationPending == true)
                 {
+                    RunningMeasurement = false;
                     e.Cancel = true;
                     return;
                 }
@@ -94,7 +114,7 @@ namespace Fx.Devices
 
         private void WorkComplete(object sender, RunWorkerCompletedEventArgs e)
         {
-
+            RunningMeasurement = false;
         }
 
         private bool checkConnection()
@@ -109,7 +129,11 @@ namespace Fx.Devices
                     refreshDevData();
                     if (NewData != null)
                     {
-                        Task.Run(() => NewData(this, values));
+                        try
+                        {
+                            Task.Run(() => NewData(this, values));
+                        }
+                        catch { }
                     }
                         
                     return values;
