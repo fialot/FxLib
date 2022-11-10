@@ -1,5 +1,7 @@
 ﻿using Fx.Components;
+using Fx.IO;
 using Fx.IO.Exceptions;
+using Logger;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -75,7 +77,7 @@ namespace Fx.Devices
             RunningMeasurement = true;
 
             DateTime lastRefreshTime = DateTime.MinValue;
-            
+                        
             while (true)
             {
                 DateTime nowTime = DateTime.Now;
@@ -83,7 +85,12 @@ namespace Fx.Devices
                 // ----- Do request -----
                 if (request > 0)
                 {
-                    doRequest();
+                    try
+                    {
+                        doRequest();
+                    }
+                    catch { }
+                    
                     request = 0;
                 }
 
@@ -127,6 +134,7 @@ namespace Fx.Devices
             lastMeasValues = getMeasurement().Match(
                 values => {
                     refreshDevData();
+
                     if (NewData != null)
                     {
                         try
@@ -135,7 +143,7 @@ namespace Fx.Devices
                         }
                         catch { }
                     }
-                        
+
                     return values;
                 },
                 error => { return lastMeasValues; }

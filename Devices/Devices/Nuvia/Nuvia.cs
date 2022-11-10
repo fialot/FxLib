@@ -2,6 +2,7 @@
 using Fx.IO;
 using Fx.IO.Exceptions;
 using Fx.IO.Protocols;
+using Logger;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -316,7 +317,7 @@ namespace Fx.Devices
                 lastMeas = nuvia.GetMeasurement();
 
                 if (MeasList == null) MeasList = CreateMeasList(devGetXML(), mode);     // Create Measurement list
-
+                
                 return FillMeas(MeasList, lastMeas);                           // Fill Measurement values
             }       
         }
@@ -738,13 +739,7 @@ namespace Fx.Devices
                 }
 
                 log(Lng("firmwareReadFile", "Read bin file") + ": " + fileName + " ... " + bin.Length.ToString() + " " + Lng("firmwareBytes", "bytes") + Environment.NewLine);
-
-                // ----- Switch to bootloader -----
-                //prot.SwitchToBootloader();
-
-                // ----- Wait for switching -----
-                //System.Threading.Thread.Sleep(10_000);
-
+                
                 // ----- Get device buff size -----
                 int buffSize = (int)nuvia.GetBufferSize();
                 if (buffSize <= 0)
@@ -759,8 +754,6 @@ namespace Fx.Devices
                 int length = (bin.Length - binIndex);
                 if (length > buffSize) length = buffSize;
 
-                //List<byte> binDebug = new List<byte>();
-
                 // ----- Sending firmware packets -----
                 while (length > 0)
                 {
@@ -769,10 +762,6 @@ namespace Fx.Devices
                         sendBin = new byte[length];
 
                     Array.Copy(bin, binIndex, sendBin, 0, length);
-
-                    // debug 
-                    //for (int x = 0; x < length; x++)  binDebug.Add(sendBin[x]);
-
 
 
                     log(Lng("firmwareSendData", "Sending data") + "... " + length.ToString() + " " 
@@ -784,7 +773,7 @@ namespace Fx.Devices
                     log("CRC... 0x" + crc.ToString("X") + Environment.NewLine);
 
                     // Debug
-                    //ProcessLog.AddMsg("CRC2... 0x" + prot.STM32Checksum(binDebug.ToArray(), 0, binDebug.Count).ToString("X"));
+                    //log("CRC2... 0x" + nuvia.STM32Checksum(binDebug.ToArray(), 0, binDebug.Count).ToString("X"));
 
 
                     nuvia.SendAppData(binIndex, bin.Length, sendBin);
@@ -824,14 +813,7 @@ namespace Fx.Devices
                 log("------------------------------------------------------------" + Environment.NewLine);
                 log(Lng("firmwareUpdateDone", "Uploading done, you can start application") + "." + Environment.NewLine);
 
-
-                // ----- Run app -----
-                //prot.RunApp();
-
-                // ----- Wait for switching -----
-                //System.Threading.Thread.Sleep(10_000);
             }
-
 
         }
 
@@ -853,15 +835,14 @@ namespace Fx.Devices
 
                 // ----- Wait for switching -----
                 int maxLen = 30;
-                /*ProcessLog.SetName(Lng("bootStartApp", "Starting App") + "...");*/
+                setLogTitle(Lng("bootStartApp", "Starting App"));
                 for (int i = 0; i < maxLen; i++)
                 {
-                    /*ProcessLog.SetProgress((i * 100) / maxLen);*/
+                    log("", (i * 100) / maxLen);
                     System.Threading.Thread.Sleep(100);
                 }
-                /*ProcessLog.SetName("");
-
-                ProcessLog.SetProgress(0);*/
+                setLogTitle("");
+                log("", 0);
             }
         }
 
@@ -882,20 +863,19 @@ namespace Fx.Devices
                 {
                     // ----- Wait for switching -----
                     int maxLen = 30;
-                    /*ProcessLog.SetName(Lng("bootStartBoot", "Starting Bootloader") + "...");*/
+                    setLogTitle(Lng("bootStartBoot", "Starting Bootloader") + "...");
                     for (int i = 0; i < maxLen; i++)
                     {
-                        /*ProcessLog.SetProgress((i * 100) / maxLen);*/
+                        log("", (i * 100) / maxLen);
                         System.Threading.Thread.Sleep(100);
                     }
-                    /*ProcessLog.SetName("");
-                    ProcessLog.SetProgress(0);*/
+                    setLogTitle("");
+                    log("", 0);
 
                 }
                 else
                 {
                     throw new CommException("No permission!");
-
                 }
             }
             

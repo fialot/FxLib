@@ -17,8 +17,8 @@ namespace Fx.IO.Exceptions
             { 0xE003, "A response was not received within the specified time."},
             { 0xE101, "Wrong length."},
             { 0xE111, "No permission to make change."},
-            { 0xE112, "Not supported command."}
-
+            { 0xE112, "Not supported command."},
+            { 0xE113, "Device is busy."}
         };
 
         readonly static Dictionary<int, string> CommExceptionMessagesCZ = new Dictionary<int, string>
@@ -28,8 +28,9 @@ namespace Fx.IO.Exceptions
             { 0xE003, "Odpověď nedorazila ve stanoveném čase."},
             { 0xE101, "Špatná délka."},
             { 0xE111, "Nedostatečné oprávnění na provedení změny."},
-            { 0xE112, "Nepodporovaný příkaz."}
-
+            { 0xE112, "Nepodporovaný příkaz."},
+            { 0xE113, "Zařízení je zaneprázdněné."}
+            
         };
 
         public static string GetMessage(int Code)
@@ -131,5 +132,13 @@ namespace Fx.IO.Exceptions
         public NotSupportedCommandException(Exception innerException) : base(CommExceptions.GetMessage(0xE112), innerException) { Code = 0xE112; }
         public NotSupportedCommandException(string sended, string received) : base(CommExceptions.GetMessage(0xE112), sended, received) { Code = 0xE112; }
         public NotSupportedCommandException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE112), sended, received) { Code = 0xE112; }
+    }
+
+    public class IsBusyException : CommException, ICommException
+    {
+        public IsBusyException() : base(CommExceptions.GetMessage(0xE113)) { Code = 0xE113; }
+        public IsBusyException(Exception innerException) : base(CommExceptions.GetMessage(0xE113), innerException) { Code = 0xE113; }
+        public IsBusyException(string sended, string received) : base(CommExceptions.GetMessage(0xE113), sended, received) { Code = 0xE113; }
+        public IsBusyException(byte[] sended, byte[] received) : base(CommExceptions.GetMessage(0xE113), sended, received) { Code = 0xE113; }
     }
 }

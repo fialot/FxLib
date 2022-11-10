@@ -1,4 +1,5 @@
 ﻿using Fx.IO.Exceptions;
+using Logger;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,6 +40,8 @@ namespace Fx.Devices
         /// <returns>Device info</returns>
         private DeviceInfoEx requestGetInfo()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.GetInfo;
 
             if (WaitForRequestDone())
@@ -53,6 +56,8 @@ namespace Fx.Devices
         /// <returns>Returns XML description</returns>
         private StringEx requestGetXMLDesc()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.GetXmlDescription;
 
             if (WaitForRequestDone())
@@ -67,6 +72,8 @@ namespace Fx.Devices
         /// <returns>Returns device description</returns>
         private DevParamsEx requestGetDescription()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.GetDescription;
 
             if (WaitForRequestDone())
@@ -81,6 +88,8 @@ namespace Fx.Devices
         /// <returns>Returns Measurement</returns>
         private DevMeasValsEx requestGetMeasurement()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.GetMeasurement;
 
             if (WaitForRequestDone())
@@ -96,6 +105,8 @@ namespace Fx.Devices
         /// <returns>Returns Device parameter values</returns>
         private DevParamValueEx requestGetParam(DevParamVals Param)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = Param;
             request = (int)eDeviceRequest.GetParameter;
 
@@ -112,6 +123,8 @@ namespace Fx.Devices
         /// <returns>Returns parameter list</returns>
         private DevParamValuesEx requestGetParams(List<DevParamVals> Param)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = Param;
             request = (int)eDeviceRequest.GetParameters;
 
@@ -127,10 +140,14 @@ namespace Fx.Devices
         /// <returns>Returns parameter list</returns>
         private DevParamsEx requestGetAllParams()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.GetAllParameters;
 
             if (WaitForRequestDone())
+            {
                 return DevParamsEx.Convert(requestReply);
+            }
             else
                 return new TimeOutException();
         }
@@ -142,11 +159,15 @@ namespace Fx.Devices
         /// <returns>Return true if ok</returns>
         private OkEx requestSetParam(DevParamVals Param)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = Param;
             request = (int)eDeviceRequest.SetParameter;
 
             if (WaitForRequestDone())
+            {
                 return OkEx.Convert(requestReply);
+            }
             else
                 return new TimeOutException();
         }
@@ -158,6 +179,8 @@ namespace Fx.Devices
         /// <returns>Returns true if write ok</returns>
         private OkEx requestSetParams(List<DevParamVals> Param)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = Param;
             request = (int)eDeviceRequest.SetParameters;
 
@@ -174,6 +197,8 @@ namespace Fx.Devices
         /// <returns>Return actual permissions</returns>
         private PermissionEx requestLogin(string password)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = password;
             request = (int)eDeviceRequest.Login;
 
@@ -189,6 +214,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private PermissionEx requestLogout()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.Logout;
 
             if (WaitForRequestDone())
@@ -204,6 +231,8 @@ namespace Fx.Devices
         /// <returns>Return true if ok</returns>
         private OkEx requestChangePassword(string password)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = password;
             request = (int)eDeviceRequest.ChangePassword;
 
@@ -219,6 +248,8 @@ namespace Fx.Devices
         /// <returns>Returns file list if read ok</returns>
         private StringArrayEx requestGetDir()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.GetDirectory;
 
             if (WaitForRequestDone())
@@ -234,6 +265,8 @@ namespace Fx.Devices
         /// <returns>Returns file if ok</returns>
         private StringEx requestGetFile(string FileName)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = FileName;
             request = (int)eDeviceRequest.GetFile;
 
@@ -250,6 +283,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestDelFile(string FileName)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = FileName;
             request = (int)eDeviceRequest.DeleteFile;
 
@@ -265,6 +300,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestDelAllFiles()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.DeleteAllFiles;
 
             if (WaitForRequestDone())
@@ -279,6 +316,8 @@ namespace Fx.Devices
         /// <returns></returns>
         private StringEx requestGetConfig()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.GetConfig;
 
             if (WaitForRequestDone())
@@ -294,6 +333,8 @@ namespace Fx.Devices
         /// <returns>Return true if OK</returns>
         private OkEx requestSetConfig(string FileName)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = FileName;
             request = (int)eDeviceRequest.SetConfig;
 
@@ -309,6 +350,8 @@ namespace Fx.Devices
         /// <returns>Return true if OK</returns>
         private OkEx requestResetConfig()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.ResetConfig;
 
             if (WaitForRequestDone())
@@ -323,6 +366,8 @@ namespace Fx.Devices
         /// <returns>Return true if OK</returns>
         private OkEx requestCreateFactoryConfig()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.CreateFactoryConfig;
 
             if (WaitForRequestDone())
@@ -338,6 +383,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestUpdateFirmware(string FileName)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = FileName;
             request = (int)eDeviceRequest.UpdateFirmware;
 
@@ -353,6 +400,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestRunApplication()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.RunApplication;
 
             if (WaitForRequestDone())
@@ -367,6 +416,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestRunBootloader()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.RunBootloader;
 
             if (WaitForRequestDone())
@@ -381,6 +432,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestStayInBootloader()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceRequest.StayInBootloader;
 
             if (WaitForRequestDone())

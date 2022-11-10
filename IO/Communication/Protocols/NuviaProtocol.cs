@@ -5,6 +5,7 @@ using Fx.Devices;
 using Fx.IO;
 using Fx.IO.Exceptions;
 using Fx.Radiometry;
+using Logger;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -510,7 +511,6 @@ namespace Fx.IO.Protocols
                 cmd.data = list.ToArray();
 
                 string res = (string)SendAndWait(2000);
-
                 return res;
             }
             catch (Exception err)
@@ -538,9 +538,7 @@ namespace Fx.IO.Protocols
                 List<byte> list = cmd.data.ToList();
                 list.Add(0);
                 cmd.data = list.ToArray();
-
                 string res = (string)SendAndWait();
-
                 /*if (paramName != res)
                 {
                     CommException Error = new CommException("You don't have permissions to change this parameter or value is out of range!", packetSended, packetReceived);
@@ -1406,8 +1404,7 @@ namespace Fx.IO.Protocols
             stopwatchLastChar.Start();
 
             packetReceived = com.Read(200);
-            
-            
+
             while ((!packetOk) && (stopwatch.ElapsedMilliseconds < timeout) && (stopwatchLastChar.ElapsedMilliseconds < timeoutLastChar))
             {
                 
@@ -1423,6 +1420,7 @@ namespace Fx.IO.Protocols
                 System.Windows.Forms.Application.DoEvents();
                 System.Threading.Thread.Sleep(5);
 
+                
                 byte[] res = com.Read(200);
 
                 if (res.Length > 0)
@@ -1466,7 +1464,6 @@ namespace Fx.IO.Protocols
             {
                 throw new Exception("Invalid function");
             }
-
 
             int dataLength = packetReceived.Length - 6;
             cmd.recvData = new byte[dataLength];
@@ -1551,7 +1548,6 @@ namespace Fx.IO.Protocols
                     if (windows1250)
                         data = Encoding.GetEncoding(1250).GetString(cmd.recvData);
                 }
-                
 
                 if (data[data.Length - 1] == 0)
                     data = data.Remove(data.Length - 1);

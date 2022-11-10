@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    enum eDeviceMCARequest { None, SetTime, Start, Stop, GetSettings, GetDescription, Password, Files, StartSpec, StopSpec, HVOn, HVOff, SetHV, SetHVForce, Firmware, ConfigSet, ConfigGet, ConfigReset, ConfigCreateFactory, ChangeMode, CalibHVSetPoint, CalibHV_SetMaxHV, CalibHV_SetMaxDAC }
+    enum eDeviceMCARequest { None, GetSCAValue = 101, GetSCASettings = 102, SetTime = 104, Start = 105, Stop = 106, Latch = 107, Clear = 108,
+        StartSpectrum = 201, StopSpectrum = 202, ClearSpectrum = 203, GetSpectrum = 204, GetMCACalibration = 205,
+        SwitchHV = 301, SetHV = 302, CalibHV_SetPoint = 303, CalibHV_Set = 304,
+    }
 
 
     public delegate void NewSpectrumEventHandler(object source, Spectrum newSpectrum);

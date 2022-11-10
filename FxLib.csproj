@@ -86,6 +86,7 @@
     <Compile Include="IO\FileTypes\N42File.cs" />
     <Compile Include="IO\FileTypes\XmlFile.cs" />
     <Compile Include="IO\Flag.cs" />
+    <Compile Include="IO\Log.cs" />
     <Compile Include="IO\Paths.cs" />
     <Compile Include="IO\Communication\SocketClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

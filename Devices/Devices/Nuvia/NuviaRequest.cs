@@ -15,7 +15,12 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestStart()
         {
-            request = (int)eDeviceEGMRequest.Start;
+            if (request > 0) return new IsBusyException();
+
+            if (Type == DeviceType.MCA)
+                request = (int)eDeviceMCARequest.Start;
+            else
+                request = (int)eDeviceEGMRequest.Start;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -29,7 +34,12 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestStop()
         {
-            request = (int)eDeviceEGMRequest.Stop;
+            if (request > 0) return new IsBusyException();
+
+            if (Type == DeviceType.MCA)
+                request = (int)eDeviceMCARequest.Stop;
+            else
+                request = (int)eDeviceEGMRequest.Stop;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -43,7 +53,12 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestLatch()
         {
-            request = (int)eDeviceEGMRequest.Latch;
+            if (request > 0) return new IsBusyException();
+
+            if (Type == DeviceType.MCA)
+                request = (int)eDeviceMCARequest.Latch;
+            else
+                request = (int)eDeviceEGMRequest.Latch;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -57,7 +72,12 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestClear()
         {
-            request = (int)eDeviceEGMRequest.Clear;
+            if (request > 0) return new IsBusyException();
+
+            if (Type == DeviceType.MCA)
+                request = (int)eDeviceMCARequest.Clear;
+            else
+                request = (int)eDeviceEGMRequest.Clear;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -71,7 +91,9 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestStartSpectrum()
         {
-            request = (int)eDeviceMCARequest.StartSpec;
+            if (request > 0) return new IsBusyException();
+
+            request = (int)eDeviceMCARequest.StartSpectrum;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -85,7 +107,9 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestStopSpectrum()
         {
-            request = (int)eDeviceMCARequest.StopSpec;
+            if (request > 0) return new IsBusyException();
+
+            request = (int)eDeviceMCARequest.StopSpectrum;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -99,7 +123,9 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestClearSpectrum()
         {
-            //request = (int)eDeviceMCARequest.ClearSpec;
+            if (request > 0) return new IsBusyException();
+
+            request = (int)eDeviceMCARequest.ClearSpectrum;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -113,7 +139,9 @@ namespace Fx.Devices
         /// <returns>Returns Spectrum if communication ok</returns>
         private SpectrumEx requestGetSpectrum()
         {
-            //request = (int)eDeviceMCARequest.GetSpectrum;
+            if (request > 0) return new IsBusyException();
+
+            request = (int)eDeviceMCARequest.GetSpectrum;
 
             if (WaitForRequestDone())
                 return SpectrumEx.Convert(requestReply);
@@ -127,7 +155,9 @@ namespace Fx.Devices
         /// <returns>Returns Calibration if communication ok</returns>
         private MCACalibrationEx requestGetMCACalibration()
         {
-            //request = (int)eDeviceMCARequest.GetSpectrum;
+            if (request > 0) return new IsBusyException();
+
+            request = (int)eDeviceMCARequest.GetMCACalibration;
 
             if (WaitForRequestDone())
                 return MCACalibrationEx.Convert(requestReply);
@@ -142,7 +172,10 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestSwitchHV(bool On)
         {
-            //request = (int)eDeviceMCARequest.SwitchHV;
+            if (request > 0) return new IsBusyException();
+
+            requestValue = On;
+            request = (int)eDeviceMCARequest.SwitchHV;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -157,7 +190,13 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestSetHV(int HV)
         {
-            request = (int)eDeviceEGMRequest.SetHV;
+            if (request > 0) return new IsBusyException();
+
+            requestValue = HV;
+            if (Type == DeviceType.MCA)
+                request = (int)eDeviceMCARequest.SetHV;
+            else
+                request = (int)eDeviceEGMRequest.SetHV;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -174,7 +213,13 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestCalibHV_SetPoint(byte domain, byte point, float voltage)
         {
-            request = (int)eDeviceEGMRequest.CalibHV_SetPoint;
+            if (request > 0) return new IsBusyException();
+
+            requestValue = new CalibHVPoint(domain, point, voltage);
+            if (Type == DeviceType.MCA)
+                request = (int)eDeviceMCARequest.CalibHV_SetPoint;
+            else
+                request = (int)eDeviceEGMRequest.CalibHV_SetPoint;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -189,7 +234,13 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestCalibHV_Set(byte domain)
         {
-            request = (int)eDeviceEGMRequest.CalibHV_Set;
+            if (request > 0) return new IsBusyException();
+
+            requestValue = domain;
+            if (Type == DeviceType.MCA)
+                request = (int)eDeviceMCARequest.CalibHV_Set;
+            else
+                request = (int)eDeviceEGMRequest.CalibHV_Set;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -203,6 +254,8 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         private GeigerValueEx requestGetEGMValue()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.GetEGMValue;
 
             if (WaitForRequestDone())
@@ -217,6 +270,8 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         private GeigerSettingsEx requestGetEGMSettings()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.GetEGMSettings;
 
             if (WaitForRequestDone())
@@ -231,6 +286,8 @@ namespace Fx.Devices
         /// <returns>Returns true if read ok</returns>
         private GeigerLimitsEx requestGetEGMLimits()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.GetEGMLimits;
 
             if (WaitForRequestDone())
@@ -246,7 +303,28 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestSetTime(int Time)
         {
+            if (request > 0) return new IsBusyException();
+
+            requestValue = Time;
             request = (int)eDeviceEGMRequest.SetTime;
+
+            if (WaitForRequestDone())
+                return OkEx.Convert(requestReply);
+            else
+                return new TimeOutException();
+        }
+
+        /// <summary>
+        /// Set Measurement Time
+        /// </summary>
+        /// <param name="Time">Time</param>
+        /// <returns>Returns true if communication ok</returns>
+        private OkEx requestSetTime(float Time)
+        {
+            if (request > 0) return new IsBusyException();
+
+            requestValue = Time;
+            request = (int)eDeviceMCARequest.SetTime;
 
             if (WaitForRequestDone())
                 return OkEx.Convert(requestReply);
@@ -258,7 +336,6 @@ namespace Fx.Devices
         {
             try
             {
-
                 if (Type == DeviceType.EGM)
                 {
                     switch ((eDeviceEGMRequest)request)
@@ -275,7 +352,7 @@ namespace Fx.Devices
                             requestReply = devGetEGMLimits();
                             break;
                         case eDeviceEGMRequest.SetTime:
-                            devSetTime((float)(int)requestValue);
+                            devSetTime((int)requestValue);
                             requestReply = true;
                             break;
                         case eDeviceEGMRequest.Start:
@@ -288,6 +365,10 @@ namespace Fx.Devices
                             break;
                         case eDeviceEGMRequest.Latch:
                             devLatch();
+                            requestReply = true;
+                            break;
+                        case eDeviceEGMRequest.Clear:
+                            devClear();
                             requestReply = true;
                             break;
                         case eDeviceEGMRequest.SetHV:
@@ -303,7 +384,6 @@ namespace Fx.Devices
                             devSetCalibHV((byte)requestValue);
                             requestReply = true;
                             break;
-
                     }
                 }
                 else if (Type == DeviceType.MCA)
@@ -312,10 +392,69 @@ namespace Fx.Devices
 
                     switch (mcaRequest)
                     {
+                        case eDeviceMCARequest.None:
+                            break;
+                        case eDeviceMCARequest.GetSCAValue:
+                            requestReply = devGetMCAValue();
+                            break;
+                        case eDeviceMCARequest.GetSCASettings:
+                            requestReply = devGetMCASettings();
+                            break;
                         case eDeviceMCARequest.SetTime:
-                            requestReply = SetTime((float)requestValue); break;
+                            devSetTime((float)requestValue);
+                            requestReply = true;
+                            break;
                         case eDeviceMCARequest.Start:
-                            requestReply = Start(); break;
+                            devStart();
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.Stop:
+                            devStop();
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.Latch:
+                            devLatch();
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.Clear:
+                            devClear();
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.StartSpectrum:
+                            devStartSpectrum();
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.StopSpectrum:
+                            devStopSpectrum();
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.ClearSpectrum:
+                            devClearSpectrum();
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.GetSpectrum:
+                            requestReply = devGetSpectrum();
+                            break;
+                        case eDeviceMCARequest.GetMCACalibration:
+                            requestReply = devGetCalibration();
+                            break;
+                        case eDeviceMCARequest.SwitchHV:
+                            devSwitchHV((bool)requestValue);
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.SetHV:
+                            devSetHV((int)requestValue);
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.CalibHV_SetPoint:
+                            CalibHVPoint point = (CalibHVPoint)requestValue;
+                            devSetCalibHVPoint(point.Domain, point.Point, point.HV);
+                            requestReply = true;
+                            break;
+                        case eDeviceMCARequest.CalibHV_Set:
+                            devSetCalibHV((byte)requestValue);
+                            requestReply = true;
+                            break;
 
                     }
                 }
@@ -343,7 +482,7 @@ namespace Fx.Devices
                         
                         if (value.isSpectRunning)
                         {
-                            GetSpectrum().Switch(
+                            getSpectrum().Switch(
                                 spectrum =>
                                 {
                                     if (NewSpectrum != null)
@@ -364,7 +503,7 @@ namespace Fx.Devices
                 
                 if (Support.HasFlag(DevSupport.Spectrum))
                 {
-                    GetSpectrum().Switch(
+                    getSpectrum().Switch(
                         spectrum =>
                         {
                             if (NewSpectrum != null)

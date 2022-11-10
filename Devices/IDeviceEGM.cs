@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Fx.Devices
 {
-    enum eDeviceEGMRequest { None, GetEGMValue = 101, GetEGMSettings = 102, GetEGMLimits = 103, SetTime = 104, Start = 105, Stop = 106, Latch = 107, Clear = 108, SetHV = 109,
-        CalibHV_SetPoint = 200, CalibHV_Set = 201
+    enum eDeviceEGMRequest { None, GetEGMValue = 101, GetEGMSettings = 102, GetEGMLimits = 103, SetTime = 104, Start = 105, Stop = 106, Latch = 107, Clear = 108,
+        SetHV = 302, CalibHV_SetPoint = 303, CalibHV_Set = 304
     }
 
 

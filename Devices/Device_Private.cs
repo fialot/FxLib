@@ -25,12 +25,14 @@ namespace Fx.Devices
 
             if (NewLog != null)
             {
-                //NewLog(this, logTitle, text, logProgress);
-                try
+                Task.Run(() =>
                 {
-                    Task.Run(() => NewLog(this, logTitle, text, logProgress));
-                }
-                catch { }
+                    try
+                    {
+                        NewLog(this, logTitle, text, logProgress);
+                    }
+                    catch { }
+                });
             }
         }
 

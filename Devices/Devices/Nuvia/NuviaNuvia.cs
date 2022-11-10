@@ -221,7 +221,7 @@ namespace Fx.Devices
             // ----- Permissions -----
             try
             {
-                var perm = nuvia.ParseParam(nuvia.GetParam("10105"))[10105];    // get Model
+                var perm = dict[10105];    // get Model
 
                 if (perm.IndexOf("0") == 0) Permission = DevPermission.None;
                 if (perm.IndexOf("1") == 0) Permission = DevPermission.Advanced;

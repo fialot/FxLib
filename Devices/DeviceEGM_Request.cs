@@ -15,6 +15,8 @@ namespace Fx.Devices
         /// <returns>Returns EGM value if read ok</returns>
         private GeigerValueEx requestGetEGMValue()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.GetEGMValue;
 
             if (WaitForRequestDone())
@@ -29,6 +31,8 @@ namespace Fx.Devices
         /// <returns>Returns settings if read ok</returns>
         private GeigerSettingsEx requestGetEGMSettings()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.GetEGMSettings;
 
             if (WaitForRequestDone())
@@ -43,6 +47,8 @@ namespace Fx.Devices
         /// <returns>Returns limits if read ok</returns>
         private GeigerLimitsEx requestGetEGMLimits()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.GetEGMLimits;
 
             if (WaitForRequestDone())
@@ -58,6 +64,8 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestSetTime(int Time)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = Time;
             request = (int)eDeviceEGMRequest.SetTime;
 
@@ -73,6 +81,8 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestStart()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.Start;
 
             if (WaitForRequestDone())
@@ -87,6 +97,8 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestStop()
         {
+            if (request > 0) return new IsBusyException();
+
             request = (int)eDeviceEGMRequest.Stop;
 
             if (WaitForRequestDone())
@@ -102,6 +114,8 @@ namespace Fx.Devices
         /// <returns>Returns true if communication ok</returns>
         private OkEx requestSetHV(int HV)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = HV;
             request = (int)eDeviceEGMRequest.SetHV;
 
@@ -120,6 +134,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestCalibHV_SetPoint(byte domain, byte point, float voltage)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = new CalibHVPoint(domain, point, voltage);
             request = (int)eDeviceEGMRequest.CalibHV_SetPoint;
 
@@ -136,6 +152,8 @@ namespace Fx.Devices
         /// <returns>Returns true if ok</returns>
         private OkEx requestCalibHV_Set(byte domain)
         {
+            if (request > 0) return new IsBusyException();
+
             requestValue = domain;
             request = (int)eDeviceEGMRequest.CalibHV_Set;
 
