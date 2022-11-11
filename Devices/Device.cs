@@ -149,6 +149,9 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public bool Disconnect(out CommException Error)
         {
+            setLogTitle("");
+            log("", 0);
+
             CommException error = null;
             var reply = Disconnect().Match(ok => true, err => { error = err; return false; });
             Error = error;

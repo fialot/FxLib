@@ -110,11 +110,30 @@ namespace Fx.IO
         }
 
         /// <summary>
-        /// Read text file lines
+        /// Read binary file
         /// </summary>
         /// <param name="fileName">Filename</param>
-        /// <returns>Array of lines</returns>
-        public static string[] ReadLines(string fileName, bool removeEmptyLines = false)
+        /// <returns></returns>
+        public static byte[] ReadAllBytes(string fileName)
+        {
+            try
+            {
+                return System.IO.File.ReadAllBytes(fileName);
+            }
+            catch (Exception err)
+            {
+                return null;
+            }
+        }
+
+        
+
+/// <summary>
+/// Read text file lines
+/// </summary>
+/// <param name="fileName">Filename</param>
+/// <returns>Array of lines</returns>
+public static string[] ReadLines(string fileName, bool removeEmptyLines = false)
         {
             string res = Read(fileName);
 
