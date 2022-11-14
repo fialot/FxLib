@@ -502,7 +502,7 @@ namespace Fx.Devices
         DeviceInfo mbGetInfo()
         {
             info = new DeviceInfo();
-            ushort[] regs = mb.ReadInputRegisters(1, 22);
+            ushort[] regs = mb.ReadInputRegisters(1, 23);
             info.Version = mb.GetString8(regs, 0, 10);          // get FW version
             info.SN = mb.GetString8(regs, 10, 12);              // get SN
 
@@ -519,6 +519,24 @@ namespace Fx.Devices
                     info.Model = "MCB";                                 // get Model
                 Type = DeviceType.MCA;
                 Support |= DevSupport.Spectrum;
+            }
+            else
+            {
+                if (regs[22] == 1)
+                {
+                    info.Model = "SCA";
+                    Type = DeviceType.MCA;
+                }
+                else if (regs[22] == 2)
+                {
+                    info.Model = "MCB";
+                    Type = DeviceType.MCA;
+                }
+                else if (regs[22] == 3)
+                {
+                    info.Model = "EGM";
+                    Type = DeviceType.EGM;
+                }
             }
             
             info.Date = "";                                     // get date
