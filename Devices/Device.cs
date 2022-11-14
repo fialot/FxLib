@@ -558,6 +558,7 @@ namespace Fx.Devices
                         }
                         else if (attr.Value == "2")
                         {
+                            Support |= DevSupport.Start;
                             Support |= DevSupport.Bootloader;
                         }
                     }
