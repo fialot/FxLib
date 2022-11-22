@@ -52,6 +52,7 @@ namespace Fx.Devices
             {"errDev", "Chyba zařízení"},
             {"errRTC", "Chyba RTC"},
             {"errComm", "Chyba komunikace"},
+            {"errInputV", "Chyba napájení"},
 
             { "firmwareUpdate","Aktualizace firmwaru" },
             { "firmwareStartUpload","Start aktualizace firmwaru" },

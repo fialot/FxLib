@@ -37,7 +37,8 @@ namespace Fx.Devices
         NuSCA_ERROR_RTC = 0x00000040,       // RTC Error
         NuSCA_ERROR_TEMP = 0x00000080,      // Temperature sensor Error
         NuSCA_ERROR_COMM = 0x00000400,      // Communication Error
-        NuSCA_ERROR_DEVICE = 0x00000800     // Device Error
+        NuSCA_ERROR_DEVICE = 0x00000800,     // Device Error
+        NuSCA_ERROR_INPUT_V = 0x00001000     // Input Voltage Error
         /*VF_ERROR_NONE = 0,              //Bez chyby
         VF_ERROR_R10000 = 10000,        //Rezerva
         VF_ERROR_INITI2C = 10001,       //Chyba inicializace I2C
@@ -75,6 +76,14 @@ namespace Fx.Devices
                 list.Add(Lng("errComm", "Communication Error"));
             if (NuErr.HasFlag(NuviaSCA_Error.NuSCA_ERROR_DEVICE))
                 list.Add(Lng("errDev", "Device Error"));
+            if (NuErr.HasFlag(NuviaSCA_Error.NuSCA_ERROR_INPUT_V))
+            {
+                if (lastMeas.ContainsKey(10012))
+                    list.Add(Lng("errInputV", "Input Voltage Error") + " (" + lastMeas[10012] + " < 4.5)");
+                else
+                    list.Add(Lng("errInputV", "Input Voltage Error"));
+            }
+                
 
             if (list.Count == 0)
                 list.Add(Lng("noErr", "Device working properly"));
