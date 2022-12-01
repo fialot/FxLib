@@ -409,6 +409,8 @@ namespace Fx.Devices
         public string File { get; set; }
         public string Section { get; set; }
         public string Key { get; set; }
+
+        public Dictionary<string, string> Replace{ get; set;}
     }
 
 

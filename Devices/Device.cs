@@ -442,6 +442,21 @@ namespace Fx.Devices
 
                     if (value.Parent.Attribute("name") != null)
                         item.Group = value.Parent.Attribute("name").Value;
+
+                    if (value.Name == "enum")
+                    {
+                        IEnumerable<XElement> enums = value.Elements();
+                        item.Replace = new Dictionary<string, string>();
+
+                        foreach (var en in enums)
+                        {
+                            if ((en.Attribute("name") != null) && (en.Attribute("name") != null))
+                            {
+                                item.Replace.Add(en.Attribute("value").Value, en.Attribute("name").Value);
+                            }
+                        }
+                    }
+
                     if (item.ID > 0)
                     {
                         item.Value = "";
@@ -470,6 +485,11 @@ namespace Fx.Devices
                 {
                     DevMeasVals item = MeasList[i];
                     item.Value = valDict[item.ID];
+                    if (item.Replace != null)
+                    {
+                        if (item.Replace.ContainsKey(item.Value))
+                            item.Value = item.Replace[item.Value];
+                    }
                     valList.Add(item);
                 }
                 catch { }
