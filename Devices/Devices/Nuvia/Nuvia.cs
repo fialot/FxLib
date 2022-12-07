@@ -117,11 +117,6 @@ namespace Fx.Devices
         SCASettings mcaSettings;                            // Device Settings
         GeigerLimits egmLimits;                                // Measurement Limits
 
-        Dictionary<int, string> lastMeas;                   // Last measurement (dictionary values)
-
-        List<DevMeasVals> MeasList;                         // Measurement description list (from XML)
-        List<DevParams> ParamList;                          // Parameter description list (from XML)
-        List<DevParams> DescList;                         // Description list (from XML)
 
         #endregion
         
@@ -441,11 +436,33 @@ namespace Fx.Devices
         {
             if (UsedProtocol == eProtocol.MODBUS)
             {
-                mbSetParam(param.ID, param.Value);
+                try
+                {
+                    mbSetParam(param.ID, param.Value);
+                }
+                catch (Exception error)
+                {
+                    disconnect();
+                    connect();
+                    // If not change protocol -> throw error
+                    if (param.ID != 2)
+                        throw error;
+                }
             }
             else
             {
-                nuvia.SetParam(param.ID.ToString() + "=" + param.Value);
+                try
+                {
+                    nuvia.SetParam(param.ID.ToString() + "=" + param.Value);
+                }
+                catch (Exception error)
+                {
+                    disconnect();
+                    connect();
+                    // If not change protocol -> throw error
+                    if (param.ID != 61)
+                        throw error;
+                } 
             }
             
         }

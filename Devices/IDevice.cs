@@ -81,6 +81,8 @@ namespace Fx.Devices
         DevMeasValsEx GetMeasurement();
         bool GetMeasurement(out List<DevMeasVals> Value, out CommException Error);
 
+        List<DevMeasVals> ReadMeasurement();
+
         // ----- Parameters -----
         DevParamValueEx GetParam(int ID);
         DevParamValueEx GetParam(DevParamVals Param);

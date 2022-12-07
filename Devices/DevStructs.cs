@@ -15,6 +15,8 @@ namespace Fx.Devices
     public enum DevMode { Basic = 0, Advanced = 1, Service = 2, Debug = 3 }
     public enum DevPermission { None = 0, Advanced = 1, Service = 2, SuperUser = 3 }
 
+    public enum DevReply { OK, NoReply, Disconnect}
+
 
     public class OkEx : OneOfBase<bool, CommException>
     {

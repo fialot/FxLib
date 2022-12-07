@@ -60,6 +60,8 @@ namespace Fx.Devices
             CalibHVSupport = false;*/
             InBootloaderMode = false;
 
+            SetLanguage(System.Globalization.CultureInfo.CurrentUICulture.Name);
+
             Permission = DevPermission.None;
         }
 
@@ -131,6 +133,9 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public OkEx Disconnect()
         {
+            setLogTitle("");
+            log("", 0);
+
             try
             {
                 disconnect();
@@ -149,13 +154,28 @@ namespace Fx.Devices
         /// <returns>Returns true if connection ok</returns>
         public bool Disconnect(out CommException Error)
         {
-            setLogTitle("");
-            log("", 0);
-
             CommException error = null;
             var reply = Disconnect().Match(ok => true, err => { error = err; return false; });
             Error = error;
             return reply;
+        }
+
+        /// <summary>
+        /// Reconnect device
+        /// </summary>
+        /// <returns>Returns true if connection ok</returns>
+        public OkEx Reconnect()
+        {
+            try
+            {
+                disconnect();
+                connect();
+                return true;
+            }
+            catch (Exception err)
+            {
+                return new CommException(err.Message);
+            }
         }
 
         /// <summary>
@@ -545,6 +565,11 @@ namespace Fx.Devices
             Error = error;
             Value = value;
             return reply;
+        }
+
+        public List<DevMeasVals> ReadMeasurement()
+        {
+            return FillMeas(MeasList, lastMeas);
         }
 
         #endregion
@@ -1277,6 +1302,12 @@ namespace Fx.Devices
         protected string language = "EN";
 
         protected DevMode mode = DevMode.Basic;
+
+        protected List<DevMeasVals> MeasList;                         // Measurement description list (from XML)
+        protected List<DevParams> ParamList;                          // Parameter description list (from XML)
+        protected List<DevParams> DescList;                         // Description list (from XML)
+
+        protected Dictionary<int, string> lastMeas;                   // Last measurement (dictionary values)
 
 
         #endregion

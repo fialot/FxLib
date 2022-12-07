@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Fx.Devices
 {
 
-    public delegate void NewDataEventHandler(object source, List<DevMeasVals> newData);
+    public delegate void NewDataEventHandler(object source, DevReply status, List<DevMeasVals> newData);
 
 
     public abstract partial class Device : IDevice
@@ -101,7 +101,21 @@ namespace Fx.Devices
                     try
                     {
                         if (checkConnection())
+                        {
                             refreshData();
+                        }
+                        else
+                        {
+                            // ----- Send disconnect status -----
+                            if (NewData != null)
+                            {
+                                try
+                                {
+                                    Task.Run(() => NewData(this, DevReply.Disconnect, lastMeasValues));
+                                }
+                                catch { }
+                            }
+                        }
                     }
                     catch { }
                 }
@@ -139,14 +153,24 @@ namespace Fx.Devices
                     {
                         try
                         {
-                            Task.Run(() => NewData(this, values));
+                            Task.Run(() => NewData(this, DevReply.OK, values));
                         }
                         catch { }
                     }
 
                     return values;
                 },
-                error => { return lastMeasValues; }
+                error => {
+                    if (NewData != null)
+                    {
+                        try
+                        {
+                            Task.Run(() => NewData(this, DevReply.NoReply, lastMeasValues));
+                        }
+                        catch { }
+                    }
+                    return lastMeasValues;
+                }
             );
         }
 
