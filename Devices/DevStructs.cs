@@ -457,6 +457,8 @@ namespace Fx.Devices
         public string Date;             // Date
         public string SN;               // serial number
         public DeviceType Type;
+        public string TypeString;       // Device type
+        public string Chip;             // Used chip 
     }
 
     public struct GeigerValue

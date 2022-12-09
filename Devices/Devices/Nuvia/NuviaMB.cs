@@ -502,21 +502,33 @@ namespace Fx.Devices
         DeviceInfo mbGetInfo()
         {
             info = new DeviceInfo();
-            ushort[] regs = mb.ReadInputRegisters(1, 23);
+            ushort[] regs = mb.ReadInputRegisters(1, 24);
             info.Version = mb.GetString8(regs, 0, 10);          // get FW version
             info.SN = mb.GetString8(regs, 10, 12);              // get SN
+            info.Chip = "";
+            info.TypeString = "";
+            if (regs[23] > 0)
+                info.Chip = "F" + regs[23].ToString();
 
             if (info.Version.Contains("EGM") || info.Version.Contains("GMS"))
             {
                 info.Model = "EGM";
+                info.TypeString = "EGM";
                 Type = DeviceType.EGM;
             }
             else if (info.Version.Contains("SCA") || info.Version.Contains("MCB"))
             {
                 if (info.Version.Contains("SCA"))
-                    info.Model = "SCA";                                 // get Model
+                {
+                    info.Model = "SCA";
+                    info.TypeString = "SCA";
+                }                                 // get Model
                 else
-                    info.Model = "MCB";                                 // get Model
+                {
+                    info.Model = "MCB";
+                    info.TypeString = "MCB";
+                }
+                                                   // get Model
                 Type = DeviceType.MCA;
                 Support |= DevSupport.Spectrum;
             }
@@ -525,16 +537,19 @@ namespace Fx.Devices
                 if (regs[22] == 1)
                 {
                     info.Model = "SCA";
+                    info.TypeString = "SCA";
                     Type = DeviceType.MCA;
                 }
                 else if (regs[22] == 2)
                 {
                     info.Model = "MCB";
+                    info.TypeString = "MCB";
                     Type = DeviceType.MCA;
                 }
                 else if (regs[22] == 3)
                 {
                     info.Model = "EGM";
+                    info.TypeString = "EGM";
                     Type = DeviceType.EGM;
                 }
             }

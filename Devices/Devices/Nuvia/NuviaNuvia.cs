@@ -11,18 +11,38 @@ namespace Fx.Devices
     {
         DeviceInfo nuviaGetInfo()
         {
+
             info = new DeviceInfo();
             info.Version = nuvia.GetDevVersion();                                // get FW version
             try
             {
+                /*var nuvParams = nuvia.ParseParam(nuvia.GetParam("12, 10027, 20004, 10060, 10105"));
+
+                info.SN = nuvParams[12];             // get SN
+                info.Model = nuvParams[10027];    // get Model
+                info.Date = "";
+                info.Chip = nuvParams[20004];
+                info.TypeString = nuvParams[10060];*/
+
                 info.SN = nuvia.ParseParam(nuvia.GetParam("12"))[12];             // get SN
                 info.Model = nuvia.ParseParam(nuvia.GetParam("10027"))[10027];    // get Model
                 info.Date = "";
-
+                info.Chip = nuvia.ParseParam(nuvia.GetParam("20004"))[20004];
+                info.TypeString = nuvia.ParseParam(nuvia.GetParam("10060"))[10060];
                 if (info.Version.Contains("EGM") || info.Version.Contains("GMS"))
-                    Type = DeviceType.EGM;
-                else if (info.Version.Contains("SCA") || info.Version.Contains("MCB"))
                 {
+                    info.TypeString = "EGM";
+                    Type = DeviceType.EGM;
+                }
+                else if (info.Version.Contains("SCA"))
+                {
+                    info.TypeString = "SCA";
+                    Type = DeviceType.MCA;
+                    Support |= DevSupport.Spectrum;
+                }
+                else if (info.Version.Contains("MCB"))
+                {
+                    info.TypeString = "MCB";
                     Type = DeviceType.MCA;
                     Support |= DevSupport.Spectrum;
                 }

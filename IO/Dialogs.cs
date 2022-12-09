@@ -135,6 +135,8 @@ namespace Fx.IO
             Button buttonOk = new Button();
             Button buttonCancel = new Button();
 
+            int shift = (promptText.Split('\n').Length - 1) * 12;
+
             form.Text = title;
             label.Text = promptText;
 
@@ -149,16 +151,16 @@ namespace Fx.IO
             buttonCancel.DialogResult = DialogResult.Cancel;
 
             label.SetBounds(9, 20, 372, 13);
-            comboBox.SetBounds(12, 36, 372, 20);
-            buttonOk.SetBounds(228, 72, 75, 23);
-            buttonCancel.SetBounds(309, 72, 75, 23);
+            comboBox.SetBounds(12, 36 + shift, 372, 20);
+            buttonOk.SetBounds(228, 72 + shift, 75, 23);
+            buttonCancel.SetBounds(309, 72 + shift, 75, 23);
 
             label.AutoSize = true;
             comboBox.Anchor = comboBox.Anchor | AnchorStyles.Right;
             buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
-            form.ClientSize = new Size(396, 107);
+            form.ClientSize = new Size(396, 107 + shift);
             form.Controls.AddRange(new Control[] { label, comboBox, buttonOk, buttonCancel });
             form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
             form.FormBorderStyle = FormBorderStyle.FixedDialog;
