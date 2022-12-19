@@ -503,12 +503,17 @@ namespace Fx.Devices
         {
             info = new DeviceInfo();
             ushort[] regs = mb.ReadInputRegisters(1, 24);
+            ushort[] regsID = mb.ReadInputRegisters(270, 3);
             info.Version = mb.GetString8(regs, 0, 10);          // get FW version
             info.SN = mb.GetString8(regs, 10, 12);              // get SN
             info.Chip = "";
+            info.BoardID = "";
             info.TypeString = "";
-            if (regs[23] > 0)
-                info.Chip = "F" + regs[23].ToString();
+            if (regsID[0] > 0)
+                info.Chip = "F" + regsID[0].ToString();
+            var boardID = mb.GetInt(regsID, 1);
+            if (boardID > 0)
+                info.BoardID = boardID.ToString("X");
 
             if (info.Version.Contains("EGM") || info.Version.Contains("GMS"))
             {

@@ -136,12 +136,11 @@ namespace Fx.Devices
                 Settings.Parity = Parity.None;
 
                 SerialAutoConnect autoSett = new SerialAutoConnect();
-
+                Settings = autoSett.Get(Settings);
                 // ----- Try Nuvia protocol -----
 
                 for (int i = 0; i < autoSett.Count; i++)
                 {
-                    Settings = autoSett.Next(Settings);
 
                     try
                     {
@@ -152,38 +151,37 @@ namespace Fx.Devices
                             nuvia.GetDevVersion();
                             UsedProtocol = eProtocol.Nuvia;
                             return;
-                        } catch { }
+                        } catch {
 
-                        nuvia.Disconnect();
-                    }
-                    catch { }
-                }
+                            nuvia.Disconnect();
 
-                // ----- Try MODBUS protocol -----
+                            // ----- Try MODBUS protocol -----
+                            try
+                            {
+                                mb.Connect(Settings);
 
-                autoSett.Reset();
+                                try
+                                {
+                                    ushort[] regs = mb.ReadInputRegisters(1, 22);
+                                    UsedProtocol = eProtocol.MODBUS;
+                                    return;
+                                }
+                                catch { }
 
-                for (int i = 0; i < autoSett.Count; i++)
-                {
-                    Settings = autoSett.Next(Settings);
+                                mb.Disconnect();
+                            }
+                            catch { }
 
-                    try
-                    {
-                        mb.Connect(Settings);
-
-                        try
-                        {
-                            ushort[] regs = mb.ReadInputRegisters(1, 22);
-                            UsedProtocol = eProtocol.MODBUS;
-                            return;
                         }
-                        catch { }
 
-                        mb.Disconnect();
+                        
                     }
                     catch { }
-                }
 
+
+                    Settings = autoSett.Next(Settings);
+                }
+                
                 // ----- If not found device -> throw exception -----
                 throw new ConnectionFailedException();
 

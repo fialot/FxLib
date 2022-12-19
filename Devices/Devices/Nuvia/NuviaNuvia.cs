@@ -23,12 +23,12 @@ namespace Fx.Devices
                 info.Date = "";
                 info.Chip = nuvParams[20004];
                 info.TypeString = nuvParams[10060];*/
-
                 info.SN = nuvia.ParseParam(nuvia.GetParam("12"))[12];             // get SN
                 info.Model = nuvia.ParseParam(nuvia.GetParam("10027"))[10027];    // get Model
                 info.Date = "";
                 info.Chip = nuvia.ParseParam(nuvia.GetParam("20004"))[20004];
                 info.TypeString = nuvia.ParseParam(nuvia.GetParam("10060"))[10060];
+                info.BoardID = nuvia.ParseParam(nuvia.GetParam("10061"))[10061];
                 if (info.Version.Contains("EGM") || info.Version.Contains("GMS"))
                 {
                     info.TypeString = "EGM";

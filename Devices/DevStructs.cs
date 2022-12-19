@@ -459,6 +459,7 @@ namespace Fx.Devices
         public DeviceType Type;
         public string TypeString;       // Device type
         public string Chip;             // Used chip 
+        public string BoardID;          // Board ID
     }
 
     public struct GeigerValue
