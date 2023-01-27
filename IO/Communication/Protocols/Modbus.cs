@@ -258,6 +258,7 @@ namespace Fx.IO.Protocols
             }
             com.Connect(settings);
             FirstSending = true;
+            address = settings.Address;
         }
 
         /// <summary>
