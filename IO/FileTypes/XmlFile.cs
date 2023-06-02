@@ -325,7 +325,8 @@ namespace Fx.IO.FileTypes
                         {
                             if (Key != "")
                             {
-                                item.Attribute(Key).Value = Value;
+                                item.SetAttributeValue(Key, Value);
+                                //item.Attribute(Key).Value = Value;
                             }
                             else
                             {
