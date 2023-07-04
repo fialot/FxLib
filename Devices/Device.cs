@@ -608,6 +608,19 @@ namespace Fx.Devices
                         }
                     }
 
+                    attr = fw.Attribute("has_spect");
+                    if (attr != null)
+                    {
+                        if (attr.Value == "1")
+                        {
+                            Support |= DevSupport.Spectrum;
+                        }
+                        else
+                        {
+                            Support &= ~DevSupport.Spectrum;
+                        }
+                    }
+
                     attr = fw.Attribute("hv_domains");
                     if (attr != null)
                     {
