@@ -40,7 +40,7 @@ namespace Fx.Devices
                     Type = DeviceType.MCA;
                     Support |= DevSupport.Spectrum;
                 }
-                else if (info.Version.Contains("MCB"))
+                else if (info.Version.Contains("MCB") || info.Version.ToLower().Contains("mobrams"))
                 {
                     info.TypeString = "MCB";
                     Type = DeviceType.MCA;
