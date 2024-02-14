@@ -55,11 +55,19 @@ namespace Fx.Devices
                 var perm = nuvia.ParseParam(nuvia.GetParam("10105"))[10105];    // get Model
 
                 if (perm.IndexOf("0") == 0) Permission = DevPermission.None;
-                if (perm.IndexOf("1") == 0) Permission = DevPermission.Advanced;
-                if (perm.IndexOf("2") == 0) Permission = DevPermission.Service;
-                if (perm.IndexOf("3") == 0) Permission = DevPermission.SuperUser;
-
-                Support |= DevSupport.Permission;
+                else if (perm.IndexOf("1") == 0) Permission = DevPermission.Advanced;
+                else if (perm.IndexOf("2") == 0) Permission = DevPermission.Service;
+                else if (perm.IndexOf("3") == 0) Permission = DevPermission.SuperUser;
+                
+                if (perm == "Unknown")
+                {
+                    Permission = DevPermission.SuperUser;
+                } 
+                else
+                {
+                    Support |= DevSupport.Permission;
+                }
+                    
             }
 
             catch { }

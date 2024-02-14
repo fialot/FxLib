@@ -101,6 +101,7 @@ namespace Fx.IO
             OpenedInterface = interfaces.None;
             SP = new SerialPort();
             SP.WriteBufferSize = 8192;
+            SP.ReadBufferSize = 32000;
             SP.DataReceived += new SerialDataReceivedEventHandler(SP_Received);
             SocketClient.ReceivedData += new NetReceivedEventHandler(TCP_Received);
             lastCharTimer.Elapsed += new ElapsedEventHandler(Timer_Received);

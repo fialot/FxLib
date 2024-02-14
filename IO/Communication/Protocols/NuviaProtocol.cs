@@ -1403,7 +1403,7 @@ namespace Fx.IO.Protocols
             stopwatch.Start();
             stopwatchLastChar.Start();
 
-            packetReceived = com.Read(200);
+            packetReceived = com.Read(500);
 
             while ((!packetOk) && (stopwatch.ElapsedMilliseconds < timeout) && (stopwatchLastChar.ElapsedMilliseconds < timeoutLastChar))
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -89,7 +90,15 @@ namespace Fx.IO
         /// <returns></returns>
         public static string GetAppPath()
         {
-            return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + Path.DirectorySeparatorChar;
+            /*string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            UriBuilder uri = new UriBuilder(codeBase);
+            string path = Uri.UnescapeDataString(uri.Path);
+            string x = Path.GetDirectoryName(path) + Path.DirectorySeparatorChar;
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            return Path.GetDirectoryName(path) + Path.DirectorySeparatorChar;*/
+
+            return AppDomain.CurrentDomain.BaseDirectory;
+            //return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + Path.DirectorySeparatorChar;
         }
 
         /// <summary>
