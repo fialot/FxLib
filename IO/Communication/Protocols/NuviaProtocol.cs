@@ -350,7 +350,7 @@ namespace Fx.IO.Protocols
                 cmd.subFunction = null;
                 cmd.data = new byte[0];
 
-                string res = (string)SendAndWait(200);
+                string res = (string)SendAndWait(1000);
                 return res;
 
             }
