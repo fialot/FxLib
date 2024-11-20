@@ -312,8 +312,11 @@ namespace Fx.Devices
             aCPS = dict[10307];
             aCPSarr = CPS.Split(new string[] { ";" }, StringSplitOptions.None);
 
-            val.Deviation = Conv.ToFloatI(CPSarr[trustedROI], 0);
-            val.ActualDeviation = Conv.ToFloatI(aCPSarr[trustedROI], 0);
+            if (trustedROI < CPSarr.Count())
+            {
+                val.Deviation = Conv.ToFloatI(CPSarr[trustedROI], 0);
+                val.ActualDeviation = Conv.ToFloatI(aCPSarr[trustedROI], 0);
+            }
 
             // ----- Measurement Timestamp -----
             val.timeStamp = Conv.ToInt(dict[10309], 0);
