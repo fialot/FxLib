@@ -289,6 +289,7 @@ namespace Fx.Devices
         public void SetMode(DevMode Mode)
         {
             this.mode = Mode;
+            this.ParamList = null;
         }
 
         
