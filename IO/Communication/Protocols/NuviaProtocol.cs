@@ -1161,7 +1161,7 @@ namespace Fx.IO.Protocols
                 cmd.data = cmd.data.Concat(byteVals).ToArray();
 
 
-                uint res = (uint)SendAndWait(10000);
+                uint res = (uint)SendAndWait(20000);
 
                 return res;
             }
