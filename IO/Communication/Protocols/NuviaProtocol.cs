@@ -1014,7 +1014,7 @@ namespace Fx.IO.Protocols
                 cmd.subFunction = null;
                 cmd.data = new byte[0];
 
-                return (bool)SendAndWait();
+                return (bool)SendAndWait(5000);
             }
             catch (Exception err)
             {
