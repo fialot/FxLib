@@ -136,7 +136,7 @@ namespace Fx.Devices
             // ----- Temperature -----
             try
             {
-                if ((dict[10014] == "") || (dict[10015] == "nan"))
+                if ((dict[10014] == "") || (dict[10014] == "nan") || (dict[10014] == "255"))
                     val.Temperature = float.NaN;
                 else
                     val.Temperature = Conv.ToFloatI(dict[10014], 0);
